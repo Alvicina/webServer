@@ -1,36 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   fileChecker.hpp                                    :+:      :+:    :+:   */
+/*   fileParser.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/06/19 12:18:38 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/24 11:51:13 by alvicina         ###   ########.fr       */
+/*   Created: 2024/06/24 12:04:24 by alvicina          #+#    #+#             */
+/*   Updated: 2024/06/24 13:14:57 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FILECHECKER_HPP
-#define FILECHECKER_HPP
+#ifndef FILEPARSER_HPP
+#define FILEPARSER_HPP
 
 #include <iostream>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <fstream>
-#include <sstream>
 
-class fileChecker
+class fileParser
 {
 	private:
-		std::string const _pathToFile;
-		//size_t		_size;
+		std::string _content;
+
 	public:
-		fileChecker(std::string const & path);
-		~fileChecker();
-		int getTypeOfFile(std::string const & path) const;
-		int	getAccess(void);
-		std::string const & getPath();
-		std::string readFile(std::string const & path) const;
+		fileParser(std::string content);
+		~fileParser();
+		void removeComments(void);
+		void removeWhitespace(void);
+		std::string getContent();
 };
 
 #endif

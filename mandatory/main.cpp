@@ -6,21 +6,47 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:31:25 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/19 13:31:04 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/24 13:15:43 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/utils.hpp"
 #include "../includes/fileChecker.hpp"
+#include "../includes/fileParser.hpp"
 
-int startRoutine(std::string const & file)
+std::string fileCheckAndRead(std::string const & file)
 {
 	fileChecker configFile(file);
+	std::string content;
+	
 	if (configFile.getTypeOfFile(configFile.getPath()))
-		return (EXIT_FAILURE);
+		return (NULL);
 	if (configFile.getAccess())
+		return (NULL);
+	content = configFile.readFile(file);
+	if (content.empty())
+		return (NULL);
+	std::cout << "Config file content: " << std::endl << content << std::endl;
+	return (content);
+}
+
+void parse(std::string content)
+{
+	fileParser	serverConf(content);
+	serverConf.removeComments();
+	serverConf.removeWhitespace();
+	std::cout << "Config file content without comments: " << std::endl << serverConf.getContent() << std::endl;
+}
+	
+int startRoutine(std::string const & file)
+{
+	std::string content;
+	
+	content = fileCheckAndRead(file);
+	if (content.empty())
 		return (EXIT_FAILURE);
-	return (0);
+	parse(content);
+	return (EXIT_SUCCESS);
 }
 
 int main(int argc,  char **argv)
