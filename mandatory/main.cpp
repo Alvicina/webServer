@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:31:25 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/24 13:15:43 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/25 16:57:28 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,12 +30,15 @@ std::string fileCheckAndRead(std::string const & file)
 	return (content);
 }
 
-void parse(std::string content)
+int parse(std::string content)
 {
 	fileParser	serverConf(content);
 	serverConf.removeComments();
 	serverConf.removeWhitespace();
 	std::cout << "Config file content without comments: " << std::endl << serverConf.getContent() << std::endl;
+	if (serverConf.splitServer() == EXIT_FAILURE)
+		return (EXIT_FAILURE);
+	return (EXIT_SUCCESS);
 }
 	
 int startRoutine(std::string const & file)
@@ -45,7 +48,8 @@ int startRoutine(std::string const & file)
 	content = fileCheckAndRead(file);
 	if (content.empty())
 		return (EXIT_FAILURE);
-	parse(content);
+	if (parse(content) == EXIT_FAILURE)
+		return (EXIT_FAILURE);
 	return (EXIT_SUCCESS);
 }
 

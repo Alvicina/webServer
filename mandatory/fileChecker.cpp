@@ -6,12 +6,11 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 12:26:46 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/24 11:54:15 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/25 17:25:45 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/fileChecker.hpp"
-#include "../includes/utils.hpp"
 
 fileChecker::fileChecker(std::string const & path) : _pathToFile(path) //_size(0)
 {
@@ -71,7 +70,7 @@ std::string fileChecker::readFile(std::string const & path) const
 {
 	if (path.empty() || path.length() == 0)
 	{
-		utils::inputMessage("Error: File is empty", true);
+		utils::inputMessage("Error: path to config File is empty", true);
 		return (NULL);
 	}
 	std::ifstream configFileOpen(path.c_str());

@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 12:18:38 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/24 11:51:13 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/25 17:25:49 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include <fstream>
 #include <sstream>
+#include "../includes/utils.hpp"
 
 class fileChecker
 {
