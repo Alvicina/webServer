@@ -6,13 +6,13 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 11:03:05 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/26 12:06:24 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/FileParser.hpp"
+#include "../includes/Utils.hpp"
 
-FileParser::FileParser(std::string content) : _content(content)
+FileParser::FileParser(std::string content) : _content(content), _nbServers(0)
 {
 	
 }
@@ -20,6 +20,22 @@ FileParser::FileParser(std::string content) : _content(content)
 FileParser::~FileParser()
 {
 	
+}
+
+FileParser::FileParser(FileParser const & copy) : _content(copy._content), _configs(copy._configs), _nbServers(copy._nbServers)
+{
+	
+}
+
+FileParser& FileParser::operator=(FileParser const & other)
+{
+	if (this != &other)
+	{
+		_content = other._content;
+		_configs = other._configs;
+		_nbServers = other._nbServers;
+	}
+	return (*this);
 }
 
 std::string FileParser::getContent(void)
@@ -30,6 +46,11 @@ std::string FileParser::getContent(void)
 std::vector<std::string> const & FileParser::getConfig(void)
 {
 	return (_configs);
+}
+
+size_t FileParser::getNbServers(void)
+{
+	return (_nbServers);
 }
 
 void FileParser::removeComments(void)

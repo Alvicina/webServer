@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   fileChecker.cpp                                    :+:      :+:    :+:   */
+/*   FileChecker.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 12:26:46 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 09:55:32 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/26 12:06:03 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/FileChecker.hpp"
+#include "../includes/Utils.hpp"
 
 FileChecker::FileChecker(std::string const & path) : _pathToFile(path) //_size(0)
 {
@@ -20,6 +20,20 @@ FileChecker::FileChecker(std::string const & path) : _pathToFile(path) //_size(0
 FileChecker::~FileChecker()
 {
 	
+}
+
+FileChecker::FileChecker(FileChecker const & copy) : _pathToFile(copy._pathToFile)
+{
+	
+}
+
+FileChecker& FileChecker::operator=(FileChecker const & other)
+{
+	if (this != &other)
+	{
+		this->_pathToFile = other._pathToFile;
+	}
+	return (*this);
 }
 
 static int checkStats(struct stat *buffer)
