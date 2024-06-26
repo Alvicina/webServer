@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 17:17:48 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/26 18:04:05 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -178,20 +178,51 @@ static std::vector<std::string> getParams(std::string separators, std::string co
 	return (params);
 }
 
+static int portRoutine(std::string & params, Server & serv)
+{
+	if (serv.getPort())
+	{
+		utils::inputMessage("Error: Port duplicated in server conf", true);
+		return (EXIT_FAILURE);
+	}
+	serv.setPort(params);
+	
+	
+	
+}
+
+static int extractionRoutine(std::vector<std::string> params, Server & serv, size_t pos, int *locationFlag)
+{
+	if (params[pos] == "listen" && (pos + 1) < params.size() && *locationFlag)
+	{
+		if (portRoutine(params[++pos], serv) == EXIT_FAILURE)
+			return (EXIT_FAILURE);
+	}
+	
+	
+}
+
 static int	setUpServer(Server & serv, std::string & config)
 {
 	std::vector<std::string> params;
+	int	locationFlag = 1;
 	
-	(void) serv;
 	params = getParams(std::string(" \n\t"), config += ' ');
 	if (params.size() < 3)
 	{
 		utils::inputMessage("Error: not enough params in server conf", true);
 		return (EXIT_FAILURE);
 	}
+	size_t i = 0;
+	while (i < params.size())
+	{
+		if (extractionRoutine(params, serv, i, &locationFlag) == EXIT_FAILURE)
+			return (EXIT_FAILURE);
+		i++;
+	}
 }
 
-void FileParser::buildServers(void)
+int FileParser::buildServers(void)
 {
 	size_t i = 0;
 

@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 11:56:49 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 12:29:36 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/26 18:11:20 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,9 @@ class Server
 		Server(Server const & copy);
 		~Server();
 		Server& operator=(Server const & other);
+		const	uint16_t getPort();
+		int	setPort(std::string & param);
+		int		checkParamToken(std::string & param);
 		
 };
 

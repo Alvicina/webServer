@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:31:25 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 17:18:36 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/26 18:32:48 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ int parse(std::string content)
 int startRoutine(std::string const & file)
 {
 	std::string content;
+	//declarar aqui el server manager y pasarle la lista de servers del fileparser desde aqui
 	
 	content = fileCheckAndRead(file);
 	if (content.empty())
