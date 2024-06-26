@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
+/*   By: afidalgo <afidalgo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 11:56:49 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 18:11:20 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/26 19:08:43 by afidalgo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define SERVER_HPP
 
 #include "Utils.hpp"
+#include "Socket.hpp"
 
 class Location;
 
@@ -29,8 +30,8 @@ class Server
 		bool						_autoIndex;
 		std::map<int, std::string> 	_errorPages;
 		std::vector<Location>		_locations;
-		struct sockaddr_in			_serverAddress;
-		int							_masterSocket;
+		Socket						_masterSocket;
+
 	public:
 		Server();
 		Server(Server const & copy);

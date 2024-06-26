@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
+/*   By: afidalgo <afidalgo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 18:18:20 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/26 18:54:15 by afidalgo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ Server& Server::operator=(Server const & other)
 		_autoIndex = other._autoIndex;
 		_errorPages = other._errorPages;
 		_locations = other._locations;
-		_serverAddress = other._serverAddress;
 		_masterSocket = other._masterSocket;
 	}
 	return (*this);
@@ -62,7 +61,7 @@ int Server::setPort(std::string & param)
 	{
 		if (!isdigit(param[i]))
 		{
-			utils::inputMessage("Error: Invalid format for port")
+			utils::inputMessage("Error: Invalid format for port", true);
 		}
 	}
 	
