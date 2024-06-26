@@ -6,13 +6,11 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:31:25 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 11:07:42 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/26 18:32:48 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Utils.hpp"
-#include "../includes/FileChecker.hpp"
-#include "../includes/FileParser.hpp"
 
 std::string fileCheckAndRead(std::string const & file)
 {
@@ -38,16 +36,20 @@ int parse(std::string content)
 	//std::cout << "Config file content without comments: " << std::endl << serverConf.getContent() << std::endl;
 	if (serverConf.splitServer() == EXIT_FAILURE)
 		return (EXIT_FAILURE);
-	/*for (std::vector<std::string>::const_iterator it = serverConf.getConfig().begin(); it != serverConf.getConfig().end(); it++)
+	for (std::vector<std::string>::const_iterator it = serverConf.getConfig().begin(); it != serverConf.getConfig().end(); it++)
 	{
 		std::cout << *it << std::endl;
-	}*/
+	}
+	std::cout << serverConf.getNbServers() << std::endl;
+	if (serverConf.buildServers() == EXIT_FAILURE)
+		return (EXIT_FAILURE);
 	return (EXIT_SUCCESS);
 }
 	
 int startRoutine(std::string const & file)
 {
 	std::string content;
+	//declarar aqui el server manager y pasarle la lista de servers del fileparser desde aqui
 	
 	content = fileCheckAndRead(file);
 	if (content.empty())

@@ -6,32 +6,37 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:04:24 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 11:02:48 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/26 17:18:49 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FileParser_HPP
 #define FileParser_HPP
 
-#include <iostream>
-#include <vector>
-#include "../includes/Utils.hpp"
+#include "Utils.hpp"
+
+class Server;
 
 class FileParser
 {
 	private:
 		std::string 				_content;
 		std::vector<std::string>	_configs;
+		std::vector<Server>			_servers;
 		size_t						_nbServers;		
 		
 	public:
 		FileParser(std::string content);
+		FileParser(FileParser const & copy);
 		~FileParser();
-		void removeComments(void);
-		void removeWhitespace(void);
+		FileParser& operator=(FileParser const & other);
+		void	removeComments(void);
+		void 	removeWhitespace(void);
 		std::string getContent(void);
 		std::vector<std::string> const & getConfig(void);
-		int splitServer(void);
+		size_t getNbServers(void);
+		int 	splitServer(void);
+		int	buildServers(void);
 };
 
 #endif

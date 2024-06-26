@@ -6,13 +6,13 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 11:03:05 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/26 18:04:05 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/FileParser.hpp"
+#include "../includes/Utils.hpp"
 
-FileParser::FileParser(std::string content) : _content(content)
+FileParser::FileParser(std::string content) : _content(content), _nbServers(0)
 {
 	
 }
@@ -20,6 +20,22 @@ FileParser::FileParser(std::string content) : _content(content)
 FileParser::~FileParser()
 {
 	
+}
+
+FileParser::FileParser(FileParser const & copy) : _content(copy._content), _configs(copy._configs), _nbServers(copy._nbServers)
+{
+	
+}
+
+FileParser& FileParser::operator=(FileParser const & other)
+{
+	if (this != &other)
+	{
+		_content = other._content;
+		_configs = other._configs;
+		_nbServers = other._nbServers;
+	}
+	return (*this);
 }
 
 std::string FileParser::getContent(void)
@@ -30,6 +46,11 @@ std::string FileParser::getContent(void)
 std::vector<std::string> const & FileParser::getConfig(void)
 {
 	return (_configs);
+}
+
+size_t FileParser::getNbServers(void)
+{
+	return (_nbServers);
 }
 
 void FileParser::removeComments(void)
@@ -136,5 +157,83 @@ int FileParser::splitServer(void)
 		startServer = endServer + 1;
 	}
 	return (EXIT_SUCCESS);
+}
+
+static std::vector<std::string> getParams(std::string separators, std::string conf)
+{
+	std::vector<std::string>	params;
+	std::string::size_type		start = 0;
+	std::string::size_type		end = 0;
+	
+	while (1)
+	{
+		end = conf.find_first_of(separators, start);
+		if (end == std::string::npos)
+			break ;
+		std::string temp = conf.substr(start, end - start);
+		params.push_back(temp);
+		std::cout << temp << std::endl;
+		start = conf.find_first_not_of(separators, end);
+	}	
+	return (params);
+}
+
+static int portRoutine(std::string & params, Server & serv)
+{
+	if (serv.getPort())
+	{
+		utils::inputMessage("Error: Port duplicated in server conf", true);
+		return (EXIT_FAILURE);
+	}
+	serv.setPort(params);
+	
+	
+	
+}
+
+static int extractionRoutine(std::vector<std::string> params, Server & serv, size_t pos, int *locationFlag)
+{
+	if (params[pos] == "listen" && (pos + 1) < params.size() && *locationFlag)
+	{
+		if (portRoutine(params[++pos], serv) == EXIT_FAILURE)
+			return (EXIT_FAILURE);
+	}
+	
+	
+}
+
+static int	setUpServer(Server & serv, std::string & config)
+{
+	std::vector<std::string> params;
+	int	locationFlag = 1;
+	
+	params = getParams(std::string(" \n\t"), config += ' ');
+	if (params.size() < 3)
+	{
+		utils::inputMessage("Error: not enough params in server conf", true);
+		return (EXIT_FAILURE);
+	}
+	size_t i = 0;
+	while (i < params.size())
+	{
+		if (extractionRoutine(params, serv, i, &locationFlag) == EXIT_FAILURE)
+			return (EXIT_FAILURE);
+		i++;
+	}
+}
+
+int FileParser::buildServers(void)
+{
+	size_t i = 0;
+
+	while (i < _nbServers)
+	{
+		Server serv;
+		if (setUpServer(serv, _configs[i]) == EXIT_FAILURE)
+			return (EXIT_FAILURE);
+		_servers.push_back(serv);
+		i++;
+	}
+		
 }
 
