@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:31:25 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 13:20:17 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/26 17:18:36 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,8 @@ int parse(std::string content)
 		std::cout << *it << std::endl;
 	}
 	std::cout << serverConf.getNbServers() << std::endl;
-	serverConf.buildServers();
+	if (serverConf.buildServers() == EXIT_FAILURE)
+		return (EXIT_FAILURE);
 	return (EXIT_SUCCESS);
 }
 	

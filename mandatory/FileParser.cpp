@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 13:28:33 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/26 17:17:48 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,9 +159,36 @@ int FileParser::splitServer(void)
 	return (EXIT_SUCCESS);
 }
 
-void	setUpServer(Server & serv, std::string const & config)
+static std::vector<std::string> getParams(std::string separators, std::string conf)
 {
+	std::vector<std::string>	params;
+	std::string::size_type		start = 0;
+	std::string::size_type		end = 0;
 	
+	while (1)
+	{
+		end = conf.find_first_of(separators, start);
+		if (end == std::string::npos)
+			break ;
+		std::string temp = conf.substr(start, end - start);
+		params.push_back(temp);
+		std::cout << temp << std::endl;
+		start = conf.find_first_not_of(separators, end);
+	}	
+	return (params);
+}
+
+static int	setUpServer(Server & serv, std::string & config)
+{
+	std::vector<std::string> params;
+	
+	(void) serv;
+	params = getParams(std::string(" \n\t"), config += ' ');
+	if (params.size() < 3)
+	{
+		utils::inputMessage("Error: not enough params in server conf", true);
+		return (EXIT_FAILURE);
+	}
 }
 
 void FileParser::buildServers(void)
@@ -171,7 +198,8 @@ void FileParser::buildServers(void)
 	while (i < _nbServers)
 	{
 		Server serv;
-		setUpServer(serv, _configs[i]);
+		if (setUpServer(serv, _configs[i]) == EXIT_FAILURE)
+			return (EXIT_FAILURE);
 		_servers.push_back(serv);
 		i++;
 	}

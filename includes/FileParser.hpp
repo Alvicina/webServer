@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:04:24 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 13:28:24 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/26 17:18:49 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ class FileParser
 		std::vector<std::string> const & getConfig(void);
 		size_t getNbServers(void);
 		int 	splitServer(void);
-		void	buildServers(void);
+		int	buildServers(void);
 };
 
 #endif
