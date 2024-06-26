@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 12:06:24 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/26 13:28:33 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,5 +157,24 @@ int FileParser::splitServer(void)
 		startServer = endServer + 1;
 	}
 	return (EXIT_SUCCESS);
+}
+
+void	setUpServer(Server & serv, std::string const & config)
+{
+	
+}
+
+void FileParser::buildServers(void)
+{
+	size_t i = 0;
+
+	while (i < _nbServers)
+	{
+		Server serv;
+		setUpServer(serv, _configs[i]);
+		_servers.push_back(serv);
+		i++;
+	}
+		
 }
 

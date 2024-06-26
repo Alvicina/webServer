@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:04:24 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 12:10:43 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/26 13:28:24 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,12 +30,13 @@ class FileParser
 		FileParser(FileParser const & copy);
 		~FileParser();
 		FileParser& operator=(FileParser const & other);
-		void removeComments(void);
-		void removeWhitespace(void);
+		void	removeComments(void);
+		void 	removeWhitespace(void);
 		std::string getContent(void);
 		std::vector<std::string> const & getConfig(void);
 		size_t getNbServers(void);
-		int splitServer(void);
+		int 	splitServer(void);
+		void	buildServers(void);
 };
 
 #endif

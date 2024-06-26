@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:31:25 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 13:00:30 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/26 13:20:17 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,10 +39,9 @@ int parse(std::string content)
 	for (std::vector<std::string>::const_iterator it = serverConf.getConfig().begin(); it != serverConf.getConfig().end(); it++)
 	{
 		std::cout << *it << std::endl;
-		
 	}
 	std::cout << serverConf.getNbServers() << std::endl;
-	
+	serverConf.buildServers();
 	return (EXIT_SUCCESS);
 }
 	
