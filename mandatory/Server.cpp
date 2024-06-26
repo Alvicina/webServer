@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 18:18:20 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/26 19:05:24 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,9 +62,11 @@ int Server::setPort(std::string & param)
 	{
 		if (!isdigit(param[i]))
 		{
-			utils::inputMessage("Error: Invalid format for port")
+			utils::inputMessage("Error: Invalid format for port", true);
+			return (EXIT_FAILURE);
 		}
 	}
+	serverPort = ft_stoi()
 	
 }
 
