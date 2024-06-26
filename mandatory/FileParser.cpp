@@ -1,33 +1,38 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   fileParser.cpp                                     :+:      :+:    :+:   */
+/*   FileParser.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/25 18:16:27 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/26 11:03:05 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/fileParser.hpp"
+#include "../includes/FileParser.hpp"
 
-fileParser::fileParser(std::string content) : _content(content)
+FileParser::FileParser(std::string content) : _content(content)
 {
 	
 }
 
-fileParser::~fileParser()
+FileParser::~FileParser()
 {
 	
 }
 
-std::string fileParser::getContent(void)
+std::string FileParser::getContent(void)
 {
 	return (_content);
 }
 
-void fileParser::removeComments(void)
+std::vector<std::string> const & FileParser::getConfig(void)
+{
+	return (_configs);
+}
+
+void FileParser::removeComments(void)
 {
 	size_t commentStart = _content.find("#", 0);
 	while (commentStart != std::string::npos)
@@ -38,7 +43,7 @@ void fileParser::removeComments(void)
 	}
 }
 
-void fileParser::removeWhitespace(void)
+void FileParser::removeWhitespace(void)
 {
 	size_t i = 0;
 
@@ -51,7 +56,7 @@ void fileParser::removeWhitespace(void)
 	_content = _content.substr(0, i + 1);
 }
 
-static int getBeginServer(int startServer, std::string const & content)
+static int getBeginServer(ssize_t startServer, std::string const & content)
 {
 	size_t i = startServer;
 	
@@ -85,10 +90,10 @@ static int getBeginServer(int startServer, std::string const & content)
 	}
 }
 
-static int getEndServer(int startServer, std::string const & content)
+static int getEndServer(ssize_t startServer, std::string const & content)
 {
-	int scope = 0;
-	int i = startServer + 1;
+	int 	scope = 0;
+	size_t 	i = startServer + 1;
 	
 	while (content[i])
 	{
@@ -102,23 +107,34 @@ static int getEndServer(int startServer, std::string const & content)
 		}
 		i++;
 	}
+	return (startServer);
 }
 
-int fileParser::splitServer(void)
+int FileParser::splitServer(void)
 {
-	int startServer = 0;
-	int endServer = 1;
+	ssize_t startServer = 0;
+	ssize_t endServer = 1;
 
 	if (_content.find("server") == std::string::npos)
 	{
 		utils::inputMessage("Error: No server conf found", true);
 		return (EXIT_FAILURE);
 	}
-	while (startServer != endServer && startServer < _content.length())
+	while (startServer != endServer && startServer < (ssize_t)_content.length())
 	{
 		startServer = getBeginServer(startServer, _content);
+		if (startServer == -1)
+			return (EXIT_FAILURE);
 		endServer = getEndServer(startServer, _content);
+		if (startServer == endServer)
+		{
+			utils::inputMessage("Error: scope problem in conf file", true);
+			return (EXIT_FAILURE);
+		}
+		_configs.push_back(_content.substr(startServer, endServer - startServer + 1));
+		_nbServers++;
+		startServer = endServer + 1;
 	}
-	
+	return (EXIT_SUCCESS);
 }
 

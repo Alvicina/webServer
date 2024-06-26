@@ -1,23 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   fileParser.hpp                                     :+:      :+:    :+:   */
+/*   FileParser.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:04:24 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/25 17:28:10 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/26 11:02:48 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FILEPARSER_HPP
-#define FILEPARSER_HPP
+#ifndef FileParser_HPP
+#define FileParser_HPP
 
 #include <iostream>
 #include <vector>
-#include "../includes/utils.hpp"
+#include "../includes/Utils.hpp"
 
-class fileParser
+class FileParser
 {
 	private:
 		std::string 				_content;
@@ -25,11 +25,12 @@ class fileParser
 		size_t						_nbServers;		
 		
 	public:
-		fileParser(std::string content);
-		~fileParser();
+		FileParser(std::string content);
+		~FileParser();
 		void removeComments(void);
 		void removeWhitespace(void);
-		std::string getContent();
+		std::string getContent(void);
+		std::vector<std::string> const & getConfig(void);
 		int splitServer(void);
 };
 

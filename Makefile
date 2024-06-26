@@ -6,7 +6,7 @@
 #    By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/13 11:42:41 by alvicina          #+#    #+#              #
-#    Updated: 2024/06/24 12:42:06 by alvicina         ###   ########.fr        #
+#    Updated: 2024/06/26 10:00:18 by alvicina         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,12 +19,12 @@ FLAGS           = -Wall -Wextra -Werror -std=c++98 -g3
 
 #FILES AND PATH
 
-HEADER_SRCS = utils.hpp fileChecker.hpp fileParser.hpp \
+HEADER_SRCS = Utils.hpp FileChecker.hpp FileParser.hpp \
 		      
 HEADER_DIR  = includes/
 HEADER      = $(addprefix $(HEADER_DIR), $(HEADER_SRCS))
 
-MPATH_SRCS  =  main.cpp utils.cpp fileChecker.cpp fileParser.cpp \
+MPATH_SRCS  =  Main.cpp Utils.cpp FileChecker.cpp FileParser.cpp \
 
 MPATH_DIR   = mandatory/
 MPATH       = $(addprefix $(MPATH_DIR), $(MPATH_SRCS))

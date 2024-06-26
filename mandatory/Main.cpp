@@ -1,22 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   Main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:31:25 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/25 16:57:28 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/26 11:07:42 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/utils.hpp"
-#include "../includes/fileChecker.hpp"
-#include "../includes/fileParser.hpp"
+#include "../includes/Utils.hpp"
+#include "../includes/FileChecker.hpp"
+#include "../includes/FileParser.hpp"
 
 std::string fileCheckAndRead(std::string const & file)
 {
-	fileChecker configFile(file);
+	FileChecker configFile(file);
 	std::string content;
 	
 	if (configFile.getTypeOfFile(configFile.getPath()))
@@ -26,18 +26,22 @@ std::string fileCheckAndRead(std::string const & file)
 	content = configFile.readFile(file);
 	if (content.empty())
 		return (NULL);
-	std::cout << "Config file content: " << std::endl << content << std::endl;
+	//std::cout << "Config file content: " << std::endl << content << std::endl;
 	return (content);
 }
 
 int parse(std::string content)
 {
-	fileParser	serverConf(content);
+	FileParser	serverConf(content);
 	serverConf.removeComments();
 	serverConf.removeWhitespace();
-	std::cout << "Config file content without comments: " << std::endl << serverConf.getContent() << std::endl;
+	//std::cout << "Config file content without comments: " << std::endl << serverConf.getContent() << std::endl;
 	if (serverConf.splitServer() == EXIT_FAILURE)
 		return (EXIT_FAILURE);
+	/*for (std::vector<std::string>::const_iterator it = serverConf.getConfig().begin(); it != serverConf.getConfig().end(); it++)
+	{
+		std::cout << *it << std::endl;
+	}*/
 	return (EXIT_SUCCESS);
 }
 	

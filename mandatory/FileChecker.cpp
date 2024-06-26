@@ -6,18 +6,18 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 12:26:46 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/25 17:25:45 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/26 09:55:32 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/fileChecker.hpp"
+#include "../includes/FileChecker.hpp"
 
-fileChecker::fileChecker(std::string const & path) : _pathToFile(path) //_size(0)
+FileChecker::FileChecker(std::string const & path) : _pathToFile(path) //_size(0)
 {
 	
 }
 
-fileChecker::~fileChecker()
+FileChecker::~FileChecker()
 {
 	
 }
@@ -44,7 +44,7 @@ static int getStats(char const *path, struct stat *buffer)
 	return (EXIT_SUCCESS);
 }
 
-int fileChecker::getTypeOfFile(std::string const & path) const
+int FileChecker::getTypeOfFile(std::string const & path) const
 {
 	struct stat buffer;
 
@@ -53,12 +53,12 @@ int fileChecker::getTypeOfFile(std::string const & path) const
 	return (0);
 }
 
-std::string const & fileChecker::getPath(void)
+std::string const & FileChecker::getPath(void)
 {
 	return (this->_pathToFile);
 }
 
-int fileChecker::getAccess(void)
+int FileChecker::getAccess(void)
 {
 	int accessOK = access(this->_pathToFile.c_str(), R_OK);
 	if (accessOK == 0)
@@ -66,7 +66,7 @@ int fileChecker::getAccess(void)
 	return (EXIT_FAILURE);
 }
 
-std::string fileChecker::readFile(std::string const & path) const
+std::string FileChecker::readFile(std::string const & path) const
 {
 	if (path.empty() || path.length() == 0)
 	{
