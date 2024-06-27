@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
+/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/27 10:33:26 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/27 17:52:42 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,9 +46,39 @@ Server& Server::operator=(Server const & other)
 	return (*this);
 }
 
+in_addr_t Server::getHost(void)
+{
+	return (_host);
+}
+
 uint16_t Server::getPort(void)
 {
 	return (_port);
+}
+
+static bool isHostValid(std::string & param)
+{
+	struct addrinfo hints;
+	struct addrinfo *res;
+
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;
+	int result = getaddrinfo(param.c_str(), nullptr, &hints, &res);
+	freeaddrinfo(res);
+	if (!result)
+		return (false);
+	else
+		return (true);
+}
+
+void Server::setHost(std::string & param)
+{
+	checkParamToken(param);
+	if (param == "localhost")
+		param = "127.0.0.1";
+	if (isHostValid(param) == false)
+		throw ServerErrorException("Error: Invalid syntax for host");
+	
 }
 
 void Server::setPort(std::string & param)

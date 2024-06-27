@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
+/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 11:56:49 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/27 10:49:05 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/27 17:15:25 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,10 @@ class Server
 		Server(Server const & copy);
 		~Server();
 		Server& operator=(Server const & other);
-		uint16_t getPort();
+		uint16_t  getPort();
+		in_addr_t getHost();
 		void	setPort(std::string & param);
+		void 	setHost(std::string & param);
 		void	checkParamToken(std::string & param);
 		
 };

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   FileParser.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
+/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/27 10:45:00 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/27 17:11:15 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,12 +167,20 @@ static void portRoutine(std::string & params, Server & serv)
 	serv.setPort(params);
 }
 
+static void hostRoutine(std::string & params, Server & serv)
+{
+	if (serv.getHost())
+		throw ServerErrorException("Error: Host duplicated");
+		
+}
+
 static void extractionRoutine(std::vector<std::string> params, Server & serv, size_t pos, int *locationFlag)
 {
 	if (params[pos] == "listen" && (pos + 1) < params.size() && *locationFlag)
 		portRoutine(params[++pos], serv);
-	else 
-		return;
+	else if (params[pos] == "host" && (pos + 1) < params.size() && *locationFlag)
+		hostRoutine(params[++pos], serv);
+		
 }
 
 static void	setUpServer(Server & serv, std::string & config)

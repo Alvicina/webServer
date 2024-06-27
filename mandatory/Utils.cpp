@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
+/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:41:57 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/27 10:44:36 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/27 17:11:36 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 ParserErrorException::ParserErrorException(std::string msg) throw()
 {
-	_msg = "FileParser Error" + msg;
+	_msg = "FileParser " + msg;
 }
 
 const char* ParserErrorException::what(void) const throw()
@@ -29,7 +29,7 @@ ParserErrorException::~ParserErrorException(void) throw()
 
 ServerErrorException::ServerErrorException(std::string msg) throw()
 {
-	_msg = "Server conf Error" + msg;
+	_msg = "Server conf " + msg;
 }
 
 const char* ServerErrorException::what(void) const throw()
