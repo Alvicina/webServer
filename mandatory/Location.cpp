@@ -6,11 +6,11 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:37:22 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 12:48:35 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/27 09:22:45 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/Utils.hpp"
+#include "../includes/Location.hpp"
 
 Location::Location() : _clientMaxBodySize(0)
 {

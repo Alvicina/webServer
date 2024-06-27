@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 11:56:49 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 18:11:20 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/27 10:49:05 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define SERVER_HPP
 
 #include "Utils.hpp"
+#include "Location.hpp"
 
 class Location;
 
@@ -36,9 +37,9 @@ class Server
 		Server(Server const & copy);
 		~Server();
 		Server& operator=(Server const & other);
-		const	uint16_t getPort();
-		int	setPort(std::string & param);
-		int		checkParamToken(std::string & param);
+		uint16_t getPort();
+		void	setPort(std::string & param);
+		void	checkParamToken(std::string & param);
 		
 };
 

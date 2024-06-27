@@ -6,44 +6,43 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:31:25 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 18:32:48 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/27 10:57:19 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Utils.hpp"
+#include "../includes/FileChecker.hpp"
+#include "../includes/FileParser.hpp"
+#include "../includes/Location.hpp"
+#include "../includes/Server.hpp"
 
 std::string fileCheckAndRead(std::string const & file)
 {
 	FileChecker configFile(file);
 	std::string content;
 	
-	if (configFile.getTypeOfFile(configFile.getPath()))
-		return (NULL);
-	if (configFile.getAccess())
-		return (NULL);
+	configFile.getTypeOfFile(configFile.getPath());
+	configFile.getAccess();
 	content = configFile.readFile(file);
 	if (content.empty())
-		return (NULL);
+		throw ParserErrorException("Config file is empty");
 	//std::cout << "Config file content: " << std::endl << content << std::endl;
 	return (content);
 }
 
-int parse(std::string content)
+void parse(std::string content)
 {
 	FileParser	serverConf(content);
 	serverConf.removeComments();
 	serverConf.removeWhitespace();
 	//std::cout << "Config file content without comments: " << std::endl << serverConf.getContent() << std::endl;
-	if (serverConf.splitServer() == EXIT_FAILURE)
-		return (EXIT_FAILURE);
-	for (std::vector<std::string>::const_iterator it = serverConf.getConfig().begin(); it != serverConf.getConfig().end(); it++)
+	serverConf.splitServer();
+	/*for (std::vector<std::string>::const_iterator it = serverConf.getConfig().begin(); it != serverConf.getConfig().end(); it++)
 	{
 		std::cout << *it << std::endl;
 	}
-	std::cout << serverConf.getNbServers() << std::endl;
-	if (serverConf.buildServers() == EXIT_FAILURE)
-		return (EXIT_FAILURE);
-	return (EXIT_SUCCESS);
+	std::cout << serverConf.getNbServers() << std::endl;*/
+	serverConf.buildServers();
 }
 	
 int startRoutine(std::string const & file)
@@ -52,10 +51,7 @@ int startRoutine(std::string const & file)
 	//declarar aqui el server manager y pasarle la lista de servers del fileparser desde aqui
 	
 	content = fileCheckAndRead(file);
-	if (content.empty())
-		return (EXIT_FAILURE);
-	if (parse(content) == EXIT_FAILURE)
-		return (EXIT_FAILURE);
+	parse(content);
 	return (EXIT_SUCCESS);
 }
 
@@ -72,7 +68,14 @@ int main(int argc,  char **argv)
 		utils::inputMessage("Error: Wrong number or arguments", true);
 		return (EXIT_FAILURE);
 	}
-	if (startRoutine(file) == EXIT_FAILURE)
+	try
+	{
+		startRoutine(file);
+	}
+	catch (std::exception &e)
+	{
+		std::cerr << e.what() << std::endl;
 		return (EXIT_FAILURE);
+	}
 	return (EXIT_SUCCESS);
 }

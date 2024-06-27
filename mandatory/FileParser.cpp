@@ -6,11 +6,11 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 18:04:05 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/27 10:45:00 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/Utils.hpp"
+#include "../includes/FileParser.hpp"
 
 FileParser::FileParser(std::string content) : _content(content), _nbServers(0)
 {
@@ -86,29 +86,20 @@ static int getBeginServer(ssize_t startServer, std::string const & content)
 		if (content[i] == 's')
 			break ;
 		else if (!isspace(content[i]))
-		{
-			utils::inputMessage("Error: character out of scope", true);
-			return (-1);
-		}
+			throw ParserErrorException("Error: character out of scope");
 		i++;
 	}
 	/*if (!content[i])
 		return (startServer);*/
 	if (content.compare(i, 6, "server") != 0)
-	{
-		utils::inputMessage("Error: character out of scope", true);
-		return (-1);
-	}
+		throw ParserErrorException("Error: character out of scope");
 	i = i + 6;
 	while (content[i] && isspace(content[i]))
 		i++;
 	if (content[i] == '{')
 		return (i);
 	else
-	{
-		utils::inputMessage("Error: character out of scope", true);
-		return (-1);
-	}
+		throw ParserErrorException("Error: character out of scope");
 }
 
 static int getEndServer(ssize_t startServer, std::string const & content)
@@ -131,32 +122,23 @@ static int getEndServer(ssize_t startServer, std::string const & content)
 	return (startServer);
 }
 
-int FileParser::splitServer(void)
+void FileParser::splitServer(void)
 {
 	ssize_t startServer = 0;
 	ssize_t endServer = 1;
 
 	if (_content.find("server") == std::string::npos)
-	{
-		utils::inputMessage("Error: No server conf found", true);
-		return (EXIT_FAILURE);
-	}
+		throw ParserErrorException("Error: No server conf found");
 	while (startServer != endServer && startServer < (ssize_t)_content.length())
 	{
 		startServer = getBeginServer(startServer, _content);
-		if (startServer == -1)
-			return (EXIT_FAILURE);
 		endServer = getEndServer(startServer, _content);
 		if (startServer == endServer)
-		{
-			utils::inputMessage("Error: scope problem in conf file", true);
-			return (EXIT_FAILURE);
-		}
+			throw ParserErrorException("Error: scope problem in conf file");
 		_configs.push_back(_content.substr(startServer, endServer - startServer + 1));
 		_nbServers++;
 		startServer = endServer + 1;
 	}
-	return (EXIT_SUCCESS);
 }
 
 static std::vector<std::string> getParams(std::string separators, std::string conf)
@@ -178,62 +160,47 @@ static std::vector<std::string> getParams(std::string separators, std::string co
 	return (params);
 }
 
-static int portRoutine(std::string & params, Server & serv)
+static void portRoutine(std::string & params, Server & serv)
 {
 	if (serv.getPort())
-	{
-		utils::inputMessage("Error: Port duplicated in server conf", true);
-		return (EXIT_FAILURE);
-	}
+		throw ServerErrorException("Error: Port duplicated in server conf");
 	serv.setPort(params);
-	
-	
-	
 }
 
-static int extractionRoutine(std::vector<std::string> params, Server & serv, size_t pos, int *locationFlag)
+static void extractionRoutine(std::vector<std::string> params, Server & serv, size_t pos, int *locationFlag)
 {
 	if (params[pos] == "listen" && (pos + 1) < params.size() && *locationFlag)
-	{
-		if (portRoutine(params[++pos], serv) == EXIT_FAILURE)
-			return (EXIT_FAILURE);
-	}
-	
-	
+		portRoutine(params[++pos], serv);
+	else 
+		return;
 }
 
-static int	setUpServer(Server & serv, std::string & config)
+static void	setUpServer(Server & serv, std::string & config)
 {
 	std::vector<std::string> params;
 	int	locationFlag = 1;
 	
 	params = getParams(std::string(" \n\t"), config += ' ');
 	if (params.size() < 3)
-	{
-		utils::inputMessage("Error: not enough params in server conf", true);
-		return (EXIT_FAILURE);
-	}
+		throw ParserErrorException("Error: not enough params in server conf");
 	size_t i = 0;
 	while (i < params.size())
 	{
-		if (extractionRoutine(params, serv, i, &locationFlag) == EXIT_FAILURE)
-			return (EXIT_FAILURE);
+		extractionRoutine(params, serv, i, &locationFlag);
 		i++;
 	}
 }
 
-int FileParser::buildServers(void)
+void FileParser::buildServers(void)
 {
 	size_t i = 0;
 
 	while (i < _nbServers)
 	{
 		Server serv;
-		if (setUpServer(serv, _configs[i]) == EXIT_FAILURE)
-			return (EXIT_FAILURE);
+		setUpServer(serv, _configs[i]);
 		_servers.push_back(serv);
 		i++;
-	}
-		
+	}	
 }
 

@@ -6,11 +6,11 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 19:05:24 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/27 10:33:26 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/Utils.hpp"
+#include "../includes/Server.hpp"
 
 Server::Server() : _port(0), _host(0), _clientMaxBodySize(0)
 {
@@ -46,38 +46,33 @@ Server& Server::operator=(Server const & other)
 	return (*this);
 }
 
-const uint16_t Server::getPort(void)
+uint16_t Server::getPort(void)
 {
 	return (_port);
 }
 
-int Server::setPort(std::string & param)
+void Server::setPort(std::string & param)
 {
 	unsigned int	serverPort = 0;
 	size_t			i = 0; 		
 	
-	if (checkParamToken(param) == EXIT_FAILURE)
-		return (EXIT_FAILURE);
+	checkParamToken(param);
 	while (i < param.size())
 	{
 		if (!isdigit(param[i]))
-		{
-			utils::inputMessage("Error: Invalid format for port", true);
-			return (EXIT_FAILURE);
-		}
+			throw ServerErrorException("Error: Invalid format for port");
+		i++;
 	}
-	serverPort = ft_stoi()
-	
+	serverPort = utils::stringToInt(param);
+	if (serverPort < 1 || serverPort > 65636)
+		throw ServerErrorException("Error: Invalid format for port");
+	_port = (uint16_t) serverPort;
 }
 
-int Server::checkParamToken(std::string & param)
+void Server::checkParamToken(std::string & param)
 {
 	size_t pos = param.rfind(';');
 	if (pos != param.size() - 1)
-	{
-		utils::inputMessage("Error: Invalid param token", true);
-		return (EXIT_FAILURE);
-	}
+		throw ServerErrorException("Error: Invalid param token");
 	param.erase(pos);
-	return (EXIT_FAILURE);
 }
