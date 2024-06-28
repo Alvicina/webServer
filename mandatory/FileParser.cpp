@@ -6,7 +6,7 @@
 /*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/28 09:28:32 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/06/28 10:02:08 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ FileParser& FileParser::operator=(FileParser const & other)
 		_content = other._content;
 		_configs = other._configs;
 		_nbServers = other._nbServers;
+		_servers = other._servers;
 	}
 	return (*this);
 }
