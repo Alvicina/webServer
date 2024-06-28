@@ -6,7 +6,7 @@
 /*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:40:14 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/27 17:45:28 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/06/28 09:32:27 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@
 
 /*System*/
 #include <sys/stat.h>
+
+#define MAX_CONTENT_LENGTH 30000000
 
 class utils
 {

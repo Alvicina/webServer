@@ -6,7 +6,7 @@
 /*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/27 17:11:15 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/06/28 09:28:32 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,13 +165,20 @@ static void portRoutine(std::string & params, Server & serv)
 	if (serv.getPort())
 		throw ServerErrorException("Error: Port duplicated in server conf");
 	serv.setPort(params);
+	std::cout << serv.getPort() << std::endl;
 }
 
 static void hostRoutine(std::string & params, Server & serv)
 {
 	if (serv.getHost())
 		throw ServerErrorException("Error: Host duplicated");
-		
+	serv.setHost(params);
+	std::cout << serv.getHost() << std::endl;
+}
+
+static void rootRoutine(std::string & params, Server & server)
+{
+	
 }
 
 static void extractionRoutine(std::vector<std::string> params, Server & serv, size_t pos, int *locationFlag)
@@ -180,6 +187,8 @@ static void extractionRoutine(std::vector<std::string> params, Server & serv, si
 		portRoutine(params[++pos], serv);
 	else if (params[pos] == "host" && (pos + 1) < params.size() && *locationFlag)
 		hostRoutine(params[++pos], serv);
+	else if (params[pos] == "root" && (pos + 1) < params.size() && *locationFlag)
+		rootRoutine(params[++pos], serv);
 		
 }
 

@@ -6,15 +6,23 @@
 /*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/27 17:52:42 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/06/28 09:45:20 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Server.hpp"
 
-Server::Server() : _port(0), _host(0), _clientMaxBodySize(0)
+Server::Server() 
 {
-
+	_port = 0;
+	_host = 0;
+	_serverName = "";
+	_root = "";
+	_clientMaxBodySize = MAX_CONTENT_LENGTH;
+	_index = "";
+	_masterSocket = 0;
+	_autoIndex = false;
+	initErrorPages();
 }
 
 Server::Server(Server const & copy)
@@ -46,29 +54,35 @@ Server& Server::operator=(Server const & other)
 	return (*this);
 }
 
-in_addr_t Server::getHost(void)
+std::string const & Server::getRoot(void)
+{
+	return (_root);
+}
+
+in_addr_t const & Server::getHost(void)
 {
 	return (_host);
 }
 
-uint16_t Server::getPort(void)
+uint16_t const & Server::getPort(void)
 {
 	return (_port);
 }
 
-static bool isHostValid(std::string & param)
+static in_addr_t isHostValid(std::string & param)
 {
 	struct addrinfo hints;
 	struct addrinfo *res;
 
 	memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_UNSPEC;
+	hints.ai_family = AF_INET;
 	int result = getaddrinfo(param.c_str(), nullptr, &hints, &res);
+	if (result)
+		throw ServerErrorException("Error: Invalid syntax for host");
+	struct sockaddr_in *ipv4 = (struct sockaddr_in *)res->ai_addr;
+	in_addr_t addr = ipv4->sin_addr.s_addr;
 	freeaddrinfo(res);
-	if (!result)
-		return (false);
-	else
-		return (true);
+	return(addr);
 }
 
 void Server::setHost(std::string & param)
@@ -76,8 +90,11 @@ void Server::setHost(std::string & param)
 	checkParamToken(param);
 	if (param == "localhost")
 		param = "127.0.0.1";
-	if (isHostValid(param) == false)
-		throw ServerErrorException("Error: Invalid syntax for host");
+	_host = isHostValid(param);
+}
+
+void Server::setRoot(std::string & param)
+{
 	
 }
 
@@ -105,4 +122,23 @@ void Server::checkParamToken(std::string & param)
 	if (pos != param.size() - 1)
 		throw ServerErrorException("Error: Invalid param token");
 	param.erase(pos);
+}
+
+void Server::initErrorPages(void)
+{
+	_errorPages[301] = "";
+	_errorPages[302] = "";
+	_errorPages[400] = "";
+	_errorPages[401] = "";
+	_errorPages[402] = "";
+	_errorPages[403] = "";
+	_errorPages[404] = "";
+	_errorPages[405] = "";
+	_errorPages[406] = "";
+	_errorPages[500] = "";
+	_errorPages[501] = "";
+	_errorPages[502] = "";
+	_errorPages[503] = "";
+	_errorPages[504] = "";
+	_errorPages[505] = "";
 }
