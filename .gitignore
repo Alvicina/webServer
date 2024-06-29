@@ -1,0 +1,22 @@
+# C compiled binaries:
+*.o
+*.out
+*.a
+
+# Valgrind:
+*.supp
+*.dSYM
+
+# Miscellaneous:
+*.log
+*.txt
+
+# VS Code:
+/.vscode/
+
+# Linux:
+.directory
+.Trash-*
+
+# Mac OS:
+.DS_Store
