@@ -78,3 +78,13 @@ int Server::checkParamToken(std::string & param)
 	param.erase(pos);
 	return (EXIT_FAILURE);
 }
+
+void Server::initMasterSocket()
+{
+	this->_masterSocket.initAsMasterSocket(this->_host, this->_port);
+}
+
+const Socket &Server::getSocket()
+{
+	return (this->_masterSocket);
+}

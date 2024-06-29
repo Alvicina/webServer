@@ -37,10 +37,13 @@ class Server
 		Server(Server const & copy);
 		~Server();
 		Server& operator=(Server const & other);
+
+		void initMasterSocket();
+
 		const	uint16_t getPort();
 		int	setPort(std::string & param);
 		int		checkParamToken(std::string & param);
-		
+		const Socket &getSocket();
 };
 
 #endif

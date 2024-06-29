@@ -11,6 +11,8 @@
 *.log
 *.txt
 
+webserv
+
 # VS Code:
 /.vscode/
 
