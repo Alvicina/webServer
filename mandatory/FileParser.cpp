@@ -6,7 +6,7 @@
 /*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/29 12:58:32 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/06/29 18:22:52 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,7 +166,7 @@ static void portRoutine(std::string & params, Server & serv)
 	if (serv.getPort())
 		throw ServerErrorException("Error: Port duplicated in server conf");
 	serv.setPort(params);
-	std::cout << serv.getPort() << std::endl;
+	//std::cout << serv.getPort() << std::endl;
 }
 
 static void hostRoutine(std::string & params, Server & serv)
@@ -174,7 +174,7 @@ static void hostRoutine(std::string & params, Server & serv)
 	if (serv.getHost())
 		throw ServerErrorException("Error: Host duplicated");
 	serv.setHost(params);
-	std::cout << serv.getHost() << std::endl;
+	//std::cout << serv.getHost() << std::endl;
 }
 
 static void rootRoutine(std::string & params, Server & serv)
@@ -182,20 +182,44 @@ static void rootRoutine(std::string & params, Server & serv)
 	if (!serv.getRoot().empty())
 		throw ServerErrorException("Error: Root is duplicated");
 	serv.setRoot(params);
-	std::cout << serv.getRoot() << std::endl;
+	//std::cout << serv.getRoot() << std::endl;
 }
 
-static void errorPageRoutine(std::vector<std::string> params, size_t pos, Server & serv,
+static void errorPageRoutine(std::vector<std::string> params, size_t pos,
 std::vector<std::string> & errCodes)
 {
 	while (++pos < params.size())
 	{
-		serv._e
+		errCodes.push_back(params[pos]);
+		if (params[pos].find(';') != std::string::npos)
+			break;
+		if (pos + 1 >= params.size())
+			throw ServerErrorException("Error: error page out of scope");
 	}
+	/*for (std::vector<std::string>::const_iterator it = errCodes.begin(); it != errCodes.end(); it++)
+	{
+		std::cout << *it << std::endl;
+	}*/
+}
+
+static void clientMaxSizeRoutine(std::string & params, bool *clientMaxSize, Server & serv)
+{
+	serv.checkParamToken(params);
+	serv.setClientMaxSize(params);
+	*clientMaxSize = true;
+	//std::cout << serv.getClientMaxBodySize() << std::endl;
+}
+
+static void serverNameRoutine(std::string & params, Server & serv)
+{
+	serv.checkParamToken(params);
+	if (!serv.getServerName().empty())
+		throw ParserErrorException("Error: server name duplicated");
+	serv.setServerName(params);
 }
 
 static void extractionRoutine(std::vector<std::string> params, Server & serv, size_t pos, int *locationFlag,
-std::vector<std::string> & errCodes)
+bool *clientMaxSize, std::vector<std::string> & errCodes)
 {
 	if (params[pos] == "listen" && (pos + 1) < params.size() && *locationFlag)
 		portRoutine(params[++pos], serv);
@@ -204,7 +228,11 @@ std::vector<std::string> & errCodes)
 	else if (params[pos] == "root" && (pos + 1) < params.size() && *locationFlag)
 		rootRoutine(params[++pos], serv);
 	else if (params[pos] == "error_page" && (pos + 1) < params.size() && *locationFlag)
-		errorPageRoutine(params, pos, serv, errCodes);
+		errorPageRoutine(params, pos, errCodes);
+	else if (params[pos] == "client_max_body_size" && (pos + 1) < params.size() && *locationFlag)
+		clientMaxSizeRoutine(params[++pos], clientMaxSize, serv);
+	else if (params[pos] == "server_name" && (pos + 1) < params.size() && *locationFlag)
+		serverNameRoutine(params[++pos], serv);
 		
 }
 
@@ -212,7 +240,8 @@ static void	setUpServer(Server & serv, std::string & config)
 {
 	std::vector<std::string> params;
 	std::vector<std::string> errCodes;
-	int	locationFlag = 1;
+	int		locationFlag = 1;
+	bool	clientMaxSize = false;
 	
 	params = getParams(std::string(" \n\t"), config += ' ');
 	if (params.size() < 3)
@@ -220,7 +249,7 @@ static void	setUpServer(Server & serv, std::string & config)
 	size_t i = 0;
 	while (i < params.size())
 	{
-		extractionRoutine(params, serv, i, &locationFlag, errCodes);
+		extractionRoutine(params, serv, i, &locationFlag, &clientMaxSize, errCodes);
 		i++;
 	}
 }

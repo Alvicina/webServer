@@ -6,7 +6,7 @@
 /*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/29 12:12:23 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/06/29 18:24:12 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,16 @@ Server& Server::operator=(Server const & other)
 	return (*this);
 }
 
+std::string const & Server::getServerName(void)
+{
+	return (_serverName);
+}
+
+unsigned long const & Server::getClientMaxBodySize(void)
+{
+	return (_clientMaxBodySize);
+}
+
 std::string const & Server::getRoot(void)
 {
 	return (_root);
@@ -69,7 +79,7 @@ uint16_t const & Server::getPort(void)
 	return (_port);
 }
 
-static in_addr_t isHostValid(std::string & param)
+static in_addr_t isHostValid(std::string const & param)
 {
 	struct addrinfo hints;
 	struct addrinfo *res;
@@ -141,6 +151,20 @@ void Server::setPort(std::string & param)
 	if (serverPort < 1 || serverPort > 65636)
 		throw ServerErrorException("Error: Invalid format for port");
 	_port = (uint16_t) serverPort;
+}
+
+void Server::setServerName(std::string const & params)
+{
+	_serverName = params;
+}
+
+void Server::setClientMaxSize(std::string const & params)
+{	
+	unsigned long number = 0;
+	number = utils::stringToInt(params);
+	if (number > MAX_CONTENT_LENGTH)
+		throw ParserErrorException("Error: client body size out of bounds");
+	_clientMaxBodySize = number;
 }
 
 void Server::checkParamToken(std::string & param)

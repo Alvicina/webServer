@@ -6,7 +6,7 @@
 /*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 11:56:49 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/28 09:43:22 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/06/29 18:23:17 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,9 +40,13 @@ class Server
 		uint16_t const & getPort();
 		in_addr_t const & getHost();
 		std::string const & getRoot();
+		std::string const & getServerName();
+		unsigned long const & getClientMaxBodySize(void);
 		void 	setRoot(std::string & param);
 		void	setPort(std::string & param);
 		void 	setHost(std::string & param);
+		void 	setServerName(std::string const & param);
+		void 	setClientMaxSize(std::string const & param);
 		void	checkParamToken(std::string & param);
 		void	initErrorPages(void);
 		
