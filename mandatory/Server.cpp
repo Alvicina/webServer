@@ -6,7 +6,7 @@
 /*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/28 09:45:20 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/06/29 12:12:23 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,9 +93,36 @@ void Server::setHost(std::string & param)
 	_host = isHostValid(param);
 }
 
+static bool isRootDirectory(std::string const & param)
+{
+	struct stat buffer;
+	int			status;
+
+	status = stat(param.c_str(), &buffer);
+	if (status == 0)
+	{
+		if (buffer.st_mode & S_IFDIR)
+			return (true);
+		return (false);
+	}
+	throw ServerErrorException("Error: could not check root stats");
+}
+
 void Server::setRoot(std::string & param)
 {
-	
+	checkParamToken(param);
+	if (isRootDirectory(param) == true)
+	{
+		_root = param;
+		return ;
+	}
+	char *cwd = getcwd(NULL, 0);
+	if (cwd == NULL)
+		throw ServerErrorException("Error: could not get cwd");
+	std::string newRoot = cwd + param;
+	if (isRootDirectory(param) == false)
+		throw ServerErrorException("Error: wrong sintax for root");
+	_root = newRoot;
 }
 
 void Server::setPort(std::string & param)

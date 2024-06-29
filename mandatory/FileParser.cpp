@@ -6,7 +6,7 @@
 /*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/28 10:02:08 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/06/29 12:58:32 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,7 +155,7 @@ static std::vector<std::string> getParams(std::string separators, std::string co
 			break ;
 		std::string temp = conf.substr(start, end - start);
 		params.push_back(temp);
-		std::cout << temp << std::endl;
+		//std::cout << temp << std::endl;
 		start = conf.find_first_not_of(separators, end);
 	}	
 	return (params);
@@ -177,12 +177,25 @@ static void hostRoutine(std::string & params, Server & serv)
 	std::cout << serv.getHost() << std::endl;
 }
 
-static void rootRoutine(std::string & params, Server & server)
+static void rootRoutine(std::string & params, Server & serv)
 {
-	
+	if (!serv.getRoot().empty())
+		throw ServerErrorException("Error: Root is duplicated");
+	serv.setRoot(params);
+	std::cout << serv.getRoot() << std::endl;
 }
 
-static void extractionRoutine(std::vector<std::string> params, Server & serv, size_t pos, int *locationFlag)
+static void errorPageRoutine(std::vector<std::string> params, size_t pos, Server & serv,
+std::vector<std::string> & errCodes)
+{
+	while (++pos < params.size())
+	{
+		serv._e
+	}
+}
+
+static void extractionRoutine(std::vector<std::string> params, Server & serv, size_t pos, int *locationFlag,
+std::vector<std::string> & errCodes)
 {
 	if (params[pos] == "listen" && (pos + 1) < params.size() && *locationFlag)
 		portRoutine(params[++pos], serv);
@@ -190,12 +203,15 @@ static void extractionRoutine(std::vector<std::string> params, Server & serv, si
 		hostRoutine(params[++pos], serv);
 	else if (params[pos] == "root" && (pos + 1) < params.size() && *locationFlag)
 		rootRoutine(params[++pos], serv);
+	else if (params[pos] == "error_page" && (pos + 1) < params.size() && *locationFlag)
+		errorPageRoutine(params, pos, serv, errCodes);
 		
 }
 
 static void	setUpServer(Server & serv, std::string & config)
 {
 	std::vector<std::string> params;
+	std::vector<std::string> errCodes;
 	int	locationFlag = 1;
 	
 	params = getParams(std::string(" \n\t"), config += ' ');
@@ -204,7 +220,7 @@ static void	setUpServer(Server & serv, std::string & config)
 	size_t i = 0;
 	while (i < params.size())
 	{
-		extractionRoutine(params, serv, i, &locationFlag);
+		extractionRoutine(params, serv, i, &locationFlag, errCodes);
 		i++;
 	}
 }
