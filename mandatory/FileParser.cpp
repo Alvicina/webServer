@@ -6,7 +6,7 @@
 /*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/29 18:22:52 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/06/29 20:11:36 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,10 +216,30 @@ static void serverNameRoutine(std::string & params, Server & serv)
 	if (!serv.getServerName().empty())
 		throw ParserErrorException("Error: server name duplicated");
 	serv.setServerName(params);
+	//std::cout << serv.getServerName() << std::endl;
+}
+
+static void indexRoutine(std::string & params, Server & serv)
+{
+	serv.checkParamToken(params);
+	if (!serv.getIndex().empty())
+		throw ParserErrorException("Error: Index duplicated");
+	serv.setIndex(params);
+	//std::cout << serv.getIndex() << std::endl;
+}
+
+static void autoIndexRoutine(std::string & params, Server & serv, bool *autoIndex)
+{
+	if (*autoIndex == true)
+		throw ParserErrorException("Error: autoindex duplicated");
+	serv.checkParamToken(params);
+	serv.setAutoIndex(params);
+	*autoIndex = true;
+	//std::cout << serv.getAutoindex() << std::endl;
 }
 
 static void extractionRoutine(std::vector<std::string> params, Server & serv, size_t pos, int *locationFlag,
-bool *clientMaxSize, std::vector<std::string> & errCodes)
+bool *clientMaxSize,  bool *autoIndex, std::vector<std::string> & errCodes)
 {
 	if (params[pos] == "listen" && (pos + 1) < params.size() && *locationFlag)
 		portRoutine(params[++pos], serv);
@@ -233,7 +253,10 @@ bool *clientMaxSize, std::vector<std::string> & errCodes)
 		clientMaxSizeRoutine(params[++pos], clientMaxSize, serv);
 	else if (params[pos] == "server_name" && (pos + 1) < params.size() && *locationFlag)
 		serverNameRoutine(params[++pos], serv);
-		
+	else if (params[pos] == "index" && (pos + 1) < params.size() && *locationFlag)
+		indexRoutine(params[++pos], serv);
+	else if (params[pos] == "autoindex" && (pos + 1) < params.size() && *locationFlag)
+		autoIndexRoutine(params[++pos], serv, autoIndex);
 }
 
 static void	setUpServer(Server & serv, std::string & config)
@@ -242,6 +265,7 @@ static void	setUpServer(Server & serv, std::string & config)
 	std::vector<std::string> errCodes;
 	int		locationFlag = 1;
 	bool	clientMaxSize = false;
+	bool	autoIndex = false;
 	
 	params = getParams(std::string(" \n\t"), config += ' ');
 	if (params.size() < 3)
@@ -249,7 +273,7 @@ static void	setUpServer(Server & serv, std::string & config)
 	size_t i = 0;
 	while (i < params.size())
 	{
-		extractionRoutine(params, serv, i, &locationFlag, &clientMaxSize, errCodes);
+		extractionRoutine(params, serv, i, &locationFlag, &clientMaxSize, &autoIndex, errCodes);
 		i++;
 	}
 }

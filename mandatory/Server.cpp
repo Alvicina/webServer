@@ -6,7 +6,7 @@
 /*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/29 18:24:12 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/06/29 20:08:57 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,16 @@ in_addr_t const & Server::getHost(void)
 uint16_t const & Server::getPort(void)
 {
 	return (_port);
+}
+
+std::string const & Server::getIndex(void)
+{
+	return (_index);
+}
+
+bool const & Server::getAutoindex(void)
+{
+	return (_autoIndex);
 }
 
 static in_addr_t isHostValid(std::string const & param)
@@ -156,6 +166,19 @@ void Server::setPort(std::string & param)
 void Server::setServerName(std::string const & params)
 {
 	_serverName = params;
+}
+
+void Server::setIndex(std::string const & params)
+{
+	_index = params;
+}
+
+void Server::setAutoIndex(std::string const & params)
+{
+	if (params != "on" && params != "off")
+		throw ParserErrorException("Error: invalid syntax for autoindex");
+	if (params == "on")
+		_autoIndex = true;
 }
 
 void Server::setClientMaxSize(std::string const & params)

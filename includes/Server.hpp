@@ -6,7 +6,7 @@
 /*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 11:56:49 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/29 18:23:17 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/06/29 20:08:41 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,10 @@ class Server
 		std::string const & getRoot();
 		std::string const & getServerName();
 		unsigned long const & getClientMaxBodySize(void);
+		std::string const & getIndex(void);
+		bool const & getAutoindex(void);
+		void 	setAutoIndex(std::string const & param);
+		void 	setIndex(std::string const & param);
 		void 	setRoot(std::string & param);
 		void	setPort(std::string & param);
 		void 	setHost(std::string & param);
