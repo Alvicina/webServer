@@ -6,7 +6,7 @@
 /*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/29 20:08:57 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/06/30 13:06:42 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,11 @@ std::string const & Server::getIndex(void)
 bool const & Server::getAutoindex(void)
 {
 	return (_autoIndex);
+}
+
+std::vector<Location> const & Server::getLocation(void)
+{
+	return (_locations);
 }
 
 static in_addr_t isHostValid(std::string const & param)
@@ -188,6 +193,11 @@ void Server::setClientMaxSize(std::string const & params)
 	if (number > MAX_CONTENT_LENGTH)
 		throw ParserErrorException("Error: client body size out of bounds");
 	_clientMaxBodySize = number;
+}
+
+void Server::setLocation(std::string & locationPath, std::vector<std::string> & vars)
+{
+	
 }
 
 void Server::checkParamToken(std::string & param)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
+/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:37:22 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/27 09:22:45 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/30 13:09:27 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,4 +43,9 @@ Location& Location::operator=(Location const & other)
 		_clientMaxBodySize = other._clientMaxBodySize;
 	}
 	return (*this);
+}
+
+void Location::setPath(std::string const & path)
+{
+	_path = path;
 }

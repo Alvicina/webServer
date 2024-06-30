@@ -6,7 +6,7 @@
 /*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 11:56:49 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/29 20:08:41 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/06/30 13:04:25 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,8 @@ class Server
 		unsigned long const & getClientMaxBodySize(void);
 		std::string const & getIndex(void);
 		bool const & getAutoindex(void);
+		std::vector<Location> const & getLocation();
+		void 	setLocation(std::string & locationPath, std::vector<std::string> & vars);
 		void 	setAutoIndex(std::string const & param);
 		void 	setIndex(std::string const & param);
 		void 	setRoot(std::string & param);

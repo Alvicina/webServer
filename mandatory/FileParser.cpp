@@ -6,7 +6,7 @@
 /*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/29 20:11:36 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/06/30 13:02:25 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -185,7 +185,7 @@ static void rootRoutine(std::string & params, Server & serv)
 	//std::cout << serv.getRoot() << std::endl;
 }
 
-static void errorPageRoutine(std::vector<std::string> params, size_t pos,
+static void errorPageRoutine(std::vector<std::string> const & params, size_t pos,
 std::vector<std::string> & errCodes)
 {
 	while (++pos < params.size())
@@ -238,11 +238,30 @@ static void autoIndexRoutine(std::string & params, Server & serv, bool *autoInde
 	//std::cout << serv.getAutoindex() << std::endl;
 }
 
+static void locationRoutine(std::vector<std::string> const & params, Server & serv, size_t pos, int *locationFlag)
+{
+	std::string locationPath;
+	std::vector<std::string> vars;
+	pos++;
+	if (params[pos] == "{" || params[pos] == "}")
+		throw ParserErrorException("Error: wrong character in Location scope");
+	locationPath = params[pos];
+	if (params[++pos] != "{")
+		throw ParserErrorException("Error: wrong character in Location scope");
+	pos++;
+	while (pos < params.size() && params[pos] != "}")
+		vars.push_back(params[pos++]);
+	serv.setLocation(locationPath, vars);
+	*locationFlag = 0;
+}
+
 static void extractionRoutine(std::vector<std::string> params, Server & serv, size_t pos, int *locationFlag,
 bool *clientMaxSize,  bool *autoIndex, std::vector<std::string> & errCodes)
 {
 	if (params[pos] == "listen" && (pos + 1) < params.size() && *locationFlag)
 		portRoutine(params[++pos], serv);
+	else if (params[pos] == "location" && (pos + 1) < params.size())
+		locationRoutine(params, serv, pos, locationFlag);
 	else if (params[pos] == "host" && (pos + 1) < params.size() && *locationFlag)
 		hostRoutine(params[++pos], serv);
 	else if (params[pos] == "root" && (pos + 1) < params.size() && *locationFlag)
@@ -257,6 +276,13 @@ bool *clientMaxSize,  bool *autoIndex, std::vector<std::string> & errCodes)
 		indexRoutine(params[++pos], serv);
 	else if (params[pos] == "autoindex" && (pos + 1) < params.size() && *locationFlag)
 		autoIndexRoutine(params[++pos], serv, autoIndex);
+	else if (params[pos] != "}" && params[pos] != "{")	
+	{
+		if (!*locationFlag)
+			throw ParserErrorException("Error: Params after location");
+		else
+			throw ParserErrorException("Error: invalid param");
+	}
 }
 
 static void	setUpServer(Server & serv, std::string & config)

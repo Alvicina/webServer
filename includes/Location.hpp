@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
+/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:19:46 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/27 10:46:23 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/06/30 13:08:55 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ class Location
 		Location(Location const & copy);
 		~Location();
 		Location& operator=(Location const & other);
+		void setPath(std::string const & path);
 };
 
 #endif
