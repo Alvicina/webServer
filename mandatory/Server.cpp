@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
+/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/30 13:06:42 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/06/30 20:04:01 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,7 @@ static in_addr_t isHostValid(std::string const & param)
 
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_INET;
-	int result = getaddrinfo(param.c_str(), nullptr, &hints, &res);
+	int result = getaddrinfo(param.c_str(), NULL, &hints, &res);
 	if (result)
 		throw ServerErrorException("Error: Invalid syntax for host");
 	struct sockaddr_in *ipv4 = (struct sockaddr_in *)res->ai_addr;
@@ -195,8 +195,36 @@ void Server::setClientMaxSize(std::string const & params)
 	_clientMaxBodySize = number;
 }
 
-void Server::setLocation(std::string & locationPath, std::vector<std::string> & vars)
+void Server::locationRootRoutine(std::string & locationVars, Location & location)
 {
+	if (!location.getLocationRoot().empty())
+			throw ServerErrorException("Error: location root duplicated");
+	this->checkParamToken(locationVars);
+	if (isRootDirectory(locationVars) == true)
+		location.setRootLocation(locationVars);
+	else
+		location.setRootLocation(_root + locationVars);
+	//std::cout << location.getLocationRoot() << std::endl;
+}
+
+void Server::locationExtractionRoutine(std::vector<std::string> & locationVars, size_t pos, Location & location)
+{
+	if (locationVars[pos] == "root" && (pos + 1) < locationVars.size())
+		locationRootRoutine(locationVars[++pos], location);
+	
+}
+
+void Server::setLocation(std::string & locationPath, std::vector<std::string> & locationVars)
+{
+	Location location;
+	
+	location.setPath(locationPath);
+	size_t pos = 0;
+	while (pos < locationVars.size())
+	{
+		locationExtractionRoutine(locationVars, pos, location);
+		pos++;
+	}
 	
 }
 

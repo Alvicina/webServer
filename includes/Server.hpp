@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
+/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 11:56:49 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/30 13:04:25 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/06/30 19:17:01 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ class Server
 		std::string const & getIndex(void);
 		bool const & getAutoindex(void);
 		std::vector<Location> const & getLocation();
-		void 	setLocation(std::string & locationPath, std::vector<std::string> & vars);
+		void 	setLocation(std::string & locationPath, std::vector<std::string> & locationVars);
 		void 	setAutoIndex(std::string const & param);
 		void 	setIndex(std::string const & param);
 		void 	setRoot(std::string & param);
@@ -55,6 +55,10 @@ class Server
 		void 	setClientMaxSize(std::string const & param);
 		void	checkParamToken(std::string & param);
 		void	initErrorPages(void);
+		void 	locationRootRoutine(std::string & locationVars, Location & location);
+		void 	locationExtractionRoutine(std::vector<std::string> & locationVars, size_t pos, Location & location);
+		
+		
 		
 };
 
