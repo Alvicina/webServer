@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 11:56:49 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/01 18:05:17 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/01 18:49:34 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ class Server
 		in_addr_t					_host;
 		std::string					_serverName;
 		std::string					_root;
-		unsigned long 				_clientMaxBodySize;
+		long int					_clientMaxBodySize;
 		std::string					_index;
 		bool						_autoIndex;
 		std::map<int, std::string> 	_errorPages;
@@ -41,7 +41,7 @@ class Server
 		in_addr_t & getHost();
 		std::string & getRoot();
 		std::string & getServerName();
-		unsigned long & getClientMaxBodySize(void);
+		long int & getClientMaxBodySize(void);
 		std::string & getIndex(void);
 		bool & getAutoindex(void);
 		std::vector<Location> & getLocation();

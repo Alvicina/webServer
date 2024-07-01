@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:19:46 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/01 18:04:57 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/01 18:49:18 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ class Location
 		std::string					_alias;
 		std::vector<std::string>	_cgiPath;
 		std::vector<std::string>	_cgiExt;
-		unsigned long				_clientMaxBodySize;
+		long int			_clientMaxBodySize;
 	public:
 		Location();
 		Location(Location const & copy);
@@ -42,7 +42,7 @@ class Location
 		std::string &		 getAliasLocation();
 		std::vector<std::string> & getCgiExtensionLocation();
 		std::vector<std::string> & getCgiPathLocation();
-		unsigned long & getMaxBodySizeLocation();
+		long int & getMaxBodySizeLocation();
 		void	setPath(std::string const & path);
 		void	setRootLocation(std::string const & root);
 		void	setLocationMethods(std::vector<std::string> & methods);
@@ -53,6 +53,7 @@ class Location
 		void 	setCgiExtensionLocation(std::vector<std::string> const & cgiExt);
 		void	setCgiPathLocation(std::vector<std::string> const & cgiPath);
 		void	setMaxBodySizeLocation(std::string const & maxSize);
+		void 	setMaxBodySizeLocation(long int & maxBodySize);
 			
 };
 

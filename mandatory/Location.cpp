@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:37:22 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/01 18:07:13 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/01 18:48:49 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ std::vector<std::string> & Location::getCgiPathLocation()
 	return (_cgiPath);
 }
 
-unsigned long & Location::getMaxBodySizeLocation()
+long int & Location::getMaxBodySizeLocation()
 {
 	return (_clientMaxBodySize);
 }

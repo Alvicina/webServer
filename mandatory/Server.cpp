@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/01 18:12:15 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/01 18:49:45 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ std::string & Server::getServerName(void)
 	return (_serverName);
 }
 
-unsigned long & Server::getClientMaxBodySize(void)
+long int & Server::getClientMaxBodySize(void)
 {
 	return (_clientMaxBodySize);
 }
@@ -356,8 +356,6 @@ bool & methodsFlag, bool & autoIndexFlag, bool & maxSizeFlag)
 		locationMaxSizeRoutine(locationVars[++pos], maxSizeFlag, location);
 	else if (pos < locationVars.size())
 		throw ServerErrorException("Error: directive in location is invalid");
-		
-	
 }
 
 void Server::setLocation(std::string & locationPath, std::vector<std::string> & locationVars)
@@ -375,6 +373,12 @@ void Server::setLocation(std::string & locationPath, std::vector<std::string> & 
 		locationExtractionRoutine(locationVars, pos, location, methodsFlag, autoIndexFlag, maxSizeFlag);
 		pos++;
 	}
+	if (location.getLocationPath() != "/cgi-bin" && location.getIndexLocation().empty())
+		location.setIndexLocation(this->_index);
+	if (!maxSizeFlag)
+		location.setMaxBodySizeLocation(this->_clientMaxBodySize);
+	
+	
 	
 }
 
