@@ -6,7 +6,7 @@
 /*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 11:56:49 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/01 11:46:43 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/07/01 13:19:42 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,8 +60,8 @@ class Server
 		void	locationMethodsRoutine(std::vector<std::string> & locationVars, size_t & pos, bool & methodsFlag, Location & location);
 		void	locationAutoIndexRoutine(std::string & autoIndex, bool & autoIndexFlag, Location & location);
 		void 	locationIndexRoutine(std::string & index, Location & location);
-
-		
+		void 	locationReturnRoutine(std::string & Return, Location & location);
+		void	locationAliasRoutine(std::string & alias, Location & location);
 		
 		
 };

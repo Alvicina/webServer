@@ -6,7 +6,7 @@
 /*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/01 11:57:39 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/07/01 13:23:49 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -253,6 +253,28 @@ void Server::locationIndexRoutine(std::string & index, Location & location)
 	//std::cout << location.getIndexLocation() << std::endl;
 }
 
+void Server::locationReturnRoutine(std::string & Return, Location & location)
+{
+	if (location.getLocationPath() == "/cgi-bin")
+		throw ServerErrorException("Error: return directive not allowed for CGI");
+	if (!location.getReturnLocation().empty())
+		throw ServerErrorException("Error: return duplicated in location");
+	checkParamToken(Return);
+	location.setReturnLocation(Return);
+	//std::cout << location.getReturnLocation() << std::endl;
+}
+
+void Server::locationAliasRoutine(std::string & alias, Location & location)
+{
+	if (location.getLocationPath() == "/cgi-bin")
+		throw ServerErrorException("Error: alias directive not allowed for CGI");
+	if (!location.getAliasLocation().empty())
+		throw ServerErrorException("Error: return duplicated in location");
+	checkParamToken(alias);
+	location.setAliasLocation(alias);
+	//std::cout << location.getAliasLocation() << std::endl;
+}
+
 void Server::locationExtractionRoutine(std::vector<std::string> & locationVars, size_t & pos, Location & location, bool & methodsFlag, bool & autoIndexFlag)
 {
 	if (locationVars[pos] == "root" && (pos + 1) < locationVars.size())
@@ -263,6 +285,10 @@ void Server::locationExtractionRoutine(std::vector<std::string> & locationVars, 
 		locationAutoIndexRoutine(locationVars[++pos], autoIndexFlag, location);
 	else if (locationVars[pos] == "index" && (pos + 1) < locationVars.size())
 		locationIndexRoutine(locationVars[++pos], location);
+	else if (locationVars[pos] == "return" && (pos + 1) < locationVars.size())
+		locationReturnRoutine(locationVars[++pos], location);
+	else if (locationVars[pos] == "alias" && (pos + 1) < locationVars.size())
+		locationAliasRoutine(locationVars[++pos], location);
 	
 }
 

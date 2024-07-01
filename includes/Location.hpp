@@ -6,7 +6,7 @@
 /*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:19:46 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/01 11:53:11 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/07/01 13:22:18 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,11 +38,15 @@ class Location
 		std::vector<int> const & getLocationMethods();
 		bool const &			 getAutoIndexLocation();
 		std::string const & 	 getIndexLocation();
+		std::string const & 	 getReturnLocation();
+		std::string const &		 getAliasLocation();
 		void	setPath(std::string const & path);
 		void	setRootLocation(std::string const & root);
 		void	setLocationMethods(std::vector<std::string> & methods);
 		void 	setLocationAutoIndex(std::string const & autoIndex);
 		void 	setIndexLocation(std::string const & index);
+		void 	setReturnLocation(std::string const & Return);
+		void 	setAliasLocation(std::string const & alias);
 				
 
 		

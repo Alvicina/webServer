@@ -6,7 +6,7 @@
 /*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:37:22 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/01 11:56:54 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/07/01 13:23:20 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,16 @@ std::string const & Location::getIndexLocation()
 	return (_index);
 }
 
+std::string const & Location::getReturnLocation()
+{
+	return (_return);
+}
+
+std::string const & Location::getAliasLocation()
+{
+	return (_alias);
+}
+
 void Location::setPath(std::string const & path)
 {
 	_path = path;
@@ -145,6 +155,17 @@ void Location::setIndexLocation(std::string const & index)
 {
 	_index = index;
 }
+
+void Location::setReturnLocation(std::string const & Return)
+{
+	_return = Return;
+}
+
+void Location::setAliasLocation(std::string const & alias)
+{
+	_alias = alias;
+}
+
 
 
 
