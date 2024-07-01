@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
+/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/30 20:04:01 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/01 11:57:39 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,22 +207,77 @@ void Server::locationRootRoutine(std::string & locationVars, Location & location
 	//std::cout << location.getLocationRoot() << std::endl;
 }
 
-void Server::locationExtractionRoutine(std::vector<std::string> & locationVars, size_t pos, Location & location)
+void Server::locationMethodsRoutine(std::vector<std::string> & locationVars, size_t & pos, bool & methodsFlag, Location & location)
+{
+	std::vector<std::string> methods;
+	
+	if (methodsFlag)
+		throw ParserErrorException("Error: methods of location is duplicated");
+	while (++pos < locationVars.size())
+	{
+		if (locationVars[pos].find(";") != std::string::npos)
+		{
+			checkParamToken(locationVars[pos]);
+			methods.push_back(locationVars[pos]);
+			break ;
+		}
+		else
+		{
+			if ((pos + 1) >= locationVars.size())
+				throw ParserErrorException("Error: location method is invalid");
+			methods.push_back(locationVars[pos]);
+		}
+	}
+	location.setLocationMethods(methods);
+	methodsFlag = true;
+}
+
+void Server::locationAutoIndexRoutine(std::string & autoIndex, bool & autoIndexFlag, Location & location)
+{
+	if (location.getLocationPath() == "/cgi-bin")
+		throw ServerErrorException("Error: AutoIndex not allowed for CGI");
+	if (autoIndexFlag)
+		throw ServerErrorException("Error: Autoindex duplicated in location");
+	checkParamToken(autoIndex);
+	location.setLocationAutoIndex(autoIndex);
+	autoIndexFlag = true;
+	//std::cout << location.getAutoIndex() << std::endl;
+}
+
+void Server::locationIndexRoutine(std::string & index, Location & location)
+{
+	if (!location.getIndexLocation().empty())
+		throw ServerErrorException("Error: location index duplicated");
+	checkParamToken(index);
+	location.setIndexLocation(index);
+	//std::cout << location.getIndexLocation() << std::endl;
+}
+
+void Server::locationExtractionRoutine(std::vector<std::string> & locationVars, size_t & pos, Location & location, bool & methodsFlag, bool & autoIndexFlag)
 {
 	if (locationVars[pos] == "root" && (pos + 1) < locationVars.size())
 		locationRootRoutine(locationVars[++pos], location);
+	else if ((locationVars[pos] == "allow_methods" || locationVars[pos] == "methods" ) && (pos + 1) < locationVars.size())
+		locationMethodsRoutine(locationVars, pos, methodsFlag, location);
+	else if (locationVars[pos] == "autoindex" && (pos + 1) < locationVars.size())
+		locationAutoIndexRoutine(locationVars[++pos], autoIndexFlag, location);
+	else if (locationVars[pos] == "index" && (pos + 1) < locationVars.size())
+		locationIndexRoutine(locationVars[++pos], location);
 	
 }
 
 void Server::setLocation(std::string & locationPath, std::vector<std::string> & locationVars)
 {
 	Location location;
+	bool 	methodsFlag = false;
+	bool	autoIndexFlag = false;
+	
 	
 	location.setPath(locationPath);
 	size_t pos = 0;
 	while (pos < locationVars.size())
 	{
-		locationExtractionRoutine(locationVars, pos, location);
+		locationExtractionRoutine(locationVars, pos, location, methodsFlag, autoIndexFlag);
 		pos++;
 	}
 	

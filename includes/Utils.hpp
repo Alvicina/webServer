@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
+/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:40:14 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/30 18:51:17 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/01 10:51:14 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,14 @@
 #include <sys/stat.h>
 
 #define MAX_CONTENT_LENGTH 30000000
+
+enum methods {
+	GET = 1,
+	POST,
+	DELETE,
+	PUT,
+	HEAD
+};
 
 class utils
 {

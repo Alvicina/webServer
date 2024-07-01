@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
+/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 11:56:49 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/30 19:17:01 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/01 11:46:43 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,11 @@ class Server
 		void	checkParamToken(std::string & param);
 		void	initErrorPages(void);
 		void 	locationRootRoutine(std::string & locationVars, Location & location);
-		void 	locationExtractionRoutine(std::vector<std::string> & locationVars, size_t pos, Location & location);
+		void 	locationExtractionRoutine(std::vector<std::string> & locationVars, size_t & pos, Location & location, bool & methodsFlag, bool & autoIndexFlag);
+		void	locationMethodsRoutine(std::vector<std::string> & locationVars, size_t & pos, bool & methodsFlag, Location & location);
+		void	locationAutoIndexRoutine(std::string & autoIndex, bool & autoIndexFlag, Location & location);
+		void 	locationIndexRoutine(std::string & index, Location & location);
+
 		
 		
 		

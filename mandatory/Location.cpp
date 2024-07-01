@@ -3,18 +3,30 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
+/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:37:22 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/30 19:27:02 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/01 11:56:54 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Location.hpp"
 
-Location::Location() : _clientMaxBodySize(0)
+Location::Location()
 {
-	
+	_path = "";
+	_root = "";
+	_autoIndex = false;
+	_index = "";
+	_return = "";
+	_alias = "";
+	_clientMaxBodySize = MAX_CONTENT_LENGTH;
+	_methods.reserve(5);
+	_methods.push_back(1);
+	_methods.push_back(0);
+	_methods.push_back(0);
+	_methods.push_back(0);
+	_methods.push_back(0);
 }
 
 Location::~Location()
@@ -56,6 +68,21 @@ std::string const & Location::getLocationRoot()
 	return (_root);
 }
 
+std::vector<int> const & Location::getLocationMethods()
+{
+	return (_methods);
+}
+
+bool const & Location::getAutoIndexLocation()
+{
+	return (_autoIndex);
+}
+
+std::string const & Location::getIndexLocation()
+{
+	return (_index);
+}
+
 void Location::setPath(std::string const & path)
 {
 	_path = path;
@@ -80,6 +107,43 @@ void Location::setRootLocation(std::string const & root)
 {
 	if (isRootDirectory(root) == true)
 		_root = root;
+}
+
+void Location::setLocationMethods(std::vector<std::string> & methods)
+{
+	for (std::vector<int>::iterator it = _methods.begin(); it != _methods.end(); it++)
+		*it = 0;
+	for (std::vector<std::string>::const_iterator it = methods.begin(); it != methods.end(); it++)
+	{
+		if (*it == "GET")
+			_methods[0] = GET;
+		else if (*it == "POST")
+			_methods[1] = POST;
+		else if (*it == "DELETE")
+			_methods[2] = DELETE;
+		else if (*it == "PUT")
+			_methods[3] = PUT;
+		else if (*it == "HEAD")
+			_methods[4] = HEAD;
+		else
+			throw ServerErrorException("Error: method not supported");
+	}
+	/*std::cout << "---------" << std::endl;
+	for (std::vector<int>::iterator it = _methods.begin(); it != _methods.end(); it++)
+		std::cout << *it << std::endl;*/
+}
+
+void 	Location::setLocationAutoIndex(std::string const & autoIndex)
+{
+	if (autoIndex != "on" && autoIndex != "off")
+		throw ParserErrorException("Error: invalid syntax for autoindex");
+	if (autoIndex == "on")
+		_autoIndex = true;
+}
+
+void Location::setIndexLocation(std::string const & index)
+{
+	_index = index;
 }
 
 
