@@ -21,7 +21,14 @@ ServerManager &ServerManager::operator=(const ServerManager &serverManager)
 	return (*this);
 }
 
-ServerManager::~ServerManager() {}
+ServerManager::~ServerManager()
+{
+	std::map<int, Socket *>::iterator it = this->_clients.begin();
+	while (it != this->_clients.end())
+	{
+		delete it->second;
+	}
+}
 
 void ServerManager::serve()
 {
@@ -65,10 +72,11 @@ void ServerManager::handleEpollEvents(std::vector<struct epoll_event> events)
 		{
 			if (events[i].data.fd == this->_servers[j].getSocket().getFd())
 			{
-				this->_clients.push_back(this->_servers[j].getSocket().acceptConnection());
-				this->_epoll.addClientSocket(this->_clients.back());
+				Socket *socket = this->_servers[j].getSocket().acceptConnection();
+				this->_clients[socket->getFd()] = socket;
+				this->_epoll.addClientSocket(*socket);
 				foundServer = true;
-				std::cout << "New client with fd " << this->_clients.back().getFd() << std::endl;
+				std::cout << "New client with fd " << socket->getFd() << std::endl;
 				break;
 			}
 		}
@@ -83,8 +91,7 @@ void ServerManager::handleEpollEvents(std::vector<struct epoll_event> events)
 				if (bytes > 0)
 				{
 					std::cout << buffer << std::endl;
-					// TODO: Buscar el socket cliente y enviarlo por parámetro
-					this->_epoll.setSocketOnWriteMode(this->_clients[0]);
+					this->_epoll.setSocketOnWriteMode(*this->_clients[events[i].data.fd]);
 				}
 				else if (bytes == 0)
 				{
@@ -102,8 +109,7 @@ void ServerManager::handleEpollEvents(std::vector<struct epoll_event> events)
 				{
 					// TODO: Handle error
 				}
-				// TODO: Buscar el socket cliente y enviarlo por parámetro
-				this->_epoll.setSocketOnReadMode(this->_clients[0]);
+				this->_epoll.setSocketOnReadMode(*this->_clients[events[i].data.fd]);
 				std::cout << "Response sent!" << std::endl;
 			}
 		}

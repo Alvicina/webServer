@@ -88,15 +88,15 @@ void Socket::listenForConnections()
 		throw SocketInitializationFailedException();
 }
 
-Socket Socket::acceptConnection() const
+Socket *Socket::acceptConnection() const
 {
-	Socket socket;
-	socket.setFd(accept(
+	Socket *socket = new Socket();
+	socket->setFd(accept(
 		this->_fd,
 		(struct sockaddr *) &this->_address,
 		(socklen_t *) &this->_addressLen
 	));
-	if (socket.getFd() == -1)
+	if (socket->getFd() == -1)
 		throw SocketInitializationFailedException();
 	return (socket);
 }

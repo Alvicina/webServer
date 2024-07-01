@@ -26,7 +26,7 @@ class Socket
 		~Socket();
 
 		void initAsMasterSocket(in_addr_t host, uint16_t port);
-		Socket acceptConnection() const;
+		Socket *acceptConnection() const;
 		void setNonBlockingFd();
 
 		int getFd() const;
