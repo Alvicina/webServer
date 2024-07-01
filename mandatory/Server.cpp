@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/01 18:09:18 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/01 18:12:15 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -354,6 +354,8 @@ bool & methodsFlag, bool & autoIndexFlag, bool & maxSizeFlag)
 		locationCgiPathRoutine(locationVars, pos, location);
 	else if (locationVars[pos] == "client_max_body_size" && (pos + 1) < locationVars.size())
 		locationMaxSizeRoutine(locationVars[++pos], maxSizeFlag, location);
+	else if (pos < locationVars.size())
+		throw ServerErrorException("Error: directive in location is invalid");
 		
 	
 }
