@@ -1,17 +1,14 @@
-#ifndef EPOLL
-#define EPOLL
+#ifndef EPOLL_HPP
+#define EPOLL_HPP
 
-#include <vector>
-#include <sys/epoll.h>
-#include "Socket.hpp"
+#include "webserv.hpp"
 
-#define MAX_EPOLL_EVENTS 1000
+class Socket;
 
 class Epoll
 {
 	private:
-		int								_fd;
-		std::vector<struct epoll_event>	_epollEvents;
+		int _fd;
 
 	public:
 		Epoll();
@@ -20,13 +17,13 @@ class Epoll
 		~Epoll();
 
 		void init();
-		void addMasterSocket(const Socket &socket);
-		void addClientSocket(const Socket &socket);
-		std::vector<struct epoll_event> waitForEvents();
+		void addMasterSocket(Socket &socket);
+		void addClientSocket(Socket &socket);
+		std::vector<EpollEvent> waitForEvents();
+		void setSocketOnReadMode(Socket &socket);
+		void setSocketOnWriteMode(Socket &socket);
 
 		int getFd() const;
-
-		typedef struct epoll_event EpollEvent;
 
 		class EpollInitializationFailedException : public std::exception
 		{

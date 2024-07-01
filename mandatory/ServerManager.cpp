@@ -61,7 +61,6 @@ void ServerManager::handleEpollEvents(std::vector<struct epoll_event> events)
 	for (size_t i = 0; i < events.size(); i++)
 	{
 		bool foundServer = false;
-		std::cout << "Request received!" << std::endl;
 		for (size_t j = 0; j < this->_servers.size(); j++)
 		{
 			if (events[i].data.fd == this->_servers[j].getSocket().getFd())
@@ -69,20 +68,44 @@ void ServerManager::handleEpollEvents(std::vector<struct epoll_event> events)
 				this->_clients.push_back(this->_servers[j].getSocket().acceptConnection());
 				this->_epoll.addClientSocket(this->_clients.back());
 				foundServer = true;
+				std::cout << "New client with fd " << this->_clients.back().getFd() << std::endl;
 				break;
 			}
 		}
 		if (!foundServer)
 		{
-			char buffer[1024];
-			ssize_t bytes = read(events[i].data.fd, buffer, sizeof(buffer) - 1);
-			buffer[bytes] = 0;
-			// TODO: No hay solicitud
-			// if (bytes <= 0)
-			std::cout << buffer << std::endl;
-			std::string response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 12\n\nHello, Javi!";
-			send(events[i].data.fd, response.c_str(), response.size(), 0);
-			std::cout << "Response sent!" << std::endl;
+			if (events[i].events & EPOLLIN)
+			{
+				std::cout << "Client request received!" << std::endl;
+				char buffer[1024];
+				ssize_t bytes = read(events[i].data.fd, buffer, sizeof(buffer) - 1);
+				buffer[bytes] = 0;
+				if (bytes > 0)
+				{
+					std::cout << buffer << std::endl;
+					// TODO: Buscar el socket cliente y enviarlo por parámetro
+					this->_epoll.setSocketOnWriteMode(this->_clients[0]);
+				}
+				else if (bytes == 0)
+				{
+					// TODO: Close connection request
+				}
+				else
+				{
+					// TODO: Handle error
+				}
+			}
+			if (events[i].events & EPOLLOUT)
+			{
+				std::string response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 12\n\nHello, Javi!";
+				if (send(events[i].data.fd, response.c_str(), response.size(), 0) == -1)
+				{
+					// TODO: Handle error
+				}
+				// TODO: Buscar el socket cliente y enviarlo por parámetro
+				this->_epoll.setSocketOnReadMode(this->_clients[0]);
+				std::cout << "Response sent!" << std::endl;
+			}
 		}
 	}
 }

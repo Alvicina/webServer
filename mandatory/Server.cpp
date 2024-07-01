@@ -17,6 +17,8 @@ Server::Server() : _port(0), _host(0), _clientMaxBodySize(0)
 
 }
 
+Server::Server(in_addr_t _host, uint16_t _port): _host(_host), _port(_port) {}
+
 Server::Server(Server const & copy)
 {
 	*this = copy;	
@@ -84,7 +86,7 @@ void Server::initMasterSocket()
 	this->_masterSocket.initAsMasterSocket(this->_host, this->_port);
 }
 
-const Socket &Server::getSocket()
+Socket &Server::getSocket()
 {
 	return (this->_masterSocket);
 }

@@ -1,4 +1,5 @@
 #include "../includes/Socket.hpp"
+#include "../includes/Epoll.hpp"
 
 Socket::Socket() {}
 
@@ -14,11 +15,19 @@ Socket &Socket::operator=(const Socket &socket)
 		this->_fd = socket._fd;
 		this->_address = socket._address;
 		this->_addressLen = socket._addressLen;
+		this->_epollEvent = socket._epollEvent;
+		this->_reuseAddressAndPort = socket._reuseAddressAndPort;
 	}
 	return (*this);
 }
 
-Socket::~Socket() {}
+Socket::~Socket()
+{
+	// TODO: Esto da error porque en algún punto
+	// TODO: se hace una copia del socket y se llama
+	// TODO: al destructor cerrando el fd
+	// close(this->_fd);
+}
 
 void Socket::initAsMasterSocket(in_addr_t host, uint16_t port)
 {
@@ -33,16 +42,26 @@ void Socket::createSocket()
 	this->_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->_fd == -1)
 		throw SocketInitializationFailedException();
+	this->setNonBlockingFd();
+}
+
+void Socket::setNonBlockingFd()
+{
+	int flags = fcntl(this->_fd, F_GETFL, 0);
+    if (flags == -1)
+        throw SocketInitializationFailedException();
+    if (fcntl(this->_fd, F_SETFL, flags | O_NONBLOCK) == -1)
+		throw SocketInitializationFailedException();
 }
 
 void Socket::setUpSocket()
 {
-	int option = 1;
+	this->_reuseAddressAndPort = 1;
 
 	int result = setsockopt(
 		this->_fd, SOL_SOCKET,
 		SO_REUSEADDR | SO_REUSEPORT,
-		&option, sizeof(option)
+		&this->_reuseAddressAndPort, sizeof(this->_reuseAddressAndPort)
 	);
 	if (result)
 		throw SocketInitializationFailedException();
@@ -90,6 +109,7 @@ int Socket::getFd() const
 void Socket::setFd(int fd)
 {
 	this->_fd = fd;
+	this->setNonBlockingFd();
 }
 
 struct sockaddr_in Socket::getAddress() const
@@ -100,4 +120,14 @@ struct sockaddr_in Socket::getAddress() const
 socklen_t Socket::getAddressLen() const
 {
 	return (this->_addressLen);
+}
+
+void Socket::setEpollEvent(EpollEvent &event)
+{
+	this->_epollEvent = event;
+}
+
+struct epoll_event &Socket::getEpollEvent()
+{
+	return (this->_epollEvent);
 }

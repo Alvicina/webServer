@@ -34,6 +34,7 @@ class Server
 
 	public:
 		Server();
+		Server(in_addr_t _host, uint16_t _port);
 		Server(Server const & copy);
 		~Server();
 		Server& operator=(Server const & other);
@@ -43,7 +44,7 @@ class Server
 		const	uint16_t getPort();
 		int	setPort(std::string & param);
 		int		checkParamToken(std::string & param);
-		const Socket &getSocket();
+		Socket &getSocket();
 };
 
 #endif

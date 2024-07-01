@@ -1,12 +1,9 @@
 #ifndef SOCKET_HPP
 #define SOCKET_HPP
 
-#include <string>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <string.h>
+#include "webserv.hpp"
 
-#define SOCKET_MAX_CONN 1000
+class Epoll;
 
 class Socket
 {
@@ -14,6 +11,8 @@ class Socket
 		int 				_fd;
 		struct sockaddr_in	_address;
 		socklen_t			_addressLen;
+		EpollEvent			_epollEvent;
+		int					_reuseAddressAndPort;
 
 		void createSocket();
 		void setUpSocket();
@@ -28,11 +27,14 @@ class Socket
 
 		void initAsMasterSocket(in_addr_t host, uint16_t port);
 		Socket acceptConnection() const;
+		void setNonBlockingFd();
 
 		int getFd() const;
 		void setFd(int fd);
 		struct sockaddr_in getAddress() const;
 		socklen_t getAddressLen() const;
+		void setEpollEvent(EpollEvent &event);
+		struct epoll_event &getEpollEvent();
 
 		class SocketInitializationFailedException : public std::exception
 		{
