@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
+/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:37:22 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/01 13:23:20 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/07/01 18:07:13 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,40 +57,55 @@ Location& Location::operator=(Location const & other)
 	return (*this);
 }
 
-std::string const & Location::getLocationPath()
+std::string & Location::getLocationPath()
 {
 	return (_path);
 }
 
 		
-std::string const & Location::getLocationRoot()
+std::string & Location::getLocationRoot()
 {
 	return (_root);
 }
 
-std::vector<int> const & Location::getLocationMethods()
+std::vector<int> & Location::getLocationMethods()
 {
 	return (_methods);
 }
 
-bool const & Location::getAutoIndexLocation()
+bool & Location::getAutoIndexLocation()
 {
 	return (_autoIndex);
 }
 
-std::string const & Location::getIndexLocation()
+std::string & Location::getIndexLocation()
 {
 	return (_index);
 }
 
-std::string const & Location::getReturnLocation()
+std::string & Location::getReturnLocation()
 {
 	return (_return);
 }
 
-std::string const & Location::getAliasLocation()
+std::string & Location::getAliasLocation()
 {
 	return (_alias);
+}
+
+std::vector<std::string> & Location::getCgiExtensionLocation()
+{
+	return (_cgiExt);
+}
+
+std::vector<std::string> & Location::getCgiPathLocation()
+{
+	return (_cgiPath);
+}
+
+unsigned long & Location::getMaxBodySizeLocation()
+{
+	return (_clientMaxBodySize);
 }
 
 void Location::setPath(std::string const & path)
@@ -164,6 +179,26 @@ void Location::setReturnLocation(std::string const & Return)
 void Location::setAliasLocation(std::string const & alias)
 {
 	_alias = alias;
+}
+
+void Location::setCgiExtensionLocation(std::vector<std::string> const & cgiExt)
+{
+	_cgiExt = cgiExt;
+}
+
+void Location::setCgiPathLocation(std::vector<std::string> const & cgiPath)
+{
+	_cgiPath = cgiPath;
+}
+
+void Location::setMaxBodySizeLocation(std::string const & maxSize)
+{
+	long int number = 0;
+
+	number = utils::stringToInt(maxSize);
+	if (number > MAX_CONTENT_LENGTH)
+		throw ServerErrorException("Error: ");
+	_clientMaxBodySize = number;
 }
 
 

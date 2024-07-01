@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
+/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:19:46 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/01 13:22:18 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/07/01 18:04:57 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,13 +33,16 @@ class Location
 		Location(Location const & copy);
 		~Location();
 		Location& operator=(Location const & other);
-		std::string const & getLocationPath();
-		std::string const & getLocationRoot();
-		std::vector<int> const & getLocationMethods();
-		bool const &			 getAutoIndexLocation();
-		std::string const & 	 getIndexLocation();
-		std::string const & 	 getReturnLocation();
-		std::string const &		 getAliasLocation();
+		std::string & getLocationPath();
+		std::string & getLocationRoot();
+		std::vector<int> & getLocationMethods();
+		bool &			 getAutoIndexLocation();
+		std::string & 	 getIndexLocation();
+		std::string & 	 getReturnLocation();
+		std::string &		 getAliasLocation();
+		std::vector<std::string> & getCgiExtensionLocation();
+		std::vector<std::string> & getCgiPathLocation();
+		unsigned long & getMaxBodySizeLocation();
 		void	setPath(std::string const & path);
 		void	setRootLocation(std::string const & root);
 		void	setLocationMethods(std::vector<std::string> & methods);
@@ -47,9 +50,10 @@ class Location
 		void 	setIndexLocation(std::string const & index);
 		void 	setReturnLocation(std::string const & Return);
 		void 	setAliasLocation(std::string const & alias);
-				
-
-		
+		void 	setCgiExtensionLocation(std::vector<std::string> const & cgiExt);
+		void	setCgiPathLocation(std::vector<std::string> const & cgiPath);
+		void	setMaxBodySizeLocation(std::string const & maxSize);
+			
 };
 
 #endif

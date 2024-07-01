@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
+/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/01 13:23:49 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/07/01 18:09:18 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,42 +54,42 @@ Server& Server::operator=(Server const & other)
 	return (*this);
 }
 
-std::string const & Server::getServerName(void)
+std::string & Server::getServerName(void)
 {
 	return (_serverName);
 }
 
-unsigned long const & Server::getClientMaxBodySize(void)
+unsigned long & Server::getClientMaxBodySize(void)
 {
 	return (_clientMaxBodySize);
 }
 
-std::string const & Server::getRoot(void)
+std::string & Server::getRoot(void)
 {
 	return (_root);
 }
 
-in_addr_t const & Server::getHost(void)
+in_addr_t & Server::getHost(void)
 {
 	return (_host);
 }
 
-uint16_t const & Server::getPort(void)
+uint16_t & Server::getPort(void)
 {
 	return (_port);
 }
 
-std::string const & Server::getIndex(void)
+std::string & Server::getIndex(void)
 {
 	return (_index);
 }
 
-bool const & Server::getAutoindex(void)
+bool & Server::getAutoindex(void)
 {
 	return (_autoIndex);
 }
 
-std::vector<Location> const & Server::getLocation(void)
+std::vector<Location> & Server::getLocation(void)
 {
 	return (_locations);
 }
@@ -188,7 +188,7 @@ void Server::setAutoIndex(std::string const & params)
 
 void Server::setClientMaxSize(std::string const & params)
 {	
-	unsigned long number = 0;
+	long int number = 0;
 	number = utils::stringToInt(params);
 	if (number > MAX_CONTENT_LENGTH)
 		throw ParserErrorException("Error: client body size out of bounds");
@@ -275,7 +275,66 @@ void Server::locationAliasRoutine(std::string & alias, Location & location)
 	//std::cout << location.getAliasLocation() << std::endl;
 }
 
-void Server::locationExtractionRoutine(std::vector<std::string> & locationVars, size_t & pos, Location & location, bool & methodsFlag, bool & autoIndexFlag)
+void Server::locationCgiExtRoutine(std::vector<std::string> & locationVars, size_t & pos, Location & location)
+{
+	std::vector<std::string> cgiExt;
+
+	while (++pos < locationVars.size())
+	{
+		if (locationVars[pos].find(";") != std::string::npos)
+		{
+			checkParamToken(locationVars[pos]);
+			cgiExt.push_back(locationVars[pos]);
+			break ;
+		}
+		else
+		{
+			if (pos + 1 >= locationVars.size())
+				throw ServerErrorException("Error: CgiExt in location is invalid");
+			cgiExt.push_back(locationVars[pos]);
+		}
+	}
+	location.setCgiExtensionLocation(cgiExt);
+	/*for (std::vector<std::string>::const_iterator it = location.getCgiExtensionLocation().begin(); it != location.getCgiExtensionLocation().end(); it++)
+		std::cout << *it << std::endl;*/
+}
+
+void Server::locationCgiPathRoutine(std::vector<std::string> & locationVars, size_t & pos, Location & location)
+{
+	std::vector<std::string> cgiPath;
+
+	while (++pos < locationVars.size())
+	{
+		if (locationVars[pos].find(";") != std::string::npos)
+		{
+			checkParamToken(locationVars[pos]);
+			cgiPath.push_back(locationVars[pos]);
+			break ;
+		}
+		else
+		{
+			if ((pos + 1) >= locationVars.size())
+				throw ServerErrorException("Error: CgiPath in location is invalid");
+			cgiPath.push_back(locationVars[pos]);
+		}
+	}
+	location.setCgiPathLocation(cgiPath);
+	/*for (std::vector<std::string>::const_iterator it = location.getCgiPathLocation().begin(); it != location.getCgiPathLocation().end(); it++)
+		std::cout << *it << std::endl;*/
+}
+
+void Server::locationMaxSizeRoutine(std::string & maxSize, bool & maxSizeFlag, Location & location)
+{
+	if (maxSizeFlag)
+		throw ServerErrorException("Error: Max body of location is duplicated");
+	checkParamToken(maxSize);
+	location.setMaxBodySizeLocation(maxSize);
+	maxSizeFlag = true;
+	//std::cout << location.getMaxBodySizeLocation() << std::endl;
+}
+
+void Server::locationExtractionRoutine(std::vector<std::string> & locationVars, size_t & pos, Location & location,
+bool & methodsFlag, bool & autoIndexFlag, bool & maxSizeFlag)
 {
 	if (locationVars[pos] == "root" && (pos + 1) < locationVars.size())
 		locationRootRoutine(locationVars[++pos], location);
@@ -289,6 +348,13 @@ void Server::locationExtractionRoutine(std::vector<std::string> & locationVars, 
 		locationReturnRoutine(locationVars[++pos], location);
 	else if (locationVars[pos] == "alias" && (pos + 1) < locationVars.size())
 		locationAliasRoutine(locationVars[++pos], location);
+	else if (locationVars[pos] == "cgi_ext" && (pos + 1) < locationVars.size())
+		locationCgiExtRoutine(locationVars, pos, location);
+	else if (locationVars[pos] == "cgi_path" && (pos + 1) < locationVars.size())
+		locationCgiPathRoutine(locationVars, pos, location);
+	else if (locationVars[pos] == "client_max_body_size" && (pos + 1) < locationVars.size())
+		locationMaxSizeRoutine(locationVars[++pos], maxSizeFlag, location);
+		
 	
 }
 
@@ -297,13 +363,14 @@ void Server::setLocation(std::string & locationPath, std::vector<std::string> & 
 	Location location;
 	bool 	methodsFlag = false;
 	bool	autoIndexFlag = false;
+	bool	maxSizeFlag = false;
 	
 	
 	location.setPath(locationPath);
 	size_t pos = 0;
 	while (pos < locationVars.size())
 	{
-		locationExtractionRoutine(locationVars, pos, location, methodsFlag, autoIndexFlag);
+		locationExtractionRoutine(locationVars, pos, location, methodsFlag, autoIndexFlag, maxSizeFlag);
 		pos++;
 	}
 	

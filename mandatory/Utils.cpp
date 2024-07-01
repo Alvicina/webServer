@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
+/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:41:57 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/27 17:11:36 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/07/01 17:56:39 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ ServerErrorException::~ServerErrorException(void) throw()
 	
 }
 
-int	utils::stringToInt(std::string const & string)
+long int	utils::stringToInt(std::string const & string)
 {
 	long int	number = 0;
 	size_t		i = 0;
@@ -55,9 +55,9 @@ int	utils::stringToInt(std::string const & string)
 	}
 	std::stringstream ss(string);
 	ss >> number;
-	if (number > INT_MAX)
-		throw std::exception();
-	return ((int)number);
+	/*if (number > INT_MAX)
+		throw std::exception();*/
+	return (number);
 }
 
 void utils::inputMessage(std::string const & message, bool error)
