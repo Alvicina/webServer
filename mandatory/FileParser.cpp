@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/02 17:39:21 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/02 17:46:16 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -315,6 +315,7 @@ static void	setUpServer(Server & serv, std::string & config)
 		throw ParserErrorException("Error: Location duplicated");
 	if (!serv.getPort())
 		throw ParserErrorException("Error: Port not found for server");
+	serv.setErrorPages(errCodes);
 	
 	
 }

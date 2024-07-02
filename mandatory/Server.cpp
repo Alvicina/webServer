@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/02 17:37:33 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/02 18:09:53 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -514,4 +514,14 @@ bool Server::checkForDuplicateLocation(void)
 		}
 	}
 	return (false);
+}
+
+void Server::setErrorPages(std::vector<std::string> & errorCodes)
+{
+	if (errorCodes.empty())
+		return ;
+	if (errorCodes.size() % 2 != 0)
+		throw ServerErrorException("Error: invalid Error page directive");
+	
+	
 }
