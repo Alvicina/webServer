@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
+/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:41:57 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/01 17:56:39 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/02 10:52:14 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,5 +66,28 @@ void utils::inputMessage(std::string const & message, bool error)
 		std::cerr << message << std::endl;
 	else	
 		std::cout << message << std::endl;
+}
+
+int utils::checkFile(std::string const & path, int mode)
+{
+	return (access(path.c_str(), mode));
+}
+
+int utils::typeOfFile(std::string const & path)
+{
+	struct stat buff;
+	int			type;
+
+	type = stat(path.c_str(), &buff);
+	if (type == 0)
+	{
+		if (buff.st_mode & S_IFREG)
+			return (1);
+		else if (buff.st_mode & S_IFDIR)
+			return (2);
+		else
+			return (3);
+	}
+	return (-1);
 }
 

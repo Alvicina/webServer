@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
+/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 11:56:49 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/01 18:49:34 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/02 11:23:16 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include "Utils.hpp"
 #include "Location.hpp"
+#include "FileChecker.hpp"
 
 class Location;
 
@@ -65,6 +66,11 @@ class Server
 		void	locationCgiExtRoutine(std::vector<std::string> & locationVars, size_t & pos, Location & location);
 		void	locationCgiPathRoutine(std::vector<std::string> & locationVars, size_t & pos, Location & location);
 		void	locationMaxSizeRoutine(std::string & maxSize, bool & maxSizeFlag, Location & location);
-};
+		void	isLocationValid(Location & location);
+		void	checkLocationForCGI(Location & location);
+		void 	checkLocationCgiIndex(Location & location);
+		void 	checkLocationCgiPath(Location & location);
+		void	checkLocationCgiExtension(Location & location);
+};		
 
 #endif

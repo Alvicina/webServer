@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
+/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:19:46 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/01 18:49:18 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/02 12:46:38 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,11 @@ class Location
 		std::string					_alias;
 		std::vector<std::string>	_cgiPath;
 		std::vector<std::string>	_cgiExt;
-		long int			_clientMaxBodySize;
+		long int					_clientMaxBodySize;
+		
 	public:
+		std::map<std::string, std::string> _extPath;
+		
 		Location();
 		Location(Location const & copy);
 		~Location();
@@ -43,6 +46,7 @@ class Location
 		std::vector<std::string> & getCgiExtensionLocation();
 		std::vector<std::string> & getCgiPathLocation();
 		long int & getMaxBodySizeLocation();
+		std::map<std::string, std::string> & getExtPathMap();
 		void	setPath(std::string const & path);
 		void	setRootLocation(std::string const & root);
 		void	setLocationMethods(std::vector<std::string> & methods);

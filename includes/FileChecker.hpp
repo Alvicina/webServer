@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   FileChecker.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
+/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 12:18:38 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/27 10:09:05 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/02 10:44:22 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ class FileChecker
 		FileChecker(FileChecker const & copy);
 		~FileChecker();
 		FileChecker& operator=(FileChecker const & other);
-		void 	getTypeOfFile(std::string const & path) const;
+		void getTypeOfFile(std::string const & path) const;
 		void	getAccess(void);
 		std::string const & getPath();
 		std::string readFile(std::string const & path) const;

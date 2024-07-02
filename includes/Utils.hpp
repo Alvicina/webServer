@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
+/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:40:14 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/01 17:56:13 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/02 10:48:09 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,8 @@ class utils
 	public:
 		static void inputMessage(std::string const & message, bool error);
 		static long int	stringToInt(std::string const & string);
+		static int		checkFile(std::string const & path, int mode);
+		static int		typeOfFile(std::string const & path);
 };
 
 class ParserErrorException : public std::exception

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
+/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:37:22 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/01 18:48:49 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/02 12:47:53 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,6 +106,11 @@ std::vector<std::string> & Location::getCgiPathLocation()
 long int & Location::getMaxBodySizeLocation()
 {
 	return (_clientMaxBodySize);
+}
+
+std::map<std::string, std::string> & Location::getExtPathMap()
+{
+	return (_extPath);
 }
 
 void Location::setPath(std::string const & path)

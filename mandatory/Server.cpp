@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
+/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/01 18:49:45 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/02 12:49:18 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,6 +145,7 @@ void Server::setRoot(std::string & param)
 	if (cwd == NULL)
 		throw ServerErrorException("Error: could not get cwd");
 	std::string newRoot = cwd + param;
+	free(cwd);
 	if (isRootDirectory(param) == false)
 		throw ServerErrorException("Error: wrong sintax for root");
 	_root = newRoot;
@@ -358,6 +359,80 @@ bool & methodsFlag, bool & autoIndexFlag, bool & maxSizeFlag)
 		throw ServerErrorException("Error: directive in location is invalid");
 }
 
+void Server::checkLocationCgiIndex(Location & location)
+{
+	std::string path = location.getLocationRoot() + location.getLocationPath() + "/" + location.getIndexLocation();
+	if (utils::typeOfFile(path) != 1)
+	{
+		char *cwd = getcwd(NULL, 0);
+		std::string root(cwd);
+		free(cwd); 
+		location.setRootLocation(root);
+		path = root + location.getLocationPath() + "/" + location.getIndexLocation();
+	}
+	if (path.empty() || utils::typeOfFile(path) != 1 || utils::checkFile(path, R_OK) < 0)
+		throw ServerErrorException("Error: CGI not valid");
+}
+
+void Server::checkLocationCgiPath(Location & location)
+{
+	std::vector<std::string>::const_iterator it;
+	for (it = location.getCgiPathLocation().begin(); it != location.getCgiPathLocation().end(); it++)
+	{
+		if (utils::typeOfFile(*it) < 0)
+			throw ServerErrorException("Error: Error: CGI not valid");
+	}
+}
+
+void Server::checkLocationCgiExtension(Location & location)
+{
+	std::vector<std::string>::const_iterator it;
+	std::vector<std::string>::const_iterator itPath;
+	for (it = location.getCgiExtensionLocation().begin(); it != location.getCgiExtensionLocation().end(); it++)
+	{
+		if (*it != ".py" && *it != ".sh" && *it != "*.py" && *it != "*.sh")
+			throw ServerErrorException("Error: CGI not valid");
+		for (itPath = location.getCgiPathLocation().begin(); itPath != location.getCgiPathLocation().end(); it++)
+		{
+			
+			if (*it == ".py" || *it == "*.py")
+			{
+				if ((*itPath).find("python") != std::string::npos)
+					location._extPath[".py"] = *itPath;
+			}
+			else if (*it == ".sh" || *it == "*.sh")
+			{
+				if ((*itPath).find("bash") != std::string::npos)
+					location._extPath["sh"] = *itPath;
+			}
+		}
+	}
+}
+
+void Server::checkLocationForCGI(Location & location)
+{
+	if (location.getCgiPathLocation().empty() || location.getCgiExtensionLocation().empty() || location.getIndexLocation().empty())
+		throw ServerErrorException("Error: CGI not valid");
+	if (utils::checkFile(location.getIndexLocation(), R_OK) < 0)
+		checkLocationCgiIndex(location);
+	if(location.getCgiPathLocation().size() != location.getCgiExtensionLocation().size())
+		throw ServerErrorException("Error: CGI not valid");
+	checkLocationCgiPath(location);
+	checkLocationCgiExtension(location);
+	if (location.getCgiPathLocation().size() != location.getExtPathMap().size())
+		throw ServerErrorException("Error: CGI not valid");
+	
+}
+
+void Server::isLocationValid(Location & location)
+{
+	if (location.getLocationPath() == "/cgi-bin")
+		checkLocationForCGI(location);
+	
+	
+		
+}
+
 void Server::setLocation(std::string & locationPath, std::vector<std::string> & locationVars)
 {
 	Location location;
@@ -377,6 +452,7 @@ void Server::setLocation(std::string & locationPath, std::vector<std::string> & 
 		location.setIndexLocation(this->_index);
 	if (!maxSizeFlag)
 		location.setMaxBodySizeLocation(this->_clientMaxBodySize);
+	isLocationValid(location);
 	
 	
 	
