@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
+/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:41:57 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/02 10:52:14 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/07/02 16:25:27 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,15 @@ int utils::typeOfFile(std::string const & path)
 		else
 			return (3);
 	}
+	return (-1);
+}
+
+int utils::fileExistsAndReadable(std::string const & path, std::string const & index)
+{
+	if (typeOfFile(index) == 1 && checkFile(index, 4) == 0)
+		return (0);
+	if (typeOfFile(path + index) == 1 && checkFile(path + index, 4) == 0)
+		return (0);
 	return (-1);
 }
 

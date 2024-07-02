@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/30 20:03:46 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/02 17:39:21 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -303,6 +303,20 @@ static void	setUpServer(Server & serv, std::string & config)
 		extractionRoutine(params, serv, i, &locationFlag, &clientMaxSize, &autoIndex, errCodes);
 		i++;
 	}
+	if (serv.getRoot().empty())
+		serv.setRoot("/;");
+	if (serv.getHost() == 0)
+		serv.setHost("localhost;");
+	if (serv.getIndex().empty())
+		serv.setIndex("index.html");
+	if (utils::fileExistsAndReadable(serv.getRoot(), serv.getIndex()))
+		throw ParserErrorException("Error: Invalid index for server");
+	if (serv.checkForDuplicateLocation() == true)
+		throw ParserErrorException("Error: Location duplicated");
+	if (!serv.getPort())
+		throw ParserErrorException("Error: Port not found for server");
+	
+	
 }
 
 void FileParser::buildServers(void)

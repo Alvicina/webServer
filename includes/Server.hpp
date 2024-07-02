@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
+/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 11:56:49 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/02 11:23:16 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/07/02 17:04:51 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,9 +49,9 @@ class Server
 		void 	setLocation(std::string & locationPath, std::vector<std::string> & locationVars);
 		void 	setAutoIndex(std::string const & param);
 		void 	setIndex(std::string const & param);
-		void 	setRoot(std::string & param);
+		void 	setRoot(std::string param);
 		void	setPort(std::string & param);
-		void 	setHost(std::string & param);
+		void 	setHost(std::string param);
 		void 	setServerName(std::string const & param);
 		void 	setClientMaxSize(std::string const & param);
 		void	checkParamToken(std::string & param);
@@ -71,6 +71,7 @@ class Server
 		void 	checkLocationCgiIndex(Location & location);
 		void 	checkLocationCgiPath(Location & location);
 		void	checkLocationCgiExtension(Location & location);
+		bool	checkForDuplicateLocation(void);
 };		
 
 #endif

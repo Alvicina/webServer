@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
+/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/02 12:49:18 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/07/02 17:37:33 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,7 @@ static in_addr_t isHostValid(std::string const & param)
 	return(addr);
 }
 
-void Server::setHost(std::string & param)
+void Server::setHost(std::string param)
 {
 	checkParamToken(param);
 	if (param == "localhost")
@@ -133,7 +133,7 @@ static bool isRootDirectory(std::string const & param)
 	throw ServerErrorException("Error: could not check root stats");
 }
 
-void Server::setRoot(std::string & param)
+void Server::setRoot(std::string param)
 {
 	checkParamToken(param);
 	if (isRootDirectory(param) == true)
@@ -421,16 +421,31 @@ void Server::checkLocationForCGI(Location & location)
 	checkLocationCgiExtension(location);
 	if (location.getCgiPathLocation().size() != location.getExtPathMap().size())
 		throw ServerErrorException("Error: CGI not valid");
-	
 }
 
 void Server::isLocationValid(Location & location)
 {
 	if (location.getLocationPath() == "/cgi-bin")
 		checkLocationForCGI(location);
-	
-	
-		
+	else
+	{
+		if (location.getLocationPath()[0] != '/')
+			throw ServerErrorException("Error: invalid path in location");
+		if (location.getLocationRoot().empty())
+			location.setRootLocation(this->_root);
+		if (utils::fileExistsAndReadable(location.getLocationRoot() + location.getLocationPath() + '/', location.getIndexLocation()))
+			throw ServerErrorException("Error: Index for location invalid");
+		if (!location.getReturnLocation().empty())
+		{
+			if (utils::fileExistsAndReadable(location.getLocationRoot(), location.getReturnLocation()))
+				throw ServerErrorException("Error: Return for location invalid");	
+		}
+		if (!location.getAliasLocation().empty())
+		{
+			if (utils::fileExistsAndReadable(location.getLocationRoot(), location.getAliasLocation()))
+				throw ServerErrorException("Error: Alias for location invalid");
+		}
+	}
 }
 
 void Server::setLocation(std::string & locationPath, std::vector<std::string> & locationVars)
@@ -453,9 +468,7 @@ void Server::setLocation(std::string & locationPath, std::vector<std::string> & 
 	if (!maxSizeFlag)
 		location.setMaxBodySizeLocation(this->_clientMaxBodySize);
 	isLocationValid(location);
-	
-	
-	
+	_locations.push_back(location);
 }
 
 void Server::checkParamToken(std::string & param)
@@ -483,4 +496,22 @@ void Server::initErrorPages(void)
 	_errorPages[503] = "";
 	_errorPages[504] = "";
 	_errorPages[505] = "";
+}
+
+bool Server::checkForDuplicateLocation(void)
+{
+	if (_locations.size() < 2)
+		return (false);
+		
+	std::vector<Location>::iterator itA;
+	std::vector<Location>::iterator itB;
+	for (itA = _locations.begin(); itA != _locations.end(); itA++)
+	{
+		for (itB = itA + 1; itB != _locations.end(); itB++)
+		{
+			if (itA->getLocationPath() == itB->getLocationPath())
+				return (true);
+		}
+	}
+	return (false);
 }
