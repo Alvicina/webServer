@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
+/*   By: afidalgo <afidalgo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 11:56:49 by alvicina          #+#    #+#             */
 /*   Updated: 2024/07/03 15:43:00 by alvicina         ###   ########.fr       */
@@ -13,11 +13,10 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
+#include "webserv.hpp"
+#include "Socket.hpp"
 #include "Utils.hpp"
 #include "Location.hpp"
-#include "FileChecker.hpp"
-
-class Location;
 
 class Server
 {
@@ -31,8 +30,8 @@ class Server
 		bool						_autoIndex;
 		std::map<int, std::string> 	_errorPages;
 		std::vector<Location>		_locations;
-		struct sockaddr_in			_serverAddress;
-		int							_masterSocket;
+		Socket						_masterSocket;
+
 	public:
 		Server();
 		Server(Server const & copy);
@@ -47,7 +46,6 @@ class Server
 		bool & getAutoindex(void);
 		std::vector<Location> & getLocation(void);
 		std::map<int, std::string> & getErrorPages(void);
-		int & getMasterSocket(void);
 		void 	setLocation(std::string & locationPath, std::vector<std::string> & locationVars);
 		void 	setAutoIndex(std::string const & param);
 		void 	setIndex(std::string const & param);
@@ -77,6 +75,8 @@ class Server
 		void	setErrorPages(std::vector<std::string> & errorCodes);
 		void 	checkErrorPageForFile(std::string & errorPath);
 		void	serverPrinter(void);
+		void	initMasterSocket();
+		Socket 	&getSocket();
 };		
 
 #endif

@@ -15,6 +15,7 @@
 #include "../includes/FileParser.hpp"
 #include "../includes/Location.hpp"
 #include "../includes/Server.hpp"
+#include "../includes/ServerManager.hpp"
 
 int startRoutine(std::string const & file)
 {
@@ -25,6 +26,8 @@ int startRoutine(std::string const & file)
 		content = configFile.checkAndRead();
 		FileParser serverConf(content);
 		serverConf.parse();
+		ServerManager serverManager(serverConf.getServers());
+		serverManager.serve();
 		return (EXIT_SUCCESS);
 	}
 	catch (std::exception &e)
@@ -44,9 +47,8 @@ int main(int argc,  char **argv)
 		file = argv[1];
 	else
 	{
-		utils::inputMessage("Error: Wrong number or arguments", true);
+		Utils::inputMessage("Error: Wrong number or arguments", true);
 		return (EXIT_FAILURE);
 	}
-	startRoutine(file);
-	return (EXIT_SUCCESS);
+	return (startRoutine(file));
 }

@@ -42,7 +42,7 @@ ServerErrorException::~ServerErrorException(void) throw()
 	
 }
 
-long int	utils::stringToInt(std::string const & string)
+long int	Utils::stringToInt(std::string const & string)
 {
 	long int	number = 0;
 	size_t		i = 0;
@@ -58,7 +58,7 @@ long int	utils::stringToInt(std::string const & string)
 	return (number);
 }
 
-void utils::inputMessage(std::string const & message, bool error)
+void Utils::inputMessage(std::string const & message, bool error)
 {
 	if (error == true)
 		std::cerr << message << std::endl;
@@ -66,12 +66,12 @@ void utils::inputMessage(std::string const & message, bool error)
 		std::cout << message << std::endl;
 }
 
-int utils::checkFile(std::string const & path, int mode)
+int Utils::checkFile(std::string const & path, int mode)
 {
 	return (access(path.c_str(), mode));
 }
 
-int utils::typeOfFile(std::string const & path)
+int Utils::typeOfFile(std::string const & path)
 {
 	struct stat buff;
 	int			type;
@@ -89,7 +89,7 @@ int utils::typeOfFile(std::string const & path)
 	return (-1);
 }
 
-int utils::fileExistsAndReadable(std::string const & path, std::string const & index)
+int Utils::fileExistsAndReadable(std::string const & path, std::string const & index)
 {
 	if ((typeOfFile(path + index) == 1 || typeOfFile(path + index) == 2) && checkFile(index, 4) == 0)
 		return (0);
@@ -98,7 +98,7 @@ int utils::fileExistsAndReadable(std::string const & path, std::string const & i
 	return (-1);
 }
 
-std::string utils::codeStatus(int code)
+std::string Utils::codeStatus(int code)
 {
     switch (code)
     {

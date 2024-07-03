@@ -13,13 +13,13 @@
 #ifndef FileChecker_HPP
 #define FileChecker_HPP
 
+#include "webserv.hpp"
 #include "Utils.hpp"
 
 class FileChecker
 {
 	private:
 		std::string _pathToFile;
-		//size_t		_size;
 	public:
 		FileChecker(std::string const & path);
 		FileChecker(FileChecker const & copy);

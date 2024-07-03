@@ -13,40 +13,9 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
-#include <iostream>
-#include <cstdlib>
-#include <unistd.h>
-#include <fstream>
-#include <sstream>
-#include <stdint.h>
-#include <climits>
-#include <exception>
-#include <cstring>
+#include "webserv.hpp"
 
-/*NETWORK*/
-#include <netinet/in.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-
-/*STL CONTAINERS*/
-#include <vector>
-#include <map>
-
-/*System*/
-#include <sys/stat.h>
-
-#define MAX_CONTENT_LENGTH 30000000
-
-enum methods {
-	GET = 1,
-	POST,
-	DELETE,
-	PUT,
-	HEAD
-};
-
-class utils
+class Utils
 {
 	public:
 		static void inputMessage(std::string const & message, bool error);
