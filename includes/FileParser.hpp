@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:04:24 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 17:18:49 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/03 16:40:47 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,7 @@
 #define FileParser_HPP
 
 #include "Utils.hpp"
-
-class Server;
+#include "Server.hpp"
 
 class FileParser
 {
@@ -35,8 +34,10 @@ class FileParser
 		std::string getContent(void);
 		std::vector<std::string> const & getConfig(void);
 		size_t getNbServers(void);
-		int 	splitServer(void);
-		int	buildServers(void);
+		void 	splitServer(void);
+		void	buildServers(void);
+		void	printServers(void);
+		void	parse(void);
 };
 
 #endif

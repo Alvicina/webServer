@@ -6,11 +6,11 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 18:04:05 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/03 16:48:00 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/Utils.hpp"
+#include "../includes/FileParser.hpp"
 
 FileParser::FileParser(std::string content) : _content(content), _nbServers(0)
 {
@@ -22,7 +22,8 @@ FileParser::~FileParser()
 	
 }
 
-FileParser::FileParser(FileParser const & copy) : _content(copy._content), _configs(copy._configs), _nbServers(copy._nbServers)
+FileParser::FileParser(FileParser const & copy) : _content(copy._content),
+_configs(copy._configs), _nbServers(copy._nbServers)
 {
 	
 }
@@ -34,6 +35,7 @@ FileParser& FileParser::operator=(FileParser const & other)
 		_content = other._content;
 		_configs = other._configs;
 		_nbServers = other._nbServers;
+		_servers = other._servers;
 	}
 	return (*this);
 }
@@ -86,29 +88,20 @@ static int getBeginServer(ssize_t startServer, std::string const & content)
 		if (content[i] == 's')
 			break ;
 		else if (!isspace(content[i]))
-		{
-			utils::inputMessage("Error: character out of scope", true);
-			return (-1);
-		}
+			throw ParserErrorException("Error: character out of scope");
 		i++;
 	}
 	/*if (!content[i])
 		return (startServer);*/
 	if (content.compare(i, 6, "server") != 0)
-	{
-		utils::inputMessage("Error: character out of scope", true);
-		return (-1);
-	}
+		throw ParserErrorException("Error: character out of scope");
 	i = i + 6;
 	while (content[i] && isspace(content[i]))
 		i++;
 	if (content[i] == '{')
 		return (i);
 	else
-	{
-		utils::inputMessage("Error: character out of scope", true);
-		return (-1);
-	}
+		throw ParserErrorException("Error: character out of scope");
 }
 
 static int getEndServer(ssize_t startServer, std::string const & content)
@@ -131,32 +124,23 @@ static int getEndServer(ssize_t startServer, std::string const & content)
 	return (startServer);
 }
 
-int FileParser::splitServer(void)
+void FileParser::splitServer(void)
 {
 	ssize_t startServer = 0;
 	ssize_t endServer = 1;
 
 	if (_content.find("server") == std::string::npos)
-	{
-		utils::inputMessage("Error: No server conf found", true);
-		return (EXIT_FAILURE);
-	}
+		throw ParserErrorException("Error: No server conf found");
 	while (startServer != endServer && startServer < (ssize_t)_content.length())
 	{
 		startServer = getBeginServer(startServer, _content);
-		if (startServer == -1)
-			return (EXIT_FAILURE);
 		endServer = getEndServer(startServer, _content);
 		if (startServer == endServer)
-		{
-			utils::inputMessage("Error: scope problem in conf file", true);
-			return (EXIT_FAILURE);
-		}
+			throw ParserErrorException("Error: scope problem in conf file");
 		_configs.push_back(_content.substr(startServer, endServer - startServer + 1));
 		_nbServers++;
 		startServer = endServer + 1;
 	}
-	return (EXIT_SUCCESS);
 }
 
 static std::vector<std::string> getParams(std::string separators, std::string conf)
@@ -172,68 +156,182 @@ static std::vector<std::string> getParams(std::string separators, std::string co
 			break ;
 		std::string temp = conf.substr(start, end - start);
 		params.push_back(temp);
-		std::cout << temp << std::endl;
 		start = conf.find_first_not_of(separators, end);
 	}	
 	return (params);
 }
 
-static int portRoutine(std::string & params, Server & serv)
+static void portRoutine(std::string & params, Server & serv)
 {
 	if (serv.getPort())
-	{
-		utils::inputMessage("Error: Port duplicated in server conf", true);
-		return (EXIT_FAILURE);
-	}
+		throw ServerErrorException("Error: Port duplicated in server conf");
 	serv.setPort(params);
-	
-	
-	
 }
 
-static int extractionRoutine(std::vector<std::string> params, Server & serv, size_t pos, int *locationFlag)
+static void hostRoutine(std::string & params, Server & serv)
+{
+	if (serv.getHost())
+		throw ServerErrorException("Error: Host duplicated");
+	serv.setHost(params);
+}
+
+static void rootRoutine(std::string & params, Server & serv)
+{
+	if (!serv.getRoot().empty())
+		throw ServerErrorException("Error: Root is duplicated");
+	serv.setRoot(params);
+}
+
+static void errorPageRoutine(std::vector<std::string> const & params, size_t & pos,
+std::vector<std::string> & errCodes)
+{
+	while (++pos < params.size())
+	{
+		errCodes.push_back(params[pos]);
+		if (params[pos].find(';') != std::string::npos)
+			break;
+		if (pos + 1 >= params.size())
+			throw ServerErrorException("Error: error page out of scope");
+	}
+}
+
+static void clientMaxSizeRoutine(std::string & params, bool *clientMaxSize, Server & serv)
+{
+	serv.checkParamToken(params);
+	serv.setClientMaxSize(params);
+	*clientMaxSize = true;
+}
+
+static void serverNameRoutine(std::string & params, Server & serv)
+{
+	serv.checkParamToken(params);
+	if (!serv.getServerName().empty())
+		throw ParserErrorException("Error: server name duplicated");
+	serv.setServerName(params);
+}
+
+static void indexRoutine(std::string & params, Server & serv)
+{
+	serv.checkParamToken(params);
+	if (!serv.getIndex().empty())
+		throw ParserErrorException("Error: Index duplicated");
+	serv.setIndex(params);
+}
+
+static void autoIndexRoutine(std::string & params, Server & serv, bool *autoIndex)
+{
+	if (*autoIndex == true)
+		throw ParserErrorException("Error: autoindex duplicated");
+	serv.checkParamToken(params);
+	serv.setAutoIndex(params);
+	*autoIndex = true;
+}
+
+static void locationRoutine(std::vector<std::string> const & params, Server & serv, 
+size_t & pos, int *locationFlag)
+{
+	std::string locationPath;
+	std::vector<std::string> locationVars;
+	pos++;
+	if (params[pos] == "{" || params[pos] == "}")
+		throw ParserErrorException("Error: wrong character in Location scope");
+	locationPath = params[pos];
+	if (params[++pos] != "{")
+		throw ParserErrorException("Error: wrong character in Location scope");
+	pos++;
+	while (pos < params.size() && params[pos] != "}")
+		locationVars.push_back(params[pos++]);
+	serv.setLocation(locationPath, locationVars);
+	*locationFlag = 0;
+}
+
+static void extractionRoutine(std::vector<std::string> params, Server & serv, size_t & pos, int *locationFlag,
+bool *clientMaxSize,  bool *autoIndex, std::vector<std::string> & errCodes)
 {
 	if (params[pos] == "listen" && (pos + 1) < params.size() && *locationFlag)
+		return (portRoutine(params[++pos], serv));
+	else if (params[pos] == "location" && (pos + 1) < params.size())
+		locationRoutine(params, serv, pos, locationFlag);
+	else if (params[pos] == "host" && (pos + 1) < params.size() && *locationFlag)
+		hostRoutine(params[++pos], serv);
+	else if (params[pos] == "root" && (pos + 1) < params.size() && *locationFlag)
+		rootRoutine(params[++pos], serv);
+	else if (params[pos] == "error_page" && (pos + 1) < params.size() && *locationFlag)
+		errorPageRoutine(params, pos, errCodes);
+	else if (params[pos] == "client_max_body_size" && (pos + 1) < params.size() && *locationFlag)
+		clientMaxSizeRoutine(params[++pos], clientMaxSize, serv);
+	else if (params[pos] == "server_name" && (pos + 1) < params.size() && *locationFlag)
+		serverNameRoutine(params[++pos], serv);
+	else if (params[pos] == "index" && (pos + 1) < params.size() && *locationFlag)
+		indexRoutine(params[++pos], serv);
+	else if (params[pos] == "autoindex" && (pos + 1) < params.size() && *locationFlag)
+		autoIndexRoutine(params[++pos], serv, autoIndex);
+	else if (params[pos] != "}" && params[pos] != "{")
 	{
-		if (portRoutine(params[++pos], serv) == EXIT_FAILURE)
-			return (EXIT_FAILURE);
+		if (*locationFlag == 0)
+			throw ParserErrorException("Error: Params after location");
+		else
+			throw ParserErrorException("Error: invalid param");
 	}
-	
-	
 }
 
-static int	setUpServer(Server & serv, std::string & config)
+static void	setUpServer(Server & serv, std::string & config)
 {
 	std::vector<std::string> params;
-	int	locationFlag = 1;
+	std::vector<std::string> errCodes;
+	int		locationFlag = 1;
+	bool	clientMaxSize = false;
+	bool	autoIndex = false;
 	
 	params = getParams(std::string(" \n\t"), config += ' ');
 	if (params.size() < 3)
-	{
-		utils::inputMessage("Error: not enough params in server conf", true);
-		return (EXIT_FAILURE);
-	}
+		throw ParserErrorException("Error: not enough params in server conf");
 	size_t i = 0;
 	while (i < params.size())
 	{
-		if (extractionRoutine(params, serv, i, &locationFlag) == EXIT_FAILURE)
-			return (EXIT_FAILURE);
+		extractionRoutine(params, serv, i, &locationFlag, &clientMaxSize, &autoIndex, errCodes);
 		i++;
 	}
+	if (serv.getRoot().empty())
+		serv.setRoot("/;");
+	if (serv.getHost() == 0)
+		serv.setHost("localhost;");
+	if (serv.getIndex().empty())
+		serv.setIndex("index.html");
+	if (utils::fileExistsAndReadable(serv.getRoot() + "/", serv.getIndex()))
+		throw ParserErrorException("Error: Invalid index for server");
+	if (serv.checkForDuplicateLocation() == true)
+		throw ParserErrorException("Error: Location duplicated");
+	if (!serv.getPort())
+		throw ParserErrorException("Error: Port not found for server");
+	serv.setErrorPages(errCodes);
 }
 
-int FileParser::buildServers(void)
+void FileParser::buildServers(void)
 {
 	size_t i = 0;
 
 	while (i < _nbServers)
 	{
 		Server serv;
-		if (setUpServer(serv, _configs[i]) == EXIT_FAILURE)
-			return (EXIT_FAILURE);
+		setUpServer(serv, _configs[i]);
 		_servers.push_back(serv);
 		i++;
 	}
-		
+	printServers();
+}
+
+void FileParser::printServers()
+{
+	for (std::vector<Server>::iterator it = _servers.begin(); it != _servers.end();  it++)
+		(*it).serverPrinter();
+}
+
+void FileParser::parse()
+{
+	removeComments();
+	removeWhitespace();
+	splitServer();
+	buildServers();
 }
 

@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 12:18:38 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/26 12:08:52 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/03 16:36:13 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,11 @@ class FileChecker
 		FileChecker(FileChecker const & copy);
 		~FileChecker();
 		FileChecker& operator=(FileChecker const & other);
-		int getTypeOfFile(std::string const & path) const;
-		int	getAccess(void);
+		void getTypeOfFile(std::string const & path) const;
+		void	getAccess(void);
 		std::string const & getPath();
 		std::string readFile(std::string const & path) const;
+		std::string checkAndRead(void);
 };
 
 #endif
