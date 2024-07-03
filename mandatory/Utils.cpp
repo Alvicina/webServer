@@ -6,7 +6,7 @@
 /*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:41:57 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/03 13:09:10 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/07/03 14:00:15 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,11 +93,13 @@ int utils::typeOfFile(std::string const & path)
 
 int utils::fileExistsAndReadable(std::string const & path, std::string const & index)
 {
-    std::cout << path << std::endl;
-	if (typeOfFile(index) == 1 && checkFile(index, 4) == 0)
+    //std::cout << path << std::endl;
+	if ((typeOfFile(path + index) == 1 || typeOfFile(path + index) == 2) && checkFile(index, 4) == 0)
 		return (0);
-	if (typeOfFile(path + index) == 1 && checkFile(path + index, 4) == 0)
+    std::cout << path + index << std::endl;
+	if ((typeOfFile(path + index) == 1 || typeOfFile(path + index) == 2) && checkFile(path + index, 4) == 0)
 		return (0);
+    std::cout << "aqui" << std::endl;
 	return (-1);
 }
 

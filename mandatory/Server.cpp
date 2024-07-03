@@ -6,7 +6,7 @@
 /*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/03 13:09:03 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/07/03 13:23:53 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -434,9 +434,9 @@ void Server::isLocationValid(Location & location)
 			throw ServerErrorException("Error: invalid path in location");
 		if (location.getLocationRoot().empty())
 			location.setRootLocation(this->_root);
-		if (utils::fileExistsAndReadable(location.getLocationRoot() + location.getLocationPath() + '/', location.getIndexLocation()))
+		if (utils::fileExistsAndReadable(location.getLocationRoot() + location.getLocationPath() + '/', location.getIndexLocation()) == -1)
 		{
-			std::cout << "rootloc: " << location.getLocationRoot() << "pathloc: " << location.getLocationPath() << std::endl;
+			std::cout << "rootloc: " << location.getLocationRoot() << "pathloc: " << location.getLocationPath() << "indexLoc: " << location.getIndexLocation() << std::endl;
 			throw ServerErrorException("Error: Index for location invalid");
 		}
 		if (!location.getReturnLocation().empty())
