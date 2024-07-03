@@ -63,57 +63,98 @@ void ServerManager::epollLoop()
 	}
 }
 
-void ServerManager::handleEpollEvents(std::vector<struct epoll_event> events)
+void ServerManager::handleEpollEvents(std::vector<EpollEvent> events)
 {
 	for (size_t i = 0; i < events.size(); i++)
 	{
-		bool foundServer = false;
-		for (size_t j = 0; j < this->_servers.size(); j++)
+		this->handleEpollEvent(events[i]);
+	}
+}
+
+void ServerManager::handleEpollEvent(EpollEvent &event)
+{
+	try
+	{
+		Server *server = this->findServerByFd(event.data.fd);
+		if (server != NULL)
+			this->handleNewConnection(*server);
+		else
+			this->handleClientRequest(event);
+	}
+	catch (IOException &e)
+	{
+		this->closeClientConnection(event.data.fd);
+		std::cerr << e.what() << std::endl;
+	}
+	catch (Epoll::EpollInitializationFailedException &e)
+	{
+		this->closeClientConnection(event.data.fd);
+		std::cerr << e.what() << std::endl;
+	}
+	catch (std::exception &e)
+	{
+		std::cerr << e.what() << std::endl;
+	}
+}
+
+Server *ServerManager::findServerByFd(int fd)
+{
+	for (size_t i = 0; i < this->_servers.size(); i++)
+	{
+		if (fd == this->_servers[i].getSocket().getFd())
+			return (&this->_servers[i]);
+	}
+	return (NULL);
+}
+
+void ServerManager::handleNewConnection(Server &server)
+{
+	Socket *socket = server.getSocket().acceptConnection();
+	this->_clients[socket->getFd()] = socket;
+	this->_epoll.addClientSocket(*socket);
+	std::cout << "New client connection with fd " << socket->getFd() << std::endl;
+}
+
+void ServerManager::handleClientRequest(EpollEvent &event)
+{
+	if (event.events & EPOLLIN)
+	{
+		// TODO: Leer la solicitud entera
+		char buffer[1024];
+		ssize_t bytes = read(event.data.fd, buffer, sizeof(buffer) - 1);
+		buffer[bytes] = 0;
+		if (bytes > 0)
 		{
-			if (events[i].data.fd == this->_servers[j].getSocket().getFd())
-			{
-				Socket *socket = this->_servers[j].getSocket().acceptConnection();
-				this->_clients[socket->getFd()] = socket;
-				this->_epoll.addClientSocket(*socket);
-				foundServer = true;
-				std::cout << "New client with fd " << socket->getFd() << std::endl;
-				break;
-			}
+			std::cout << "Client request received:" << std::endl;
+			std::cout << buffer << std::endl;
+			this->_epoll.setSocketOnWriteMode(*this->_clients[event.data.fd]);
 		}
-		if (!foundServer)
+		else if (bytes == 0)
 		{
-			if (events[i].events & EPOLLIN)
-			{
-				std::cout << "Client request received!" << std::endl;
-				char buffer[1024];
-				ssize_t bytes = read(events[i].data.fd, buffer, sizeof(buffer) - 1);
-				buffer[bytes] = 0;
-				if (bytes > 0)
-				{
-					std::cout << buffer << std::endl;
-					this->_epoll.setSocketOnWriteMode(*this->_clients[events[i].data.fd]);
-				}
-				else if (bytes == 0)
-				{
-					// TODO: Close connection request
-				}
-				else
-				{
-					// TODO: Handle error
-				}
-			}
-			if (events[i].events & EPOLLOUT)
-			{
-				std::string response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 12\n\nHello, Javi!";
-				if (send(events[i].data.fd, response.c_str(), response.size(), 0) == -1)
-				{
-					// TODO: Handle error
-				}
-				this->_epoll.setSocketOnReadMode(*this->_clients[events[i].data.fd]);
-				std::cout << "Response sent!" << std::endl;
-			}
+			this->closeClientConnection(event.data.fd);
+		}
+		else
+		{
+			throw IOException();
 		}
 	}
+	if (event.events & EPOLLOUT)
+	{
+		std::string response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 12\n\nHello, Javi!";
+		if (send(event.data.fd, response.c_str(), response.size(), 0) == -1)
+			throw IOException();
+		this->_epoll.setSocketOnReadMode(*this->_clients[event.data.fd]);
+		std::cout << "Response sent!" << std::endl;
+	}
+}
+
+void ServerManager::closeClientConnection(int fd)
+{
+	delete this->_clients[fd];
+	this->_clients.erase(fd);
+	std::cout
+		<< "Closed connection with client "
+		<< fd << std::endl;
 }
 
 void ServerManager::setServers(const std::vector<Server> &servers)

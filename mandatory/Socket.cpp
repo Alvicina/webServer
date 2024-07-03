@@ -23,10 +23,7 @@ Socket &Socket::operator=(const Socket &socket)
 
 Socket::~Socket()
 {
-	// TODO: Esto da error porque en algún punto
-	// TODO: se hace una copia del socket y se llama
-	// TODO: al destructor cerrando el fd
-	// close(this->_fd);
+	close(this->_fd);
 }
 
 void Socket::initAsMasterSocket(in_addr_t host, uint16_t port)
