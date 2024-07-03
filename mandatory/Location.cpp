@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
+/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:37:22 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/03 13:06:25 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/07/03 16:05:04 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,6 +211,24 @@ void Location::setMaxBodySizeLocation(long int & maxBodySize)
 	_clientMaxBodySize = maxBodySize;
 }
 
+void Location::locationPrinter(void)
+{
+	std::cout << "Location-----" << "path: " << getLocationPath() << std::endl;
+	std::cout << "Location-----" << "root: " << getLocationRoot() << std::endl;
+	std::cout << "Location-----" << "autoIndex: " << getAutoIndexLocation() << std::endl;
+	std::cout << "Location-----" << "index: " << getIndexLocation() << std::endl;
+	std::cout << "Location-----" << "return: " << getReturnLocation() << std::endl;
+	std::cout << "Location-----" << "alias: " << getAliasLocation() << std::endl;
+	std::cout << "Location-----" << "body size: " << getMaxBodySizeLocation() << std::endl;
+	for (std::vector<int>::iterator it = getLocationMethods().begin(); it != getLocationMethods().end(); it++)
+		std::cout << "Location------" << "method: " << *it << std::endl;
+	for (std::vector<std::string>::iterator it = getCgiPathLocation().begin(); it != getCgiPathLocation().end(); it++)
+		std::cout << "Location------" << "cgi Path: " << *it << std::endl;
+	for (std::vector<std::string>::iterator it = getCgiExtensionLocation().begin(); it != getCgiExtensionLocation().end(); it++)
+		std::cout << "Location------" << "cgi Extension: " << *it << std::endl;
+	for (std::map<std::string, std::string>::iterator it = getExtPathMap().begin(); it != getExtPathMap().end(); it++)
+		std::cout << "Location------" << "cgi Map ext: " << it->first << " cgi Map path: " << it->second << std::endl;
+}
 
 
 

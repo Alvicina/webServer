@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
+/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:19:46 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/02 12:46:38 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/07/03 15:47:42 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,7 @@ class Location
 		void	setCgiPathLocation(std::vector<std::string> const & cgiPath);
 		void	setMaxBodySizeLocation(std::string const & maxSize);
 		void 	setMaxBodySizeLocation(long int & maxBodySize);
+		void	locationPrinter(void);
 			
 };
 

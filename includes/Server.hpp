@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
+/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 11:56:49 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/03 12:14:41 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/07/03 15:43:00 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,9 @@ class Server
 		long int & getClientMaxBodySize(void);
 		std::string & getIndex(void);
 		bool & getAutoindex(void);
-		std::vector<Location> & getLocation();
+		std::vector<Location> & getLocation(void);
+		std::map<int, std::string> & getErrorPages(void);
+		int & getMasterSocket(void);
 		void 	setLocation(std::string & locationPath, std::vector<std::string> & locationVars);
 		void 	setAutoIndex(std::string const & param);
 		void 	setIndex(std::string const & param);
@@ -74,6 +76,7 @@ class Server
 		bool	checkForDuplicateLocation(void);
 		void	setErrorPages(std::vector<std::string> & errorCodes);
 		void 	checkErrorPageForFile(std::string & errorPath);
+		void	serverPrinter(void);
 };		
 
 #endif

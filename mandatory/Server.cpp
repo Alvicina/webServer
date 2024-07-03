@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/03 15:15:12 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/03 16:02:09 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,16 @@ bool & Server::getAutoindex(void)
 std::vector<Location> & Server::getLocation(void)
 {
 	return (_locations);
+}
+
+std::map<int, std::string> & Server::getErrorPages(void)
+{
+	return (_errorPages);
+}
+
+int & Server::getMasterSocket(void)
+{
+	return (_masterSocket);
 }
 
 static in_addr_t isHostValid(std::string const & param)
@@ -578,4 +588,23 @@ void Server::setErrorPages(std::vector<std::string> & errorCodes)
 		_errorPages[errorToNumber] = errorPath;
 		i++;
 	}
+}
+
+void Server::serverPrinter(void)
+{	
+	std::cout << "-------------------server conf---------------" << std::endl;
+	std::cout << "Port: " << getPort() << std::endl;
+	std::cout << "Host: " << getHost() << std::endl;
+	std::cout << "Server Name: " << getServerName() << std::endl;
+	std::cout << "Root: " << getRoot() << std::endl;
+	std::cout << "Body size: " << getClientMaxBodySize() << std::endl;
+	std::cout << "Index: " << getIndex() << std::endl;
+	std::cout << "AutoIndex: " << getAutoindex() << std::endl;
+	for (std::map<int, std::string>::iterator it = getErrorPages().begin(); it != getErrorPages().end(); it++)
+		std::cout << "Error code: " << it->first << " " << "Error path: " << it->second << std::endl;
+	for (std::vector<Location>::iterator it = getLocation().begin(); it != getLocation().end(); it++)
+		(*it).locationPrinter();
+	std::cout << "MasterSocket: " << getMasterSocket() << std::endl;
+
+	std::cout << "---------------------------------------------" << std::endl;
 }
