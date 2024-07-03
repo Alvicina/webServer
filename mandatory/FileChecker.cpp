@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 12:26:46 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/27 10:55:38 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/03 16:37:29 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,4 +78,17 @@ std::string FileChecker::readFile(std::string const & path) const
 	std::stringstream configFileContent;
 	configFileContent << configFileOpen.rdbuf();
 	return (configFileContent.str());
+}
+
+std::string FileChecker::checkAndRead()
+{
+	std::string content;
+	
+	getTypeOfFile(getPath());
+	getAccess();
+	content = readFile(getPath());
+	if (content.empty())
+		throw ParserErrorException("Config file is empty");
+	//std::cout << "Config file content: " << std::endl << content << std::endl;
+	return (content);
 }

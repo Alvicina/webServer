@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/03 16:15:24 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/03 16:41:53 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -336,5 +336,13 @@ void FileParser::printServers()
 {
 	for (std::vector<Server>::iterator it = _servers.begin(); it != _servers.end();  it++)
 		(*it).serverPrinter();
+}
+
+void FileParser::parse()
+{
+	removeComments();
+	removeWhitespace();
+	splitServer();
+	buildServers();
 }
 

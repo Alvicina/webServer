@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   FileChecker.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
+/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 12:18:38 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/02 10:44:22 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/07/03 16:36:13 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ class FileChecker
 		void	getAccess(void);
 		std::string const & getPath();
 		std::string readFile(std::string const & path) const;
+		std::string checkAndRead(void);
 };
 
 #endif

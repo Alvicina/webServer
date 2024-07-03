@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:04:24 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/03 15:43:31 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/03 16:40:47 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ class FileParser
 		void 	splitServer(void);
 		void	buildServers(void);
 		void	printServers(void);
+		void	parse(void);
 };
 
 #endif
