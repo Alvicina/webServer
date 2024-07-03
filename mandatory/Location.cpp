@@ -6,7 +6,7 @@
 /*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:37:22 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/02 12:47:53 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/07/03 13:06:25 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,6 +204,11 @@ void Location::setMaxBodySizeLocation(std::string const & maxSize)
 	if (number > MAX_CONTENT_LENGTH)
 		throw ServerErrorException("Error: ");
 	_clientMaxBodySize = number;
+}
+
+void Location::setMaxBodySizeLocation(long int & maxBodySize)
+{
+	_clientMaxBodySize = maxBodySize;
 }
 
 

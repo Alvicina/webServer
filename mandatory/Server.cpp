@@ -6,7 +6,7 @@
 /*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/03 12:14:35 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/07/03 13:09:03 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,6 +139,7 @@ void Server::setRoot(std::string param)
 	if (isRootDirectory(param) == true)
 	{
 		_root = param;
+		//std::cout << _root << std::endl;
 		return ;
 	}
 	char *cwd = getcwd(NULL, 0);
@@ -434,7 +435,10 @@ void Server::isLocationValid(Location & location)
 		if (location.getLocationRoot().empty())
 			location.setRootLocation(this->_root);
 		if (utils::fileExistsAndReadable(location.getLocationRoot() + location.getLocationPath() + '/', location.getIndexLocation()))
+		{
+			std::cout << "rootloc: " << location.getLocationRoot() << "pathloc: " << location.getLocationPath() << std::endl;
 			throw ServerErrorException("Error: Index for location invalid");
+		}
 		if (!location.getReturnLocation().empty())
 		{
 			if (utils::fileExistsAndReadable(location.getLocationRoot(), location.getReturnLocation()))
