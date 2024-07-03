@@ -32,7 +32,7 @@
 #define MAX_EPOLL_EVENTS 1000
 #define MAX_CONTENT_LENGTH 30000000
 
-enum methods {
+enum Methods {
 	GET = 1,
 	POST,
 	DELETE,
