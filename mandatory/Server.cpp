@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/03 16:02:09 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/03 16:17:14 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -561,9 +561,9 @@ static void checkErrorCodeStatus(int & errorToNumber)
 
 void Server::checkErrorPageForFile(std::string & errorPath)
 {
-	if (utils::typeOfFile(_root + errorPath) != 1)
+	if (utils::typeOfFile(_root + "/" + errorPath) != 1)
 		throw ServerErrorException("Error: incorrect path for error page file");
-	if (utils::checkFile(_root + errorPath, 0) == -1 || utils::checkFile(_root + errorPath, 4) == -1)
+	if (utils::checkFile(_root + "/" + errorPath, 0) == -1 || utils::checkFile(_root + "/" + errorPath, 4) == -1)
 		throw ServerErrorException("Error: Error page file not accesible");
 }
 

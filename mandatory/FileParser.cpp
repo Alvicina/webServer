@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/03 16:14:08 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/03 16:15:24 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -309,7 +309,7 @@ static void	setUpServer(Server & serv, std::string & config)
 		serv.setHost("localhost;");
 	if (serv.getIndex().empty())
 		serv.setIndex("index.html");
-	if (utils::fileExistsAndReadable(serv.getRoot(), serv.getIndex()))
+	if (utils::fileExistsAndReadable(serv.getRoot() + "/", serv.getIndex()))
 		throw ParserErrorException("Error: Invalid index for server");
 	if (serv.checkForDuplicateLocation() == true)
 		throw ParserErrorException("Error: Location duplicated");
