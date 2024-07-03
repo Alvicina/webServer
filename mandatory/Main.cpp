@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:31:25 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/03 16:42:03 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/03 17:19:35 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,20 @@
 
 int startRoutine(std::string const & file)
 {
-	FileChecker configFile(file);
-	std::string content;
-	content = configFile.checkAndRead();
-	FileParser serverConf(content);
-	serverConf.parse();
-	return (EXIT_SUCCESS);
+	try
+	{	
+		FileChecker configFile(file);
+		std::string content;
+		content = configFile.checkAndRead();
+		FileParser serverConf(content);
+		serverConf.parse();
+		return (EXIT_SUCCESS);
+	}
+	catch (std::exception &e)
+	{
+		std::cerr << e.what() << std::endl;
+		return (EXIT_FAILURE);
+	}
 }
 
 int main(int argc,  char **argv)
@@ -39,14 +47,6 @@ int main(int argc,  char **argv)
 		utils::inputMessage("Error: Wrong number or arguments", true);
 		return (EXIT_FAILURE);
 	}
-	try
-	{
-		startRoutine(file);
-	}
-	catch (std::exception &e)
-	{
-		std::cerr << e.what() << std::endl;
-		return (EXIT_FAILURE);
-	}
+	startRoutine(file);
 	return (EXIT_SUCCESS);
 }
