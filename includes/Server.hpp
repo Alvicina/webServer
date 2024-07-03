@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
+/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 11:56:49 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/02 17:47:14 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/03 12:14:41 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,7 @@ class Server
 		void	checkLocationCgiExtension(Location & location);
 		bool	checkForDuplicateLocation(void);
 		void	setErrorPages(std::vector<std::string> & errorCodes);
+		void 	checkErrorPageForFile(std::string & errorPath);
 };		
 
 #endif

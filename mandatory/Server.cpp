@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
+/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/02 18:09:53 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/03 12:14:35 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -516,12 +516,62 @@ bool Server::checkForDuplicateLocation(void)
 	return (false);
 }
 
+static void checkErrorPagesForModule(std::vector<std::string> & errorCodes)
+{
+	if (errorCodes.size() % 2 != 0)
+		throw ServerErrorException("Error: invalid Error page directive (module)");
+}
+
+static void checkErrorIsAllDigits(std::string const & error)
+{
+	size_t i = 0;
+	while (i < error.size())
+	{
+		if (!isdigit(error[i]))
+			throw ServerErrorException("Error: Error code invalid");
+		i++;
+	}
+}
+
+static void checkErrorNumberDigits(std::string const & error)
+{
+	if (error.size() != 3)
+		throw ServerErrorException("Error: Error code is invalid");
+}
+
+static void checkErrorCodeStatus(int & errorToNumber)
+{
+	if (utils::codeStatus(errorToNumber) == "Undefined" || errorToNumber < 400 || errorToNumber > 599)
+		throw ServerErrorException("Error: invalid code for error");
+}
+
+void Server::checkErrorPageForFile(std::string & errorPath)
+{
+	if (utils::typeOfFile(_root + errorPath) != 1)
+		throw ServerErrorException("Error: incorrect path for error page file");
+	if (utils::checkFile(_root + errorPath, 0) == -1 || utils::checkFile(_root + errorPath, 4) == -1)
+		throw ServerErrorException("Error: Error page file not accesible");
+}
+
 void Server::setErrorPages(std::vector<std::string> & errorCodes)
 {
 	if (errorCodes.empty())
 		return ;
-	if (errorCodes.size() % 2 != 0)
-		throw ServerErrorException("Error: invalid Error page directive");
-	
-	
+	checkErrorPagesForModule(errorCodes);
+	size_t	i = 0;
+	while (i < errorCodes.size() - 1)
+	{
+		checkErrorIsAllDigits(errorCodes[i]);
+		checkErrorNumberDigits(errorCodes[i]);
+		int errorToNumber = utils::stringToInt(errorCodes[i]);
+		checkErrorCodeStatus(errorToNumber);
+		std::string errorPath = errorCodes[++i];
+		checkParamToken(errorPath);
+		if (utils::typeOfFile(errorPath) == 2)
+			return ;
+		else
+			checkErrorPageForFile(errorPath);
+		_errorPages[errorToNumber] = errorPath;
+		i++;
+	}
 }

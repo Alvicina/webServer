@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   FileParser.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
+/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/02 17:46:16 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/03 12:14:46 by alejandro        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -316,8 +316,6 @@ static void	setUpServer(Server & serv, std::string & config)
 	if (!serv.getPort())
 		throw ParserErrorException("Error: Port not found for server");
 	serv.setErrorPages(errCodes);
-	
-	
 }
 
 void FileParser::buildServers(void)
