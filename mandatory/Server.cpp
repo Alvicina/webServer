@@ -20,7 +20,6 @@ Server::Server()
 	_root = "";
 	_clientMaxBodySize = MAX_CONTENT_LENGTH;
 	_index = "";
-	_masterSocket = 0;
 	_autoIndex = false;
 	initErrorPages();
 }
@@ -98,11 +97,6 @@ std::map<int, std::string> & Server::getErrorPages(void)
 	return (_errorPages);
 }
 
-int & Server::getMasterSocket(void)
-{
-	return (_masterSocket);
-}
-
 static in_addr_t isHostValid(std::string const & param)
 {
 	struct addrinfo hints;
@@ -172,7 +166,7 @@ void Server::setPort(std::string & param)
 			throw ServerErrorException("Error: Invalid format for port");
 		i++;
 	}
-	serverPort = utils::stringToInt(param);
+	serverPort = Utils::stringToInt(param);
 	if (serverPort < 1 || serverPort > 65636)
 		throw ServerErrorException("Error: Invalid format for port");
 	_port = (uint16_t) serverPort;
@@ -199,7 +193,7 @@ void Server::setAutoIndex(std::string const & params)
 void Server::setClientMaxSize(std::string const & params)
 {	
 	long int number = 0;
-	number = utils::stringToInt(params);
+	number = Utils::stringToInt(params);
 	if (number > MAX_CONTENT_LENGTH)
 		throw ParserErrorException("Error: client body size out of bounds");
 	_clientMaxBodySize = number;
@@ -361,7 +355,7 @@ bool & methodsFlag, bool & autoIndexFlag, bool & maxSizeFlag)
 void Server::checkLocationCgiIndex(Location & location)
 {
 	std::string path = location.getLocationRoot() + location.getLocationPath() + "/" + location.getIndexLocation();
-	if (utils::typeOfFile(path) != 1)
+	if (Utils::typeOfFile(path) != 1)
 	{
 		char *cwd = getcwd(NULL, 0);
 		std::string root(cwd);
@@ -369,7 +363,7 @@ void Server::checkLocationCgiIndex(Location & location)
 		location.setRootLocation(root);
 		path = root + location.getLocationPath() + "/" + location.getIndexLocation();
 	}
-	if (path.empty() || utils::typeOfFile(path) != 1 || utils::checkFile(path, R_OK) < 0)
+	if (path.empty() || Utils::typeOfFile(path) != 1 || Utils::checkFile(path, R_OK) < 0)
 		throw ServerErrorException("Error: CGI not valid");
 }
 
@@ -378,7 +372,7 @@ void Server::checkLocationCgiPath(Location & location)
 	std::vector<std::string>::const_iterator it;
 	for (it = location.getCgiPathLocation().begin(); it != location.getCgiPathLocation().end(); it++)
 	{
-		if (utils::typeOfFile(*it) < 0)
+		if (Utils::typeOfFile(*it) < 0)
 			throw ServerErrorException("Error: Error: CGI not valid");
 	}
 }
@@ -412,7 +406,7 @@ void Server::checkLocationForCGI(Location & location)
 {
 	if (location.getCgiPathLocation().empty() || location.getCgiExtensionLocation().empty() || location.getIndexLocation().empty())
 		throw ServerErrorException("Error: CGI not valid");
-	if (utils::checkFile(location.getIndexLocation(), R_OK) < 0)
+	if (Utils::checkFile(location.getIndexLocation(), R_OK) < 0)
 		checkLocationCgiIndex(location);
 	if(location.getCgiPathLocation().size() != location.getCgiExtensionLocation().size())
 		throw ServerErrorException("Error: CGI not valid");
@@ -432,16 +426,16 @@ void Server::isLocationValid(Location & location)
 			throw ServerErrorException("Error: invalid path in location");
 		if (location.getLocationRoot().empty())
 			location.setRootLocation(this->_root);
-		if (utils::fileExistsAndReadable(location.getLocationRoot() + location.getLocationPath() + '/', location.getIndexLocation()) == -1)
+		if (Utils::fileExistsAndReadable(location.getLocationRoot() + location.getLocationPath() + '/', location.getIndexLocation()) == -1)
 			throw ServerErrorException("Error: Index for location invalid");
 		if (!location.getReturnLocation().empty())
 		{
-			if (utils::fileExistsAndReadable(location.getLocationRoot(), location.getReturnLocation()))
+			if (Utils::fileExistsAndReadable(location.getLocationRoot(), location.getReturnLocation()))
 				throw ServerErrorException("Error: Return for location invalid");	
 		}
 		if (!location.getAliasLocation().empty())
 		{
-			if (utils::fileExistsAndReadable(location.getLocationRoot(), location.getAliasLocation()))
+			if (Utils::fileExistsAndReadable(location.getLocationRoot(), location.getAliasLocation()))
 				throw ServerErrorException("Error: Alias for location invalid");
 		}
 	}
@@ -476,7 +470,6 @@ void Server::checkParamToken(std::string & param)
 	if (pos != param.size() - 1)
 		throw ServerErrorException("Error: Invalid param token");
 	param.erase(pos);
-	return (EXIT_FAILURE);
 }
 
 void Server::initMasterSocket()
@@ -551,15 +544,15 @@ static void checkErrorNumberDigits(std::string const & error)
 
 static void checkErrorCodeStatus(int & errorToNumber)
 {
-	if (utils::codeStatus(errorToNumber) == "Undefined" || errorToNumber < 400 || errorToNumber > 599)
+	if (Utils::codeStatus(errorToNumber) == "Undefined" || errorToNumber < 400 || errorToNumber > 599)
 		throw ServerErrorException("Error: invalid code for error");
 }
 
 void Server::checkErrorPageForFile(std::string & errorPath)
 {
-	if (utils::typeOfFile(_root + "/" + errorPath) != 1)
+	if (Utils::typeOfFile(_root + "/" + errorPath) != 1)
 		throw ServerErrorException("Error: incorrect path for error page file");
-	if (utils::checkFile(_root + "/" + errorPath, 0) == -1 || utils::checkFile(_root + "/" + errorPath, 4) == -1)
+	if (Utils::checkFile(_root + "/" + errorPath, 0) == -1 || Utils::checkFile(_root + "/" + errorPath, 4) == -1)
 		throw ServerErrorException("Error: Error page file not accesible");
 }
 
@@ -573,11 +566,11 @@ void Server::setErrorPages(std::vector<std::string> & errorCodes)
 	{
 		checkErrorIsAllDigits(errorCodes[i]);
 		checkErrorNumberDigits(errorCodes[i]);
-		int errorToNumber = utils::stringToInt(errorCodes[i]);
+		int errorToNumber = Utils::stringToInt(errorCodes[i]);
 		checkErrorCodeStatus(errorToNumber);
 		std::string errorPath = errorCodes[++i];
 		checkParamToken(errorPath);
-		if (utils::typeOfFile(errorPath) == 2)
+		if (Utils::typeOfFile(errorPath) == 2)
 			return ;
 		else
 			checkErrorPageForFile(errorPath);
@@ -600,7 +593,6 @@ void Server::serverPrinter(void)
 		std::cout << "Error code: " << it->first << " " << "Error path: " << it->second << std::endl;
 	for (std::vector<Location>::iterator it = getLocation().begin(); it != getLocation().end(); it++)
 		(*it).locationPrinter();
-	std::cout << "MasterSocket: " << getMasterSocket() << std::endl;
 
 	std::cout << "---------------------------------------------" << std::endl;
 }

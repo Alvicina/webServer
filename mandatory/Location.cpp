@@ -197,7 +197,7 @@ void Location::setMaxBodySizeLocation(std::string const & maxSize)
 {
 	long int number = 0;
 
-	number = utils::stringToInt(maxSize);
+	number = Utils::stringToInt(maxSize);
 	if (number > MAX_CONTENT_LENGTH)
 		throw ServerErrorException("Error: ");
 	_clientMaxBodySize = number;

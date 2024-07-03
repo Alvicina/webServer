@@ -38,6 +38,7 @@ class FileParser
 		void	buildServers(void);
 		void	printServers(void);
 		void	parse(void);
+		std::vector<Server> &getServers();
 };
 
 #endif

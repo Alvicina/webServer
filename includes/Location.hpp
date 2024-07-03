@@ -13,6 +13,7 @@
 #ifndef LOCATION_HPP
 #define LOCATION_HPP
 
+#include "webserv.hpp"
 #include "Utils.hpp"
 
 class Location

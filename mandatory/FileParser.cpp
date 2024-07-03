@@ -298,7 +298,7 @@ static void	setUpServer(Server & serv, std::string & config)
 		serv.setHost("localhost;");
 	if (serv.getIndex().empty())
 		serv.setIndex("index.html");
-	if (utils::fileExistsAndReadable(serv.getRoot() + "/", serv.getIndex()))
+	if (Utils::fileExistsAndReadable(serv.getRoot() + "/", serv.getIndex()))
 		throw ParserErrorException("Error: Invalid index for server");
 	if (serv.checkForDuplicateLocation() == true)
 		throw ParserErrorException("Error: Location duplicated");
@@ -335,3 +335,7 @@ void FileParser::parse()
 	buildServers();
 }
 
+std::vector<Server> &FileParser::getServers()
+{
+	return (this->_servers);
+}

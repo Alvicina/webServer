@@ -13,9 +13,10 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
+#include "webserv.hpp"
+#include "Socket.hpp"
 #include "Utils.hpp"
-
-class Location;
+#include "Location.hpp"
 
 class Server
 {
@@ -33,7 +34,6 @@ class Server
 
 	public:
 		Server();
-		Server(in_addr_t _host, uint16_t _port);
 		Server(Server const & copy);
 		~Server();
 		Server& operator=(Server const & other);
@@ -46,7 +46,6 @@ class Server
 		bool & getAutoindex(void);
 		std::vector<Location> & getLocation(void);
 		std::map<int, std::string> & getErrorPages(void);
-		int & getMasterSocket(void);
 		void 	setLocation(std::string & locationPath, std::vector<std::string> & locationVars);
 		void 	setAutoIndex(std::string const & param);
 		void 	setIndex(std::string const & param);

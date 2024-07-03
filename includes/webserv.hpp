@@ -3,13 +3,14 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <unistd.h>
 #include <fstream>
 #include <sstream>
-#include <string>
-
-#include <unistd.h>
 #include <stdint.h>
-#include <string.h>
+#include <climits>
+#include <exception>
+#include <cstring>
+#include <string>
 #include <fcntl.h>
 
 /*NETWORK*/
@@ -23,9 +24,21 @@
 #include <sys/stat.h>
 #include <sys/epoll.h>
 #include <sys/socket.h>
+#include <sys/types.h>
+#include <netdb.h>
+#include <sys/stat.h>
 
 #define SOCKET_MAX_CONN 1000
 #define MAX_EPOLL_EVENTS 1000
+#define MAX_CONTENT_LENGTH 30000000
+
+enum methods {
+	GET = 1,
+	POST,
+	DELETE,
+	PUT,
+	HEAD
+};
 
 typedef struct epoll_event EpollEvent;
 
