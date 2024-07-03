@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/03 16:41:53 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/03 16:48:00 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,8 @@ FileParser::~FileParser()
 	
 }
 
-FileParser::FileParser(FileParser const & copy) : _content(copy._content), _configs(copy._configs), _nbServers(copy._nbServers)
+FileParser::FileParser(FileParser const & copy) : _content(copy._content),
+_configs(copy._configs), _nbServers(copy._nbServers)
 {
 	
 }
@@ -155,7 +156,6 @@ static std::vector<std::string> getParams(std::string separators, std::string co
 			break ;
 		std::string temp = conf.substr(start, end - start);
 		params.push_back(temp);
-		//std::cout << temp << std::endl;
 		start = conf.find_first_not_of(separators, end);
 	}	
 	return (params);
@@ -166,7 +166,6 @@ static void portRoutine(std::string & params, Server & serv)
 	if (serv.getPort())
 		throw ServerErrorException("Error: Port duplicated in server conf");
 	serv.setPort(params);
-	//std::cout << serv.getPort() << std::endl;
 }
 
 static void hostRoutine(std::string & params, Server & serv)
@@ -174,7 +173,6 @@ static void hostRoutine(std::string & params, Server & serv)
 	if (serv.getHost())
 		throw ServerErrorException("Error: Host duplicated");
 	serv.setHost(params);
-	//std::cout << serv.getHost() << std::endl;
 }
 
 static void rootRoutine(std::string & params, Server & serv)
@@ -182,7 +180,6 @@ static void rootRoutine(std::string & params, Server & serv)
 	if (!serv.getRoot().empty())
 		throw ServerErrorException("Error: Root is duplicated");
 	serv.setRoot(params);
-	//std::cout << serv.getRoot() << std::endl;
 }
 
 static void errorPageRoutine(std::vector<std::string> const & params, size_t & pos,
@@ -196,10 +193,6 @@ std::vector<std::string> & errCodes)
 		if (pos + 1 >= params.size())
 			throw ServerErrorException("Error: error page out of scope");
 	}
-	/*for (std::vector<std::string>::const_iterator it = errCodes.begin(); it != errCodes.end(); it++)
-	{
-		std::cout << *it << std::endl;
-	}*/
 }
 
 static void clientMaxSizeRoutine(std::string & params, bool *clientMaxSize, Server & serv)
@@ -207,7 +200,6 @@ static void clientMaxSizeRoutine(std::string & params, bool *clientMaxSize, Serv
 	serv.checkParamToken(params);
 	serv.setClientMaxSize(params);
 	*clientMaxSize = true;
-	//std::cout << serv.getClientMaxBodySize() << std::endl;
 }
 
 static void serverNameRoutine(std::string & params, Server & serv)
@@ -216,7 +208,6 @@ static void serverNameRoutine(std::string & params, Server & serv)
 	if (!serv.getServerName().empty())
 		throw ParserErrorException("Error: server name duplicated");
 	serv.setServerName(params);
-	//std::cout << serv.getServerName() << std::endl;
 }
 
 static void indexRoutine(std::string & params, Server & serv)
@@ -225,7 +216,6 @@ static void indexRoutine(std::string & params, Server & serv)
 	if (!serv.getIndex().empty())
 		throw ParserErrorException("Error: Index duplicated");
 	serv.setIndex(params);
-	//std::cout << serv.getIndex() << std::endl;
 }
 
 static void autoIndexRoutine(std::string & params, Server & serv, bool *autoIndex)
@@ -235,10 +225,10 @@ static void autoIndexRoutine(std::string & params, Server & serv, bool *autoInde
 	serv.checkParamToken(params);
 	serv.setAutoIndex(params);
 	*autoIndex = true;
-	//std::cout << serv.getAutoindex() << std::endl;
 }
 
-static void locationRoutine(std::vector<std::string> const & params, Server & serv, size_t & pos, int *locationFlag)
+static void locationRoutine(std::vector<std::string> const & params, Server & serv, 
+size_t & pos, int *locationFlag)
 {
 	std::string locationPath;
 	std::vector<std::string> locationVars;
@@ -284,7 +274,6 @@ bool *clientMaxSize,  bool *autoIndex, std::vector<std::string> & errCodes)
 			throw ParserErrorException("Error: invalid param");
 	}
 }
-
 
 static void	setUpServer(Server & serv, std::string & config)
 {

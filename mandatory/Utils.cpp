@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:41:57 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/03 15:15:32 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/03 16:51:57 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,8 +55,6 @@ long int	utils::stringToInt(std::string const & string)
 	}
 	std::stringstream ss(string);
 	ss >> number;
-	/*if (number > INT_MAX)
-		throw std::exception();*/
 	return (number);
 }
 

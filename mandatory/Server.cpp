@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/03 16:17:14 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/03 16:51:30 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,7 +149,6 @@ void Server::setRoot(std::string param)
 	if (isRootDirectory(param) == true)
 	{
 		_root = param;
-		//std::cout << _root << std::endl;
 		return ;
 	}
 	char *cwd = getcwd(NULL, 0);
@@ -216,7 +215,6 @@ void Server::locationRootRoutine(std::string & locationVars, Location & location
 		location.setRootLocation(locationVars);
 	else
 		location.setRootLocation(_root + locationVars);
-	//std::cout << location.getLocationRoot() << std::endl;
 }
 
 void Server::locationMethodsRoutine(std::vector<std::string> & locationVars, size_t & pos, bool & methodsFlag, Location & location)
@@ -253,7 +251,6 @@ void Server::locationAutoIndexRoutine(std::string & autoIndex, bool & autoIndexF
 	checkParamToken(autoIndex);
 	location.setLocationAutoIndex(autoIndex);
 	autoIndexFlag = true;
-	//std::cout << location.getAutoIndex() << std::endl;
 }
 
 void Server::locationIndexRoutine(std::string & index, Location & location)
@@ -262,7 +259,6 @@ void Server::locationIndexRoutine(std::string & index, Location & location)
 		throw ServerErrorException("Error: location index duplicated");
 	checkParamToken(index);
 	location.setIndexLocation(index);
-	//std::cout << location.getIndexLocation() << std::endl;
 }
 
 void Server::locationReturnRoutine(std::string & Return, Location & location)
@@ -273,7 +269,6 @@ void Server::locationReturnRoutine(std::string & Return, Location & location)
 		throw ServerErrorException("Error: return duplicated in location");
 	checkParamToken(Return);
 	location.setReturnLocation(Return);
-	//std::cout << location.getReturnLocation() << std::endl;
 }
 
 void Server::locationAliasRoutine(std::string & alias, Location & location)
@@ -284,7 +279,6 @@ void Server::locationAliasRoutine(std::string & alias, Location & location)
 		throw ServerErrorException("Error: return duplicated in location");
 	checkParamToken(alias);
 	location.setAliasLocation(alias);
-	//std::cout << location.getAliasLocation() << std::endl;
 }
 
 void Server::locationCgiExtRoutine(std::vector<std::string> & locationVars, size_t & pos, Location & location)
@@ -307,8 +301,6 @@ void Server::locationCgiExtRoutine(std::vector<std::string> & locationVars, size
 		}
 	}
 	location.setCgiExtensionLocation(cgiExt);
-	/*for (std::vector<std::string>::const_iterator it = location.getCgiExtensionLocation().begin(); it != location.getCgiExtensionLocation().end(); it++)
-		std::cout << *it << std::endl;*/
 }
 
 void Server::locationCgiPathRoutine(std::vector<std::string> & locationVars, size_t & pos, Location & location)
@@ -331,8 +323,6 @@ void Server::locationCgiPathRoutine(std::vector<std::string> & locationVars, siz
 		}
 	}
 	location.setCgiPathLocation(cgiPath);
-	/*for (std::vector<std::string>::const_iterator it = location.getCgiPathLocation().begin(); it != location.getCgiPathLocation().end(); it++)
-		std::cout << *it << std::endl;*/
 }
 
 void Server::locationMaxSizeRoutine(std::string & maxSize, bool & maxSizeFlag, Location & location)
@@ -342,7 +332,6 @@ void Server::locationMaxSizeRoutine(std::string & maxSize, bool & maxSizeFlag, L
 	checkParamToken(maxSize);
 	location.setMaxBodySizeLocation(maxSize);
 	maxSizeFlag = true;
-	//std::cout << location.getMaxBodySizeLocation() << std::endl;
 }
 
 void Server::locationExtractionRoutine(std::vector<std::string> & locationVars, size_t & pos, Location & location,
@@ -445,10 +434,7 @@ void Server::isLocationValid(Location & location)
 		if (location.getLocationRoot().empty())
 			location.setRootLocation(this->_root);
 		if (utils::fileExistsAndReadable(location.getLocationRoot() + location.getLocationPath() + '/', location.getIndexLocation()) == -1)
-		{
-			std::cout << "rootloc: " << location.getLocationRoot() << "pathloc: " << location.getLocationPath() << "indexLoc: " << location.getIndexLocation() << std::endl;
 			throw ServerErrorException("Error: Index for location invalid");
-		}
 		if (!location.getReturnLocation().empty())
 		{
 			if (utils::fileExistsAndReadable(location.getLocationRoot(), location.getReturnLocation()))

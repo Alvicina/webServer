@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:37:22 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/03 16:05:04 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/03 16:49:34 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,9 +158,6 @@ void Location::setLocationMethods(std::vector<std::string> & methods)
 		else
 			throw ServerErrorException("Error: method not supported");
 	}
-	/*std::cout << "---------" << std::endl;
-	for (std::vector<int>::iterator it = _methods.begin(); it != _methods.end(); it++)
-		std::cout << *it << std::endl;*/
 }
 
 void 	Location::setLocationAutoIndex(std::string const & autoIndex)
