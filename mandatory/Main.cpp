@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:31:25 by alvicina          #+#    #+#             */
-/*   Updated: 2024/06/27 10:57:19 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/03 14:54:58 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ int main(int argc,  char **argv)
 	std::string file;
 	
 	if (argc == 1)
-		file = "config/nginx.conf";
+		file = "config/default.conf";
 	else if (argc == 2)
 		file = argv[1];
 	else

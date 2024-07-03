@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejandro <alejandro@student.42.fr>        +#+  +:+       +#+        */
+/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/03 13:23:53 by alejandro        ###   ########.fr       */
+/*   Updated: 2024/07/03 15:15:12 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -393,7 +393,7 @@ void Server::checkLocationCgiExtension(Location & location)
 	{
 		if (*it != ".py" && *it != ".sh" && *it != "*.py" && *it != "*.sh")
 			throw ServerErrorException("Error: CGI not valid");
-		for (itPath = location.getCgiPathLocation().begin(); itPath != location.getCgiPathLocation().end(); it++)
+		for (itPath = location.getCgiPathLocation().begin(); itPath != location.getCgiPathLocation().end(); itPath++)
 		{
 			
 			if (*it == ".py" || *it == "*.py")
