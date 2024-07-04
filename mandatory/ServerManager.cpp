@@ -119,7 +119,11 @@ void ServerManager::handleClientRequest(EpollEvent &event)
 {
 	if (event.events & EPOLLIN)
 	{
-		this->getRawRequestFromEpollEvent(event);
+		std::string rawRequest = this->getRawRequestFromEpollEvent(event);
+		RequestParser requestParser(rawRequest);
+		Request &request = requestParser.parseRequest();
+		std::cout << "Parsed request:" << std::endl;
+		std::cout << request << std::endl;
 	}
 	if (event.events & EPOLLOUT)
 	{

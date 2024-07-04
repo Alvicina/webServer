@@ -27,6 +27,23 @@ Request &Request::operator=(const Request &request)
 
 Request::~Request() {}
 
+std::ostream &operator<<(std::ostream &os, const Request &request)
+{
+    os
+		<< request._method << " " 
+		<< request._uri << " " 
+		<< request._protocol << "/"
+		<< request._protocolVersion << std::endl;
+	std::map<std::string, std::string>::const_iterator it = request._headers.begin();
+	while (it != request._headers.end())
+	{
+		os << it->first << ": " << it->second << std::endl;
+		it++;
+	}
+	os << std::endl << request._content << std::endl;
+    return os;
+}
+
 std::string &Request::getRaw()
 {
 	return (this->_raw);

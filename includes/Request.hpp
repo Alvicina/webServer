@@ -25,6 +25,8 @@ class Request
 		Request &operator=(const Request &request);
 		~Request();
 
+		friend std::ostream &operator<<(std::ostream &os, const Request &request);
+
 		std::string &getRaw();
 		void setRaw(std::string &raw);
 		std::map<std::string, std::string> &getHeaders();

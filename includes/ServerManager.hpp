@@ -3,6 +3,7 @@
 
 #include "Server.hpp"
 #include "Epoll.hpp"
+#include "RequestParser.hpp"
 
 class ServerManager
 {

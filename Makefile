@@ -21,14 +21,16 @@ FLAGS           = -Wall -Wextra -Werror -std=c++98 -g3
 
 HEADER_SRCS = \
 	Utils.hpp FileChecker.hpp FileParser.hpp Server.hpp Location.hpp \
-	ServerManager.hpp Socket.hpp Epoll.hpp Request.hpp Response.hpp \
+	ServerManager.hpp Socket.hpp Epoll.hpp Request.hpp Response.hpp 
+	RequestParser.hpp \
 		      
 HEADER_DIR  = includes/
 HEADER      = $(addprefix $(HEADER_DIR), $(HEADER_SRCS))
 
 MPATH_SRCS  =  \
 	Main.cpp Utils.cpp FileChecker.cpp FileParser.cpp Server.cpp Location.cpp \
-	ServerManager.cpp Socket.cpp Epoll.cpp Request.cpp Response.cpp \
+	ServerManager.cpp Socket.cpp Epoll.cpp Request.cpp Response.cpp 
+	RequestParser.cpp \
 
 MPATH_DIR   = mandatory/
 MPATH       = $(addprefix $(MPATH_DIR), $(MPATH_SRCS))
