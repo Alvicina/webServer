@@ -20,6 +20,7 @@ class ServerManager
 		void handleNewConnection(Server &server);
 		void handleClientRequest(EpollEvent &event);
 		void closeClientConnection(int fd);
+		std::string getRawRequestFromEpollEvent(EpollEvent &event);
 
 	public:
 		ServerManager();

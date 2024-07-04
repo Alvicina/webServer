@@ -119,24 +119,7 @@ void ServerManager::handleClientRequest(EpollEvent &event)
 {
 	if (event.events & EPOLLIN)
 	{
-		// TODO: Leer la solicitud entera
-		char buffer[1024];
-		ssize_t bytes = read(event.data.fd, buffer, sizeof(buffer) - 1);
-		buffer[bytes] = 0;
-		if (bytes > 0)
-		{
-			std::cout << "Client request received:" << std::endl;
-			std::cout << buffer << std::endl;
-			this->_epoll.setSocketOnWriteMode(*this->_clients[event.data.fd]);
-		}
-		else if (bytes == 0)
-		{
-			this->closeClientConnection(event.data.fd);
-		}
-		else
-		{
-			throw IOException();
-		}
+		this->getRawRequestFromEpollEvent(event);
 	}
 	if (event.events & EPOLLOUT)
 	{
@@ -146,6 +129,35 @@ void ServerManager::handleClientRequest(EpollEvent &event)
 		this->_epoll.setSocketOnReadMode(*this->_clients[event.data.fd]);
 		std::cout << "Response sent!" << std::endl;
 	}
+}
+
+std::string ServerManager::getRawRequestFromEpollEvent(EpollEvent &event)
+{
+	std::string buffer;
+	char bufferTmp[1024];
+	ssize_t bytes;
+
+	do
+	{
+		bytes = read(event.data.fd, bufferTmp, sizeof(bufferTmp) - 1);
+		if (bytes < 0)
+			throw IOException();
+		bufferTmp[bytes] = 0;
+		buffer += bufferTmp;
+	}
+	while (bytes == sizeof(bufferTmp) - 1);
+
+	if (bytes > 0)
+	{
+		std::cout << "Client request received:" << std::endl;
+		std::cout << buffer << std::endl;
+		this->_epoll.setSocketOnWriteMode(*this->_clients[event.data.fd]);
+	}
+	else
+	{
+		this->closeClientConnection(event.data.fd);
+	}
+	return (buffer);
 }
 
 void ServerManager::closeClientConnection(int fd)
