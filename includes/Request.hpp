@@ -15,6 +15,7 @@ class Request
 		std::string _uri;
 		std::string _protocol;
 		std::string _protocolVersion;
+		std::string _content;
 		Server *_server;
 		Location *_location;
 
@@ -38,6 +39,8 @@ class Request
 		void setProtocol(std::string &protocol);
 		std::string &getProtocolVersion();
 		void setProtocolVersion(std::string &protocolVersion);
+		std::string &getContent();
+		void setContent(std::string &content);
 		Server *getServer();
 		void setServer(Server &server);
 		Location *getLocation();
