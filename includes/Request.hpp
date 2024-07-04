@@ -10,6 +10,7 @@ class Request
 	private:
 		std::string _raw;
 		std::map<std::string, std::string> _headers;
+		std::map<std::string, std::string> _args;
 		Methods _method;
 		std::string _uri;
 		std::string _protocol;
@@ -27,6 +28,8 @@ class Request
 		void setRaw(std::string &raw);
 		std::map<std::string, std::string> &getHeaders();
 		void setHeaders(std::map<std::string, std::string> &headers);
+		std::map<std::string, std::string> &getArgs();
+		void setArgs(std::map<std::string, std::string> &args);
 		Methods &getMethod();
 		void setMethod(Methods &method);
 		std::string &getUri();

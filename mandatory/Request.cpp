@@ -13,6 +13,7 @@ Request &Request::operator=(const Request &request)
 	{
 		this->_raw = request._raw;
 		this->_headers = request._headers;
+		this->_args = request._args;
 		this->_method = request._method;
 		this->_uri = request._uri;
 		this->_protocol = request._protocol;
@@ -43,6 +44,16 @@ std::map<std::string, std::string> &Request::getHeaders()
 void Request::setHeaders(std::map<std::string, std::string> &headers)
 {
 	this->_headers = headers;
+}
+
+std::map<std::string, std::string> &Request::getArgs()
+{
+	return (this->_args);
+}
+
+void Request::setArgs(std::map<std::string, std::string> &args)
+{
+	this->_args = args;
 }
 
 Methods &Request::getMethod()
