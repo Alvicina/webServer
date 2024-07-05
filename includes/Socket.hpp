@@ -42,7 +42,7 @@ class Socket
 			public:
 				const char *what() const throw()
 				{
-					return ("ERROR: The docket could not be initialized due to an unexpected error.");
+					return ("ERROR: The socket could not be initialized due to an unexpected error.");
 				}
 		};
 };

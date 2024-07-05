@@ -6,11 +6,11 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:52:15 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/05 13:03:13 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/05 17:26:16 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "RequestHandlerPOST.hpp"
+#include "../includes/RequestHandlerPOST.hpp"
 
 RequestHandlerPost::RequestHandlerPost(Request & request) : 
 RequestHandler(request)

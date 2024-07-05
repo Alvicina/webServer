@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/04 18:51:51 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/05 13:41:22 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/05 18:18:03 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include "RequestHandlerPOST.hpp"
 #include "RequestHandlerINVALID.hpp"
 #include "Request.hpp"
+#include "Utils.hpp"
 
 class RequestFactory
 {

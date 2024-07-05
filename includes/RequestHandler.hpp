@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/04 18:54:34 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/05 12:36:52 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/05 17:34:20 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,12 @@ class RequestHandler
 
 	public:
 		RequestHandler(Request & request);
-		virtual ~RequestHandler();
 		RequestHandler(RequestHandler & copy);
+		virtual ~RequestHandler();
 		RequestHandler& operator=(RequestHandler & other);
+		
+		Methods& getMethods(void);
+		Request* getRequest(void);
 		virtual Response* handleRequest(void) = 0;
 };
 

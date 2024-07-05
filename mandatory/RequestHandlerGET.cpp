@@ -6,11 +6,11 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:39:56 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/05 13:03:23 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/05 17:25:49 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "RequestHandlerGET.hpp"
+#include "../includes/RequestHandlerGET.hpp"
 
 RequestHandlerGet::RequestHandlerGet(Request & request) : 
 RequestHandler(request)

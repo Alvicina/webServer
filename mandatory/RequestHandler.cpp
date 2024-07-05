@@ -6,11 +6,11 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:03:13 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/05 12:16:52 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/05 17:35:27 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "RequestHandler.hpp"
+#include "../includes/RequestHandler.hpp"
 
 RequestHandler::RequestHandler(Request & request) : _method(request.getMethod()),
 _request(&request)
@@ -37,4 +37,14 @@ RequestHandler& RequestHandler::operator=(RequestHandler & other)
 		_request = other._request;
 	}
 	return (*this);
+}
+
+Methods& RequestHandler::getMethods(void)
+{
+	return (_method);
+}
+
+Request* RequestHandler::getRequest(void)
+{
+	return (_request);
 }

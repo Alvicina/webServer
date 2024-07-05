@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 11:04:21 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/05 13:43:59 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/05 17:24:42 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ RequestFactory::RequestFactory(RequestFactory & copy)
 
 RequestFactory& RequestFactory::operator=(RequestFactory & other)
 {
+	(void) other;
 	return (*this);	
 }
 
