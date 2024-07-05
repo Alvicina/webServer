@@ -1,35 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   RequestHandler.cpp                                 :+:      :+:    :+:   */
+/*   RequestHandlerPOST.cpp                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/05 12:03:13 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/05 12:16:52 by alvicina         ###   ########.fr       */
+/*   Created: 2024/07/05 12:52:15 by alvicina          #+#    #+#             */
+/*   Updated: 2024/07/05 13:03:13 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "RequestHandler.hpp"
+#include "RequestHandlerPOST.hpp"
 
-RequestHandler::RequestHandler(Request & request) : _method(request.getMethod()),
-_request(&request)
+RequestHandlerPost::RequestHandlerPost(Request & request) : 
+RequestHandler(request)
 {
 	
 }
 
-RequestHandler::~RequestHandler()
+RequestHandlerPost::~RequestHandlerPost()
 {
 	
 }
 
-RequestHandler::RequestHandler(RequestHandler & copy) : _method(copy._method),
-_request(copy._request)
+RequestHandlerPost::RequestHandlerPost(RequestHandlerPost & copy) : 
+RequestHandler(*copy._request)
 {
 	
 }
 
-RequestHandler& RequestHandler::operator=(RequestHandler & other)
+RequestHandlerPost& RequestHandlerPost::operator=(RequestHandlerPost & other)
 {
 	if (this != &other)
 	{
@@ -37,4 +37,9 @@ RequestHandler& RequestHandler::operator=(RequestHandler & other)
 		_request = other._request;
 	}
 	return (*this);
+}
+
+Response* RequestHandlerPost::handleRequest(void)
+{
+	return (new Response());
 }

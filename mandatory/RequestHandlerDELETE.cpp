@@ -1,35 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   RequestHandler.cpp                                 :+:      :+:    :+:   */
+/*   RequestHandlerDELETE.cpp                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/05 12:03:13 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/05 12:16:52 by alvicina         ###   ########.fr       */
+/*   Created: 2024/07/05 12:58:56 by alvicina          #+#    #+#             */
+/*   Updated: 2024/07/05 13:03:56 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "RequestHandler.hpp"
+#include "RequestHandlerDELETE.hpp"
 
-RequestHandler::RequestHandler(Request & request) : _method(request.getMethod()),
-_request(&request)
+RequestHandlerDelete::RequestHandlerDelete(Request & request) : 
+RequestHandler(request)
 {
 	
 }
 
-RequestHandler::~RequestHandler()
+RequestHandlerDelete::~RequestHandlerDelete()
 {
 	
 }
 
-RequestHandler::RequestHandler(RequestHandler & copy) : _method(copy._method),
-_request(copy._request)
+RequestHandlerDelete::RequestHandlerDelete(RequestHandlerDelete & copy) : 
+RequestHandler(*copy._request)
 {
 	
 }
 
-RequestHandler& RequestHandler::operator=(RequestHandler & other)
+RequestHandlerDelete& RequestHandlerDelete::operator=(RequestHandlerDelete & other)
 {
 	if (this != &other)
 	{
@@ -37,4 +37,9 @@ RequestHandler& RequestHandler::operator=(RequestHandler & other)
 		_request = other._request;
 	}
 	return (*this);
+}
+
+Response* RequestHandlerDelete::handleRequest(void)
+{
+	return (new Response());
 }

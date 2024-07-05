@@ -1,35 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   RequestHandler.cpp                                 :+:      :+:    :+:   */
+/*   RequestHandlerGET.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/05 12:03:13 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/05 12:16:52 by alvicina         ###   ########.fr       */
+/*   Created: 2024/07/05 12:39:56 by alvicina          #+#    #+#             */
+/*   Updated: 2024/07/05 13:03:23 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "RequestHandler.hpp"
+#include "RequestHandlerGET.hpp"
 
-RequestHandler::RequestHandler(Request & request) : _method(request.getMethod()),
-_request(&request)
+RequestHandlerGet::RequestHandlerGet(Request & request) : 
+RequestHandler(request)
 {
 	
 }
 
-RequestHandler::~RequestHandler()
+RequestHandlerGet::~RequestHandlerGet()
 {
 	
 }
 
-RequestHandler::RequestHandler(RequestHandler & copy) : _method(copy._method),
-_request(copy._request)
+RequestHandlerGet::RequestHandlerGet(RequestHandlerGet & copy) : 
+RequestHandler(*copy._request)
 {
 	
 }
 
-RequestHandler& RequestHandler::operator=(RequestHandler & other)
+RequestHandlerGet& RequestHandlerGet::operator=(RequestHandlerGet & other)
 {
 	if (this != &other)
 	{
@@ -37,4 +37,9 @@ RequestHandler& RequestHandler::operator=(RequestHandler & other)
 		_request = other._request;
 	}
 	return (*this);
+}
+
+Response * RequestHandlerGet::handleRequest(void)
+{
+	return (new Response());
 }
