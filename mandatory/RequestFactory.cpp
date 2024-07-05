@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 11:04:21 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/05 11:37:31 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/05 13:43:59 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,10 +37,12 @@ RequestHandler* RequestFactory::makeRequestHandler(Request & request)
 	switch(request.getMethod())
 	{
 		case GET:
-			return ;
+			return (new RequestHandlerGet(request));
 		case POST:
-			return ;
+			return (new RequestHandlerPost(request));
 		case DELETE:
-			return ;	
+			return (new RequestHandlerDelete(request));
+		default:
+			return (new RequestHandlerInvalid(request));
 	}
 }

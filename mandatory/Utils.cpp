@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:41:57 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/03 16:51:57 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/05 13:13:18 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,22 @@ const char* ServerErrorException::what(void) const throw()
 ServerErrorException::~ServerErrorException(void) throw()
 {
 	
+}
+
+FactoryErrorException::FactoryErrorException(std::string msg) throw()
+{
+    _msg = "Factory " + msg;
+}
+
+const char* FactoryErrorException::what(void) const throw()
+{
+
+    return (_msg.c_str());
+}
+
+FactoryErrorException::~FactoryErrorException(void) throw()
+{
+    
 }
 
 long int	Utils::stringToInt(std::string const & string)
