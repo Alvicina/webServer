@@ -33,6 +33,7 @@
 #define MAX_CONTENT_LENGTH 30000000
 
 enum Methods {
+	UNKNOWN = 0,
 	GET = 1,
 	POST,
 	DELETE,

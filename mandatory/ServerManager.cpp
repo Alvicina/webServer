@@ -120,6 +120,14 @@ void ServerManager::handleClientRequest(EpollEvent &event)
 	if (event.events & EPOLLIN)
 	{
 		std::string rawRequest = this->getRawRequestFromEpollEvent(event);
+		if (rawRequest.size() == 0)
+		{
+			this->closeClientConnection(event.data.fd);
+			return;
+		}
+		this->_epoll.setSocketOnWriteMode(*this->_clients[event.data.fd]);
+		std::cout << "Client request received:" << std::endl;
+		std::cout << rawRequest << std::endl;
 		RequestParser requestParser(rawRequest);
 		Request &request = requestParser.parseRequest();
 		std::cout << "Parsed request:" << std::endl;
@@ -150,17 +158,6 @@ std::string ServerManager::getRawRequestFromEpollEvent(EpollEvent &event)
 		buffer += bufferTmp;
 	}
 	while (bytes == sizeof(bufferTmp) - 1);
-
-	if (bytes > 0)
-	{
-		std::cout << "Client request received:" << std::endl;
-		std::cout << buffer << std::endl;
-		this->_epoll.setSocketOnWriteMode(*this->_clients[event.data.fd]);
-	}
-	else
-	{
-		this->closeClientConnection(event.data.fd);
-	}
 	return (buffer);
 }
 

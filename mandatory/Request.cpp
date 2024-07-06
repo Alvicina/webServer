@@ -1,5 +1,7 @@
 #include "../includes/Request.hpp"
 
+std::map<Methods, std::string> Request::_methodDict;
+
 Request::Request() {}
 
 Request::Request(const Request &request)
@@ -29,19 +31,60 @@ Request::~Request() {}
 
 std::ostream &operator<<(std::ostream &os, const Request &request)
 {
-    os
-		<< request._method << " " 
-		<< request._uri << " " 
-		<< request._protocol << "/"
-		<< request._protocolVersion << std::endl;
-	std::map<std::string, std::string>::const_iterator it = request._headers.begin();
-	while (it != request._headers.end())
+	os << Request::getMethodName(request._method) << " ";
+	os << request._uri;
+	if (request._args.size() > 0)
 	{
-		os << it->first << ": " << it->second << std::endl;
+		std::map<std::string, std::string>::const_iterator argIt = request._args.begin();
+		os << "?" << argIt->first << "=" << argIt->second;
+		argIt++;
+		while (argIt != request._args.end())
+		{
+			os << "&" << argIt->first << "=" << argIt->second;
+			argIt++;
+		}
+	}
+    os
+		<< " " << request._protocol << "/"
+		<< request._protocolVersion << std::endl;
+	std::map<std::string, std::string>::const_iterator headersIt = request._headers.begin();
+	while (headersIt != request._headers.end())
+	{
+		os << headersIt->first << ": " << headersIt->second << std::endl;
+		headersIt++;
+	}
+	os << std::endl << request._content;
+    return os;
+}
+
+Methods Request::getMethodEnumValue(const std::string &methodName)
+{
+	if (Request::_methodDict.size() == 0)
+		Request::initMethodDict();
+	std::map<Methods, std::string>::iterator it = Request::_methodDict.begin();
+	while (it != Request::_methodDict.end())
+	{
+		if (it->second.compare(methodName) == 0)
+			return (it->first);
 		it++;
 	}
-	os << std::endl << request._content << std::endl;
-    return os;
+	return (UNKNOWN);
+}
+
+void Request::initMethodDict()
+{
+	Request::_methodDict[GET] = "GET";
+	Request::_methodDict[POST] = "POST";
+	Request::_methodDict[PUT] = "PUT";
+	Request::_methodDict[DELETE] = "DELETE";
+	Request::_methodDict[HEAD] = "HEAD";
+}
+
+std::string Request::getMethodName(const Methods &method)
+{
+	if (Request::_methodDict.size() == 0)
+		Request::initMethodDict();
+	return (Request::_methodDict[method]);
 }
 
 std::string &Request::getRaw()
@@ -49,7 +92,7 @@ std::string &Request::getRaw()
 	return (this->_raw);
 }
 
-void Request::setRaw(std::string &raw)
+void Request::setRaw(const std::string &raw)
 {
 	this->_raw = raw;
 }
@@ -79,7 +122,7 @@ Methods &Request::getMethod()
 	return (this->_method);
 }
 
-void Request::setMethod(Methods &method)
+void Request::setMethod(const Methods &method)
 {
 	this->_method = method;
 }
@@ -89,7 +132,7 @@ std::string &Request::getUri()
 	return (this->_uri);
 }
 
-void Request::setUri(std::string &uri)
+void Request::setUri(const std::string &uri)
 {
 	this->_uri = uri;
 }
@@ -99,7 +142,7 @@ std::string &Request::getProtocol()
 	return (this->_protocol);
 }
 
-void Request::setProtocol(std::string &protocol)
+void Request::setProtocol(const std::string &protocol)
 {
 	this->_protocol = protocol;
 }
@@ -109,7 +152,7 @@ std::string &Request::getProtocolVersion()
 	return (this->_protocolVersion);
 }
 
-void Request::setProtocolVersion(std::string &protocolVersion)
+void Request::setProtocolVersion(const std::string &protocolVersion)
 {
 	this->_protocolVersion = protocolVersion;
 }
@@ -119,7 +162,7 @@ std::string &Request::getContent()
 	return (this->_content);
 }
 
-void Request::setContent(std::string &content)
+void Request::setContent(const std::string &content)
 {
 	this->_content = content;
 }

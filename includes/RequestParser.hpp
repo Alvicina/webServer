@@ -13,6 +13,9 @@ class RequestParser
 		RequestParser();
 		RequestParser(const RequestParser &parser);
 
+		void parseRequestLine(std::string &rawRequest);
+		void parseHeaders(std::string &rawRequest);
+
 	public:
 		RequestParser(std::string &raw);
 		RequestParser &operator=(const RequestParser &parser);
