@@ -130,9 +130,10 @@ void ServerManager::handleClientRequest(EpollEvent &event)
 		std::cout << "Client request received:" << std::endl;
 		std::cout << rawRequest << std::endl;
 		RequestParser requestParser(rawRequest);
-		Request &request = requestParser.parseRequest();
+		Request &request = requestParser.parseRequest(this->_servers);
 		std::cout << "Parsed request:" << std::endl;
 		std::cout << request << std::endl;
+		std::cout << "Requested server port: " << request.getServer()->getPort() << std::endl;
 	}
 	if (event.events & EPOLLOUT)
 	{

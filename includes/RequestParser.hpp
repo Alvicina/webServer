@@ -18,13 +18,14 @@ class RequestParser
 		void parseArgs(std::string args);
 		void parseArg(std::string arg);
 		void parseHeaders(std::string &rawRequest);
+		void setRequestServer(std::vector<Server> &servers);
 
 	public:
 		RequestParser(std::string &raw);
 		RequestParser &operator=(const RequestParser &parser);
 		~RequestParser();
 
-		Request &parseRequest();
+		Request &parseRequest(std::vector<Server> &servers);
 
 		class RequestParseErrorException : public std::exception
 		{

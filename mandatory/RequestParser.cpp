@@ -25,12 +25,13 @@ RequestParser::~RequestParser()
 	delete this->_request;
 }
 
-Request &RequestParser::parseRequest()
+Request &RequestParser::parseRequest(std::vector<Server> &servers)
 {
 	std::string rawRequest = this->_raw;
 	this->parseRequestLine(rawRequest);
 	this->parseHeaders(rawRequest);
 	this->_request->setContent(rawRequest);
+	this->setRequestServer(servers);
 	return (*this->_request);
 }
 
@@ -122,4 +123,23 @@ void RequestParser::parseHeaders(std::string &rawRequest)
 		std::getline(stream, line);
 	}
 	rawRequest = rawRequest.substr(headersLen + 2);
+}
+
+void RequestParser::setRequestServer(std::vector<Server> &servers)
+{
+	std::string requestHost;
+	size_t hostPortSeparator;
+	int requestPort;
+
+	requestHost = this->_request->getHeaders()["Host"];
+	hostPortSeparator = requestHost.find(":");
+	if (hostPortSeparator == std::string::npos)
+		requestPort = 80;
+	else
+		requestPort = std::atoi(requestHost.substr(hostPortSeparator + 1).c_str());
+	for (size_t i = 0; i < servers.size(); i++)
+	{
+		if (servers[i].getPort() == requestPort)
+			this->_request->setServer(servers[i]);
+	}
 }
