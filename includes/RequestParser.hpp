@@ -14,6 +14,9 @@ class RequestParser
 		RequestParser(const RequestParser &parser);
 
 		void parseRequestLine(std::string &rawRequest);
+		void parseUri(std::string uri);
+		void parseArgs(std::string args);
+		void parseArg(std::string arg);
 		void parseHeaders(std::string &rawRequest);
 
 	public:
@@ -22,6 +25,16 @@ class RequestParser
 		~RequestParser();
 
 		Request &parseRequest();
+
+		class RequestParseErrorException : public std::exception
+		{
+			public:
+				const char *what() const throw()
+				{
+					return ("The request format is invalid.");
+				}
+		};
+		
 };
 
 #endif

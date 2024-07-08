@@ -38,20 +38,70 @@ void RequestParser::parseRequestLine(std::string &rawRequest)
 {
 	size_t separator;
 
-	// TODO: Handle errors when separator is std::string::npos (send HTTP 400 response)
 	separator = rawRequest.find(" ");
+	if (separator == std::string::npos)
+		throw RequestParseErrorException();
 	this->_request->setMethod(Request::getMethodEnumValue(rawRequest.substr(0, separator)));
 	rawRequest = rawRequest.substr(separator + 1);
 	separator = rawRequest.find(" ");
-	// TODO: Separate URI from URL parameters (?arg1=val1&arg2=val2)
-	this->_request->setUri(rawRequest.substr(0, separator));
+	if (separator == std::string::npos)
+		throw RequestParseErrorException();
+	this->parseUri(rawRequest.substr(0, separator));
 	rawRequest = rawRequest.substr(separator + 1);
 	separator = rawRequest.find("/");
+	if (separator == std::string::npos)
+		throw RequestParseErrorException();
 	this->_request->setProtocol(rawRequest.substr(0, separator));
 	rawRequest = rawRequest.substr(separator + 1);
 	separator = rawRequest.find("\n");
+	if (separator == std::string::npos)
+		throw RequestParseErrorException();
 	this->_request->setProtocolVersion(rawRequest.substr(0, separator));
 	rawRequest = rawRequest.substr(separator + 1);
+}
+
+void RequestParser::parseUri(std::string uri)
+{
+	size_t separator;
+
+	separator = uri.find("?");
+	if (separator == std::string::npos)
+	{
+		this->_request->setUri(uri);
+	}
+	else
+	{
+		this->_request->setUri(uri.substr(0, separator));
+		this->parseArgs(uri.substr(separator + 1));
+	}
+}
+
+void RequestParser::parseArgs(std::string args)
+{
+	size_t argSeparator;
+
+	argSeparator = args.find("&");
+	while (argSeparator != std::string::npos)
+	{
+		this->parseArg(args.substr(0, argSeparator));
+		args = args.substr(argSeparator + 1);
+		argSeparator = args.find("&");
+	}
+	this->parseArg(args);
+}
+
+void RequestParser::parseArg(std::string arg)
+{
+	std::string key;
+	std::string value;
+	size_t keyValueSeparator;
+
+	keyValueSeparator = arg.find("=");
+	if (keyValueSeparator == std::string::npos)
+		throw RequestParseErrorException();
+	key = arg.substr(0, keyValueSeparator);
+	value = arg.substr(keyValueSeparator + 1);
+	this->_request->getArgs()[key] = value;
 }
 
 void RequestParser::parseHeaders(std::string &rawRequest)
@@ -66,6 +116,8 @@ void RequestParser::parseHeaders(std::string &rawRequest)
 	{
 		headersLen += line.size() + 1;
 		size_t separator = line.find(": ");
+		if (separator == std::string::npos)
+			throw RequestParseErrorException();
 		headers[line.substr(0, separator)] = line.substr(separator + 2);
 		std::getline(stream, line);
 	}
