@@ -83,3 +83,15 @@ void Response::setProtocolVersion(std::string &protocolVersion)
 	this->_protocolVersion = protocolVersion;
 }
 
+std::string &Response::getFile()
+{
+	return (this->_file);
+}
+
+void Response::setFile(std::string & file)
+{
+	_file = file;
+}
+
+
+

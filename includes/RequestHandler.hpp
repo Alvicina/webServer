@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/04 18:54:34 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/05 17:34:20 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/08 12:04:10 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,9 @@ class RequestHandler
 {
 	protected:
 		Methods		_method;
-		Request*	_request; 
+		Request*	_request;
+		int			_errorCode; 
+		std::map<std::string, std::string> _exts;
 
 	public:
 		RequestHandler(Request & request);
@@ -32,6 +34,8 @@ class RequestHandler
 		Methods& getMethods(void);
 		Request* getRequest(void);
 		virtual Response* handleRequest(void) = 0;
+		std::string & getExts(std::string & ext);
+		
 };
 
 #endif

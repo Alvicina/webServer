@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:40:14 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/05 13:10:27 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/08 11:55:22 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 
 class Utils
 {
+	private:
+	
 	public:
 		static void inputMessage(std::string const & message, bool error);
 		static long int	stringToInt(std::string const & string);

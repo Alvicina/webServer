@@ -10,6 +10,7 @@ class Response
 		std::map<std::string, std::string> _headers;
 		std::string _raw;
 		std::string _content;
+		std::string _file;
 		std::string _protocol;
 		std::string _protocolVersion;
 
@@ -31,6 +32,8 @@ class Response
 		void setProtocol(std::string &protocol);
 		std::string &getProtocolVersion();
 		void setProtocolVersion(std::string &protocolVersion);
+		std::string &getFile();
+		void setFile(std::string & file);
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 13:28:34 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/05 18:49:15 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/08 12:46:10 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,12 @@ RequestHandlerInvalid::RequestHandlerInvalid(Request & request) :
 RequestHandler(request)
 {
 	
+}
+
+RequestHandlerInvalid::RequestHandlerInvalid(Request & request, int errorCode) : 
+RequestHandler(request)
+{
+	_errorCode = errorCode;
 }
 
 RequestHandlerInvalid::~RequestHandlerInvalid()
@@ -39,7 +45,7 @@ RequestHandlerInvalid& RequestHandlerInvalid::operator=(RequestHandlerInvalid & 
 	return (*this);
 }
 
-void RequestHandlerInvalid::ResponseContentRoutine(Response & response)
+void RequestHandlerInvalid::ResponseContentFileRoutine(Response & response)
 {
 	std::map<int, std::string> errorPages = this->_request->getServer()->getErrorPages();
 	std::map<int, std::string>::iterator it;
@@ -52,34 +58,87 @@ void RequestHandlerInvalid::ResponseContentRoutine(Response & response)
 			{
 				std::string content = Utils::codeStatus(it->first);
 				response.setContent(content);
+				std::string responseFile = "Default";
+				response.setFile(responseFile);
 				break ;
 			}
 			else
 			{
-				std::ifstream ErrorPageOpen((this->_request->getServer()->getRoot() + it->second).c_str());
-				/*if (!ErrorPageOpen)
-					throw EXCEPCION */
-				std::stringstream ErrorPageContent;
-				ErrorPageContent << ErrorPageOpen.rdbuf();
-				std::string content = ErrorPageContent.str();
-				response.setContent(content);
-				break ;
+				std::string path = (this->_request->getServer()->getRoot() + it->second);
+				if (access(path.c_str(), F_OK) == -1 && access(path.c_str(), R_OK) == -1)
+				{
+					std::string content = Utils::codeStatus(it->first);
+					response.setContent(content);
+					std::string responseFile = "Default";
+					response.setFile(responseFile);
+					break ;
+				}
+				else
+				{
+					std::ifstream ErrorPageOpen(path.c_str());
+					/*if (!ErrorPageOpen)
+						throw EXCEPCION */
+					std::stringstream ErrorPageContent;
+					ErrorPageContent << ErrorPageOpen.rdbuf();
+					std::string content = ErrorPageContent.str();
+					response.setContent(content);
+					std::string responseFile = path;
+					response.setFile(responseFile);
+					break ;
+				}
 			}
 		}
 	}
 }
 
+void RequestHandlerInvalid::ResponseContentType(Response & response)
+{
+	std::map<std::string, std::string> ContentType;
+	std::string ext = response.getFile(); //.rfind('.', std::string::npos)
+	size_t pos = ext.rfind('.', std::string::npos);
+	if (pos == std::string::npos)
+	{
+		std::string extToFind = "default";
+		ContentType["Content-type: "] = getExts(extToFind);
+		response.setHeaders(ContentType);
+	}
+	else
+	{
+		std::string extToFind = ext.substr(pos);
+		ContentType["Content-type: "] = getExts(extToFind);
+		response.setHeaders(ContentType);
+	}
+}
+
+void RequestHandlerInvalid::ResponseHeaderRoutine(Response & response)
+{
+	ResponseContentType(response);
+}
+
 Response* RequestHandlerInvalid::handleRequest(void)
 {
 	Response *invalidResponse = new Response();
-
-	invalidResponse->setStatusCode(405);
-	ResponseContentRoutine(*invalidResponse);
+	
+	if (_errorCode == 0)
+		invalidResponse->setStatusCode(405);
+	else
+		invalidResponse->setStatusCode(_errorCode);
+	ResponseContentFileRoutine(*invalidResponse);
 	invalidResponse->setProtocol(_request->getProtocol());
 	invalidResponse->setProtocolVersion(_request->getProtocolVersion());
+	ResponseHeaderRoutine(*invalidResponse);
 	
+	std::cout << invalidResponse->getStatusCode() << std::endl;
+	std::cout << invalidResponse->getContent() << std::endl;
+	std::cout << invalidResponse->getFile() << std::endl;
+	std::cout << invalidResponse->getProtocol() << std::endl;
+	std::cout << invalidResponse->getProtocolVersion() << std::endl;
 	
-	//std::cout << invalidResponse->getContent() << std::endl;
+	for (std::map<std::string, std::string>::iterator it = invalidResponse->getHeaders().begin(); 
+	it != invalidResponse->getHeaders().end(); it++)
+	{
+		std::cout << it->first << it->second << std::endl;
+	}
 	
 	
 	
