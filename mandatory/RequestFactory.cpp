@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 11:04:21 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/05 17:24:42 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/08 18:26:32 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,27 @@ RequestHandler* RequestFactory::makeRequestHandler(Request & request)
 		case DELETE:
 			return (new RequestHandlerDelete(request));
 		default:
-			return (new RequestHandlerInvalid(request));
+			throw FactoryErrorException(405, request);
 	}
+}
+
+FactoryErrorException::FactoryErrorException(int errCode, Request & request) throw()
+{
+    _errCode = errCode;
+    _request = &request;
+}
+
+Response* FactoryErrorException::createResponse() const throw()
+{
+    return (new Response(_errCode, _request));
+}
+
+FactoryErrorException::~FactoryErrorException(void) throw()
+{
+    
+}
+
+int & FactoryErrorException::getErrCode(void)
+{
+    return (_errCode);
 }

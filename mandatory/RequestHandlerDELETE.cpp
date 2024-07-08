@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:58:56 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/05 17:25:40 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/08 17:13:23 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ RequestHandlerDelete& RequestHandlerDelete::operator=(RequestHandlerDelete & oth
 	return (*this);
 }
 
-Response* RequestHandlerDelete::handleRequest(void)
+Response* RequestHandlerDelete::doHandleRequest(void)
 {
 	return (new Response());
 }

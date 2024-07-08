@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 11:42:18 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/05 12:52:34 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/08 18:40:49 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #define REQUESTHANDLERGET_HPP
 
 #include "RequestHandler.hpp"
+
+class Response; 
 
 class RequestHandlerGet : public RequestHandler
 {
@@ -24,7 +26,7 @@ class RequestHandlerGet : public RequestHandler
 		RequestHandlerGet(RequestHandlerGet & copy);
 		RequestHandlerGet& operator=(RequestHandlerGet & other);
 		virtual ~RequestHandlerGet();
-		virtual Response* handleRequest(void);
+		virtual Response* doHandleRequest(void);
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 11:39:28 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/05 12:58:29 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/08 17:13:05 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ class RequestHandlerDelete : public RequestHandler
 		RequestHandlerDelete(RequestHandlerDelete & copy);
 		RequestHandlerDelete& operator=(RequestHandlerDelete & other);
 		virtual ~RequestHandlerDelete();
-		virtual Response* handleRequest(void);
+		virtual Response* doHandleRequest(void);
 };
 
 

@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:40:14 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/08 11:55:22 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/08 18:23:56 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,16 +46,6 @@ class ServerErrorException : public std::exception
 		ServerErrorException(std::string msg) throw();
 		virtual const char* what() const throw();
 		virtual ~ServerErrorException() throw();
-};
-
-class FactoryErrorException : public std::exception
-{
-	private:
-		std::string _msg;
-	public:
-		FactoryErrorException(std::string msg) throw();
-		virtual const char* what() const throw();
-		virtual ~FactoryErrorException() throw();
 };
 
 #endif

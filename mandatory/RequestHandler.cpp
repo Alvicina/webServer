@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:03:13 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/08 12:02:57 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/08 18:30:59 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,4 +70,39 @@ std::string & RequestHandler::getExts(std::string & ext)
 	if (_exts.count(ext))
 		return (_exts[ext]);
 	return (_exts["default"]);
+}
+
+Response* RequestHandler::handleRequest()
+{
+    try
+    {
+        Response* response = doHandleRequest();
+        return (response);
+    }
+    catch(HandlerErrorException &e)
+    {
+        Response* errorResponse = e.createResponse();
+        return (errorResponse);
+    }
+}
+
+HandlerErrorException::HandlerErrorException(int errCode, Request & request) throw()
+{
+    _errCode = errCode;
+    _request = &request;
+}
+
+Response* HandlerErrorException::createResponse() const throw()
+{
+    return (new Response(_errCode, _request));
+}
+
+HandlerErrorException::~HandlerErrorException(void) throw()
+{
+    
+}
+
+int & HandlerErrorException::getErrCode(void)
+{
+    return (_errCode);
 }

@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 11:42:40 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/05 12:52:20 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/08 17:13:14 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ class RequestHandlerPost : public RequestHandler
 		RequestHandlerPost(RequestHandlerPost & copy);
 		RequestHandlerPost& operator=(RequestHandlerPost & other);
 		virtual ~RequestHandlerPost();
-		virtual Response* handleRequest(void);
+		virtual Response* doHandleRequest(void);
 };
 
 #endif

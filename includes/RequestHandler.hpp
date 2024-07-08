@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/04 18:54:34 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/08 12:04:10 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/08 18:40:36 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,9 +33,22 @@ class RequestHandler
 		
 		Methods& getMethods(void);
 		Request* getRequest(void);
-		virtual Response* handleRequest(void) = 0;
+		virtual Response* doHandleRequest(void) = 0;
+		Response* handleRequest(void);
 		std::string & getExts(std::string & ext);
 		
+};
+
+class HandlerErrorException : public std::exception
+{
+	private:
+		int	_errCode;
+		Request *_request;
+	public:
+		HandlerErrorException(int errCode, Request & request) throw();
+		Response* createResponse() const throw();
+		virtual ~HandlerErrorException() throw();
+		int &getErrCode();
 };
 
 #endif

@@ -2,6 +2,7 @@
 #define RESPONSE_HPP
 
 #include "webserv.hpp"
+#include "Request.hpp"
 
 class Response
 {
@@ -13,13 +14,17 @@ class Response
 		std::string _file;
 		std::string _protocol;
 		std::string _protocolVersion;
+		std::map<std::string, std::string> _exts;
 
 	public:
 		Response();
+		Response(int errCode, Request *request);
 		Response(const Response &response);
 		Response &operator=(const Response &response);
 		~Response();
 
+		void initFileExt();
+		std::string & getFileExt(std::string & ext);
 		int getStatusCode();
 		void setStatusCode(int statusCode);
 		std::map<std::string, std::string> &getHeaders();

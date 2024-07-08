@@ -184,8 +184,20 @@ Response* ServerManager::handlerRoutine()
 	request.setLocation(_servers[0].getLocation()[0]);
 	request.setHeaders(headers);
 
-	RequestHandler *handler = RequestFactory::makeRequestHandler(request);
-	std::cout << "Type of request: " << handler->getMethods() << std::endl;
-	Response *response = handler->handleRequest();
-	return (response);
+	try
+	{
+		RequestHandler *handler = RequestFactory::makeRequestHandler(request);
+		std::cout << "Type of request: " << handler->getMethods() << std::endl;
+		Response *response = handler->handleRequest();
+		return (response);
+	}
+	catch (FactoryErrorException & e)
+	{
+		return (e.createResponse());
+	}
+	catch (HandlerErrorException & e)
+	{
+		return (e.createResponse());
+	}
+	
 }
