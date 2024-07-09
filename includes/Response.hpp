@@ -8,6 +8,7 @@ class Response
 {
 	private:
 		int _statusCode;
+		bool _errorResponse;
 		std::map<std::string, std::string> _headers;
 		std::string _raw;
 		std::string _content;
@@ -23,8 +24,6 @@ class Response
 		Response &operator=(const Response &response);
 		~Response();
 
-		void initFileExt();
-		std::string & getFileExt(std::string & ext);
 		int getStatusCode();
 		void setStatusCode(int statusCode);
 		std::map<std::string, std::string> &getHeaders();
@@ -39,6 +38,11 @@ class Response
 		void setProtocolVersion(std::string &protocolVersion);
 		std::string &getFile();
 		void setFile(std::string & file);
+		std::string & getFileExt(std::string & ext);
+		void setErrorResponse(bool isError);
+		bool & getErrorResponse();
+		void ResponseHeaderRoutine(Response & response, Request & request);
+		void initFileExt();
 };
 
 #endif

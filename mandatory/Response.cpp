@@ -1,6 +1,16 @@
 #include "../includes/Response.hpp"
 
-Response::Response() {}
+Response::Response()
+{
+	_statusCode = 0;
+	_errorResponse = false;
+	_raw = "";
+	_content = "";
+	_file = "";
+	_protocol = "";
+	_protocolVersion = "";
+	 initFileExt();
+}
 
 Response::Response(const Response &response)
 {
@@ -20,6 +30,8 @@ static void ResponseContentRoutine(Request & request, Response & response)
 			{
 				std::string content = Utils::codeStatus(it->first);
 				response.setContent(content);
+				std::string path = "default";
+				response.setFile(path);
 				break ;
 			}
 			else
@@ -29,6 +41,8 @@ static void ResponseContentRoutine(Request & request, Response & response)
 				{
 					std::string content = Utils::codeStatus(it->first);
 					response.setContent(content);
+					path = "default";
+					response.setFile(path);
 					break ;
 				}
 				else
@@ -38,6 +52,7 @@ static void ResponseContentRoutine(Request & request, Response & response)
 					ErrorPageContent << ErrorPageOpen.rdbuf();
 					std::string content = ErrorPageContent.str();
 					response.setContent(content);
+					response.setFile(path);
 					break ;
 				}
 			}
@@ -64,10 +79,61 @@ static void ResponseContentType(Response & response)
 	}
 }
 
-static void ResponseHeaderRoutine(Response & response, Request & request)
+static void ResponseContentLength(Response & response)
 {
-	(void) request;
+	size_t length = response.getContent().size();
+	std::stringstream ss;
+	ss << length;
+	std::string lengthTostring = ss.str();
+	response.getHeaders().insert(std::make_pair("Content-Length: ", lengthTostring));
+}
+
+static void ResponseConnectionType(Request & request, Response & response)
+{
+	if (request.getHeaders()["Connection"] == "keep-alive")
+		response.getHeaders().insert(std::make_pair("Connection: ", "keep-alive"));
+	else
+		response.getHeaders().insert(std::make_pair("Connection: ", "close"));
+}
+
+static void ResponseServer(Response & response)
+{
+	response.getHeaders().insert(std::make_pair("Server: ", "WebServer42"));
+}
+
+static void ResponseDate(Response & response)
+{
+	char date[1024];
+	time_t actual = time(0);
+	struct tm *GMTtime = gmtime(&actual);
+	strftime(date, sizeof(date), "%a, %d %b %Y %H:%M:%S %Z", GMTtime);
+	response.getHeaders().insert(std::make_pair("Date: ", date));
+}
+
+static void ResponseLocationForError(Response & response)
+{
+	if (response.getFile() == "default")
+		response.getHeaders().insert(std::make_pair("Location: ", "/"));
+	else
+		response.getHeaders().insert(std::make_pair("Location: ", response.getFile()));
+}
+
+static void ResponseLocation(Response & response, Request & request)
+{
+	if (response.getErrorResponse() == true)
+		ResponseLocationForError(response);
+	else
+		response.getHeaders().insert(std::make_pair("Location: ", request.getLocation()->getLocationPath()));
+}
+
+void Response::ResponseHeaderRoutine(Response & response, Request & request)
+{
 	ResponseContentType(response);
+	ResponseContentLength(response);
+	ResponseConnectionType(request, response);
+	ResponseServer(response);
+	ResponseLocation(response, request);
+	ResponseDate(response);
 }
 
 void Response::initFileExt()
@@ -91,12 +157,12 @@ void Response::initFileExt()
     _exts["default"] = "text/html";
 }
 
-Response::Response(int errCode, Request *request)
+Response::Response(int errCode, Request *request) : _errorResponse(true)
 {
 	initFileExt();
 	setStatusCode(errCode);
 	ResponseContentRoutine(*request, *this);
-	setFile(request->getUri());
+	//setFile(request->getUri());
 	setProtocol(request->getProtocol());
 	setProtocolVersion(request->getProtocolVersion());
 	ResponseHeaderRoutine(*this, *request);
@@ -205,6 +271,16 @@ std::string & Response::getFileExt(std::string & ext)
 	if (_exts.count(ext))
 		return (_exts[ext]);
 	return (_exts["default"]);
+}
+
+void Response::setErrorResponse(bool isError)
+{
+	_errorResponse = isError;
+}
+
+bool & Response::getErrorResponse()
+{
+	return (_errorResponse);
 }
 
 
