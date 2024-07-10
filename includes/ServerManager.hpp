@@ -5,6 +5,7 @@
 #include "Epoll.hpp"
 #include "RequestFactory.hpp"
 #include "Response.hpp"
+#include "RequestParser.hpp"
 
 class ServerManager
 {
@@ -22,7 +23,6 @@ class ServerManager
 		void handleNewConnection(Server &server);
 		void handleClientRequest(EpollEvent &event);
 		void closeClientConnection(int fd);
-		Response* handlerRoutine();
 
 	public:
 		ServerManager();
