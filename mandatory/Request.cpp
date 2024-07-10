@@ -2,7 +2,7 @@
 
 std::map<Methods, std::string> Request::_methodDict;
 
-Request::Request() {}
+Request::Request(): _server(NULL), _location(NULL) {}
 
 Request::Request(const Request &request)
 {

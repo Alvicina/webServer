@@ -32,6 +32,7 @@ Request &RequestParser::parseRequest(std::vector<Server> &servers)
 	this->parseHeaders(rawRequest);
 	this->_request->setContent(rawRequest);
 	this->setRequestServer(servers);
+	this->setRequestLocations();
 	return (*this->_request);
 }
 
@@ -141,5 +142,29 @@ void RequestParser::setRequestServer(std::vector<Server> &servers)
 	{
 		if (servers[i].getPort() == requestPort)
 			this->_request->setServer(servers[i]);
+	}
+}
+
+void RequestParser::setRequestLocations()
+{
+	std::vector<Location> &locations = this->_request->getServer()->getLocation();
+
+	for (size_t i = 0; i < locations.size(); i++)
+	{
+		std::string testDir;
+		size_t uriSize;
+		size_t locationPathSize;
+
+		uriSize = this->_request->getUri().size();
+		locationPathSize = locations[i].getLocationPath().size();
+		testDir = this->_request->getUri();
+		testDir = testDir.substr(0, locationPathSize);
+		if (testDir.compare(locations[i].getLocationPath()) != 0)
+			continue;
+		if (uriSize > locationPathSize && this->_request->getUri()[locationPathSize] != '/')
+			continue;
+		Location *requestLocation = this->_request->getLocation();
+		if (!requestLocation || requestLocation->getLocationPath().size() < locationPathSize)
+			this->_request->setLocation(locations[i]);
 	}
 }

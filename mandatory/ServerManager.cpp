@@ -126,14 +126,9 @@ void ServerManager::handleClientRequest(EpollEvent &event)
 			return;
 		}
 		this->_epoll.setSocketOnWriteMode(*this->_clients[event.data.fd]);
-		// TODO: Handle errors when separator is std::string::npos (send HTTP 400 response)
-		std::cout << "Client request received:" << std::endl;
-		std::cout << rawRequest << std::endl;
+		// TODO: Handle request parse errors (send a response with HTTP error code)
 		RequestParser requestParser(rawRequest);
-		Request &request = requestParser.parseRequest(this->_servers);
-		std::cout << "Parsed request:" << std::endl;
-		std::cout << request << std::endl;
-		std::cout << "Requested server port: " << request.getServer()->getPort() << std::endl;
+		requestParser.parseRequest(this->_servers);
 	}
 	if (event.events & EPOLLOUT)
 	{
