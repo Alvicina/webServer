@@ -132,11 +132,14 @@ void ServerManager::handleClientRequest(EpollEvent &event)
 	}
 	if (event.events & EPOLLOUT)
 	{
-		std::string response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 12\n\nHello, Javi!";
-		if (send(event.data.fd, response.c_str(), response.size(), 0) == -1)
+		Response *response = handlerRoutine();
+
+		//std::string response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 12\n\nHello, Javi!";
+		if (/*send(event.data.fd, response.c_str(), response.size(), 0) == -1*/send(event.data.fd, response->getRaw().c_str(), response->getRaw().size(), 0) == -1)
 			throw IOException();
 		this->_epoll.setSocketOnReadMode(*this->_clients[event.data.fd]);
 		std::cout << "Response sent!" << std::endl;
+		delete response;
 	}
 }
 
@@ -170,4 +173,42 @@ void ServerManager::closeClientConnection(int fd)
 void ServerManager::setServers(const std::vector<Server> &servers)
 {
 	this->_servers = servers;
+}
+
+Response* ServerManager::handlerRoutine()
+{
+	Request request;
+	Methods value = GET;
+	std::string protocol = "HTTP";
+	std::string protocolversion = "1.1";
+	std::string raw = "http://localhost:8002/index.html";
+	std::string uri = "login.html";
+	std::map<std::string, std::string> headers;
+	headers["Connection"] = "keep-alive";
+
+	request.setMethod((value));
+	request.setProtocol(protocol);
+	request.setProtocolVersion(protocolversion);
+	request.setRaw(raw); 
+	request.setUri(uri);
+	request.setServer(_servers[0]);
+	request.setLocation(_servers[0].getLocation()[0]);
+	request.setHeaders(headers);
+
+	try
+	{
+		RequestHandler *handler = RequestFactory::makeRequestHandler(request);
+		Response *response = handler->handleRequest();
+		delete handler;
+		return (response);
+	}
+	catch (FactoryErrorException & e)
+	{
+		return (e.createResponse());
+	}
+	catch (HandlerErrorException & e)
+	{
+		return (e.createResponse());
+	}
+	
 }
