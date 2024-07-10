@@ -18,6 +18,7 @@ Request &Request::operator=(const Request &request)
 		this->_uri = request._uri;
 		this->_protocol = request._protocol;
 		this->_protocolVersion = request._protocolVersion;
+		this->_content = request._content;
 		this->_server = request._server;
 		this->_location = request._location;
 	}
@@ -94,6 +95,16 @@ std::string &Request::getProtocolVersion()
 void Request::setProtocolVersion(std::string &protocolVersion)
 {
 	this->_protocolVersion = protocolVersion;
+}
+
+std::string &Request::getContent()
+{
+	return (this->_content);
+}
+
+void Request::setContent(std::string &content)
+{
+	this->_content = content;
 }
 
 Server *Request::getServer()
