@@ -152,18 +152,6 @@ Response::Response(int errCode, Request *request) : _errorResponse(true)
 	setProtocolVersion(request->getProtocolVersion());
 	ResponseHeaderRoutine(*this, *request);
 	ResponseRawRoutine();
-	/*std::cout << getStatusCode() << std::endl;
-	std::cout << getContent() << std::endl;
-	std::cout << getFile() << std::endl;
-	std::cout << getProtocol() << std::endl;
-	std::cout << getProtocolVersion() << std::endl;
-	std::cout << getStatusCodeMessage() << std::endl;
-	
-	for (std::map<std::string, std::string>::iterator it = getHeaders().begin(); 
-	it != getHeaders().end(); it++)
-	{
-		std::cout << it->first << it->second << std::endl;
-	}*/
 }
 
 Response::Response()
