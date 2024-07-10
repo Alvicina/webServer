@@ -1,4 +1,5 @@
 #include "../includes/Request.hpp"
+#include "../includes/Server.hpp"
 
 std::map<Methods, std::string> Request::_methodDict;
 

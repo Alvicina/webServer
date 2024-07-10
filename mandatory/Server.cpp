@@ -11,6 +11,8 @@
 /* ************************************************************************** */
 
 #include "../includes/Server.hpp"
+#include "../includes/Request.hpp"
+#include "../includes/Response.hpp"
 
 Server::Server() 
 {
@@ -595,4 +597,23 @@ void Server::serverPrinter(void)
 		(*it).locationPrinter();
 
 	std::cout << "---------------------------------------------" << std::endl;
+}
+
+Response *Server::handleRequest(Request &request)
+{
+	try
+	{
+		RequestHandler *handler = RequestFactory::makeRequestHandler(request);
+		Response *response = handler->handleRequest();
+		delete handler;
+		return (response);
+	}
+	catch (FactoryErrorException & e)
+	{
+		return (e.createResponse());
+	}
+	catch (HandlerErrorException & e)
+	{
+		return (e.createResponse());
+	}
 }

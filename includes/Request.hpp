@@ -2,8 +2,9 @@
 #define REQUEST_HPP
 
 #include "webserv.hpp"
-#include "Server.hpp"
 #include "Location.hpp"
+
+class Server;
 
 class Request
 {
