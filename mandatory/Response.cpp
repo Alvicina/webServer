@@ -116,7 +116,7 @@ static void ResponseLocation(Response & response, Request & request)
 
 void Response::ResponseHeaderRoutine(Response & response, Request & request)
 {
-	ResponseContentType(response);
+	ResponseContentType(response); //cuidado si metemos algun archivo con extension no contemplada
 	ResponseContentLength(response);
 	ResponseConnectionType(request, response);
 	ResponseServer(response);

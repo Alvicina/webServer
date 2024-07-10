@@ -172,7 +172,7 @@ Response* ServerManager::handlerRoutine()
 	std::string protocol = "HTTP";
 	std::string protocolversion = "1.1";
 	std::string raw = "http://localhost:8002/index.html";
-	std::string uri = "";
+	std::string uri = "login.html";
 	std::map<std::string, std::string> headers;
 	headers["Connection"] = "keep-alive";
 
