@@ -68,9 +68,6 @@ static void ResponseContentType(Response & response)
 
 static void ResponseContentLength(Response & response)
 {
-	/*size_t length = response.getContent().size();
-	std::stringstream ss;
-	ss << length;*/
 	std::string lengthTostring = Utils::intToString((int)response.getContent().size());
 	response.getHeaders().insert(std::make_pair("Content-Length: ", lengthTostring));
 }
@@ -139,8 +136,6 @@ void Response::ResponseRawRoutine()
 	}
 	raw.append("\n" + getContent());
 	setRaw(raw);
-
-	//std::cout << raw << std::endl;
 }
 
 Response::Response(int errCode, Request *request) : _errorResponse(true)
