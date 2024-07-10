@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:39:56 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/10 12:07:16 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/10 12:40:44 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,8 @@ void RequestHandlerGet::ResponseContentRoutine(Response *response)
 	int typeOfResource = Utils::typeOfFile(pathToResource);
 	(void) typeOfResource;
 	(void) response;
-	std::cout << pathToResource << std::endl;			
+	std::cout << pathToResource << std::endl;	
+	std::cout << typeOfResource << std::endl;			
 }
 
 Response * RequestHandlerGet::doHandleRequest(void)

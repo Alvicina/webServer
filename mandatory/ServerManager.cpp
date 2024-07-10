@@ -168,11 +168,11 @@ void ServerManager::setServers(const std::vector<Server> &servers)
 Response* ServerManager::handlerRoutine()
 {
 	Request request;
-	Methods value = HEAD;
+	Methods value = GET;
 	std::string protocol = "HTTP";
 	std::string protocolversion = "1.1";
 	std::string raw = "http://localhost:8002/index.html";
-	std::string uri = "index.html";
+	std::string uri = "fusion_web";
 	std::map<std::string, std::string> headers;
 	headers["Connection"] = "keep-alive";
 
@@ -188,7 +188,6 @@ Response* ServerManager::handlerRoutine()
 	try
 	{
 		RequestHandler *handler = RequestFactory::makeRequestHandler(request);
-		std::cout << "Type of request: " << handler->getMethods() << std::endl;
 		Response *response = handler->handleRequest();
 		delete handler;
 		return (response);
