@@ -135,9 +135,9 @@ void Response::ResponseRawRoutine()
 	+ getStatusCodeMessage() +  "\n"));
 	for(it = getHeaders().begin(); it != getHeaders().end(); it++)
 	{
-		raw.append(it->first + " " + it->second + "\n");
+		raw.append(it->first + it->second + "\n");
 	}
-	raw.append("\n\n" + getContent());
+	raw.append("\n" + getContent());
 	setRaw(raw);
 
 	//std::cout << raw << std::endl;

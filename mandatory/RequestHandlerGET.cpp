@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:39:56 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/10 11:11:16 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/10 12:07:16 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,10 +39,21 @@ RequestHandlerGet& RequestHandlerGet::operator=(RequestHandlerGet & other)
 	return (*this);
 }
 
+void RequestHandlerGet::ResponseContentRoutine(Response *response)
+{
+	std::string pathToResource = this->_request->getLocation()->getLocationRoot() +
+	this->_request->getLocation()->getLocationPath() + this->_request->getUri();
+
+	int typeOfResource = Utils::typeOfFile(pathToResource);
+	(void) typeOfResource;
+	(void) response;
+	std::cout << pathToResource << std::endl;			
+}
+
 Response * RequestHandlerGet::doHandleRequest(void)
 {
 	Response *response = new Response();
 
-	
+	ResponseContentRoutine(response);
 	return (response);
 }

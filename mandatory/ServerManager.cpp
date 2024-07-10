@@ -141,8 +141,8 @@ void ServerManager::handleClientRequest(EpollEvent &event)
 	if (event.events & EPOLLOUT)
 	{
 		Response *response = handlerRoutine();
-		//std::string response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 12\n\nHello, Javi!";
 
+		//std::string response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 12\n\nHello, Javi!";
 		if (/*send(event.data.fd, response.c_str(), response.size(), 0) == -1*/send(event.data.fd, response->getRaw().c_str(), response->getRaw().size(), 0) == -1)
 			throw IOException();
 		this->_epoll.setSocketOnReadMode(*this->_clients[event.data.fd]);
