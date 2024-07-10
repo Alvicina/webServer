@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "../includes/RequestHandlerGET.hpp"
+#include "../includes/Server.hpp"
 
 RequestHandlerGet::RequestHandlerGet(Request & request) : 
 RequestHandler(request)

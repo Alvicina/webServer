@@ -17,6 +17,11 @@
 #include "Socket.hpp"
 #include "Utils.hpp"
 #include "Location.hpp"
+#include "RequestHandler.hpp"
+#include "RequestFactory.hpp"
+
+class Request;
+class Response;
 
 class Server
 {
@@ -77,6 +82,7 @@ class Server
 		void	serverPrinter(void);
 		void	initMasterSocket();
 		Socket 	&getSocket();
+		Response *handleRequest(Request &request);
 };		
 
 #endif

@@ -31,6 +31,8 @@ HEADER      = $(addprefix $(HEADER_DIR), $(HEADER_SRCS))
 MPATH_SRCS  =  \
 	Main.cpp Utils.cpp FileChecker.cpp FileParser.cpp Server.cpp Location.cpp \
 	ServerManager.cpp Socket.cpp Epoll.cpp Request.cpp Response.cpp \
+	RequestFactory.cpp RequestHandler.cpp RequestHandlerDELETE.cpp \
+	RequestHandlerGET.cpp RequestHandlerPOST.cpp RequestParser.cpp \
 
 MPATH_DIR   = mandatory/
 MPATH       = $(addprefix $(MPATH_DIR), $(MPATH_SRCS))

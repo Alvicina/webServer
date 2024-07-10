@@ -117,6 +117,8 @@ void ServerManager::handleNewConnection(Server &server)
 
 void ServerManager::handleClientRequest(EpollEvent &event)
 {
+	Response *response;
+	
 	if (event.events & EPOLLIN)
 	{
 		std::string rawRequest = this->getRawRequestFromEpollEvent(event);
@@ -125,22 +127,30 @@ void ServerManager::handleClientRequest(EpollEvent &event)
 			this->closeClientConnection(event.data.fd);
 			return;
 		}
-		this->_epoll.setSocketOnWriteMode(*this->_clients[event.data.fd]);
+		// this->_epoll.setSocketOnWriteMode(*this->_clients[event.data.fd]);
 		// TODO: Handle request parse errors (send a response with HTTP error code)
 		RequestParser requestParser(rawRequest);
-		requestParser.parseRequest(this->_servers);
-	}
-	if (event.events & EPOLLOUT)
-	{
-		Response *response = handlerRoutine();
+		Request &request = requestParser.parseRequest(this->_servers);
+		std::cout << request << std::endl;
+		response = request.getServer()->handleRequest(request);
+		// std::cout << response->getRaw() << std::endl;
 
-		//std::string response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 12\n\nHello, Javi!";
-		if (/*send(event.data.fd, response.c_str(), response.size(), 0) == -1*/send(event.data.fd, response->getRaw().c_str(), response->getRaw().size(), 0) == -1)
+
+		// std::cout << response->getRaw() << std::endl;
+		if (send(event.data.fd, response->getRaw().c_str(), response->getRaw().size(), 0) == -1)
 			throw IOException();
-		this->_epoll.setSocketOnReadMode(*this->_clients[event.data.fd]);
+		// this->_epoll.setSocketOnReadMode(*this->_clients[event.data.fd]);
 		std::cout << "Response sent!" << std::endl;
-		delete response;
 	}
+	// if (event.events & EPOLLOUT)
+	// {
+	// 	std::cout << response->getRaw() << std::endl;
+	// 	if (send(event.data.fd, response->getRaw().c_str(), response->getRaw().size(), 0) == -1)
+	// 		throw IOException();
+	// 	this->_epoll.setSocketOnReadMode(*this->_clients[event.data.fd]);
+	// 	std::cout << "Response sent!" << std::endl;
+	// 	// delete response;
+	// }
 }
 
 std::string ServerManager::getRawRequestFromEpollEvent(EpollEvent &event)
@@ -173,42 +183,4 @@ void ServerManager::closeClientConnection(int fd)
 void ServerManager::setServers(const std::vector<Server> &servers)
 {
 	this->_servers = servers;
-}
-
-Response* ServerManager::handlerRoutine()
-{
-	Request request;
-	Methods value = GET;
-	std::string protocol = "HTTP";
-	std::string protocolversion = "1.1";
-	std::string raw = "http://localhost:8002/index.html";
-	std::string uri = "login.html";
-	std::map<std::string, std::string> headers;
-	headers["Connection"] = "keep-alive";
-
-	request.setMethod((value));
-	request.setProtocol(protocol);
-	request.setProtocolVersion(protocolversion);
-	request.setRaw(raw); 
-	request.setUri(uri);
-	request.setServer(_servers[0]);
-	request.setLocation(_servers[0].getLocation()[0]);
-	request.setHeaders(headers);
-
-	try
-	{
-		RequestHandler *handler = RequestFactory::makeRequestHandler(request);
-		Response *response = handler->handleRequest();
-		delete handler;
-		return (response);
-	}
-	catch (FactoryErrorException & e)
-	{
-		return (e.createResponse());
-	}
-	catch (HandlerErrorException & e)
-	{
-		return (e.createResponse());
-	}
-	
 }

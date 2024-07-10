@@ -1,4 +1,5 @@
 #include "../includes/Response.hpp"
+#include "../includes/Server.hpp"
 
 static void ResponseContentRoutine(Request & request, Response & response)
 {

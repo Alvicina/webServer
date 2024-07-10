@@ -1,4 +1,5 @@
 #include "../includes/RequestParser.hpp"
+#include "../includes/Server.hpp"
 
 RequestParser::RequestParser(): _request(new Request()) {}
 
