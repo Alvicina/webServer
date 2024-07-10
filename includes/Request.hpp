@@ -8,7 +8,7 @@
 class Request
 {
 	private:
-		std::string _raw;
+		std::string _raw; 
 		std::map<std::string, std::string> _headers;
 		std::map<std::string, std::string> _args;
 		Methods _method;
