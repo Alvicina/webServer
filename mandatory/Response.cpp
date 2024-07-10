@@ -1,22 +1,5 @@
 #include "../includes/Response.hpp"
 
-Response::Response()
-{
-	_statusCode = 0;
-	_errorResponse = false;
-	_raw = "";
-	_content = "";
-	_file = "";
-	_protocol = "";
-	_protocolVersion = "";
-	 initFileExt();
-}
-
-Response::Response(const Response &response)
-{
-	*this = response;
-}
-
 static void ResponseContentRoutine(Request & request, Response & response)
 {
 	std::map<int, std::string> errorPages = request.getServer()->getErrorPages();
@@ -30,6 +13,7 @@ static void ResponseContentRoutine(Request & request, Response & response)
 			{
 				std::string content = Utils::codeStatus(it->first);
 				response.setContent(content);
+				response.setStatusCodeMessage(content);
 				std::string path = "default";
 				response.setFile(path);
 				break ;
@@ -41,16 +25,19 @@ static void ResponseContentRoutine(Request & request, Response & response)
 				{
 					std::string content = Utils::codeStatus(it->first);
 					response.setContent(content);
+					response.setStatusCodeMessage(content);
 					path = "default";
 					response.setFile(path);
 					break ;
 				}
 				else
 				{
+					std::string content = Utils::codeStatus(it->first);
+					response.setStatusCodeMessage(content);
 					std::ifstream ErrorPageOpen(path.c_str());
 					std::stringstream ErrorPageContent;
 					ErrorPageContent << ErrorPageOpen.rdbuf();
-					std::string content = ErrorPageContent.str();
+					content = ErrorPageContent.str();
 					response.setContent(content);
 					response.setFile(path);
 					break ;
@@ -63,28 +50,28 @@ static void ResponseContentRoutine(Request & request, Response & response)
 static void ResponseContentType(Response & response)
 {
 	std::map<std::string, std::string> ContentType;
-	std::string ext = response.getFile(); //.rfind('.', std::string::npos)
+	std::string ext = response.getFile();
 	size_t pos = ext.rfind('.', std::string::npos);
 	if (pos == std::string::npos)
 	{
 		std::string extToFind = "default";
-		ContentType["Content-type: "] = response.getFileExt(extToFind);
-		response.setHeaders(ContentType);
+		response.getHeaders().insert(std::make_pair("Content-type: ",
+		response.getFileExt(extToFind)));
 	}
 	else
 	{
 		std::string extToFind = ext.substr(pos);
-		ContentType["Content-type: "] = response.getFileExt(extToFind);
-		response.setHeaders(ContentType);
+		response.getHeaders().insert(std::make_pair("Content-type: ",
+		response.getFileExt(extToFind)));
 	}
 }
 
 static void ResponseContentLength(Response & response)
 {
-	size_t length = response.getContent().size();
+	/*size_t length = response.getContent().size();
 	std::stringstream ss;
-	ss << length;
-	std::string lengthTostring = ss.str();
+	ss << length;*/
+	std::string lengthTostring = Utils::intToString((int)response.getContent().size());
 	response.getHeaders().insert(std::make_pair("Content-Length: ", lengthTostring));
 }
 
@@ -123,7 +110,8 @@ static void ResponseLocation(Response & response, Request & request)
 	if (response.getErrorResponse() == true)
 		ResponseLocationForError(response);
 	else
-		response.getHeaders().insert(std::make_pair("Location: ", request.getLocation()->getLocationPath()));
+		response.getHeaders().insert(std::make_pair("Location: ",
+		request.getLocation()->getLocationPath()));
 }
 
 void Response::ResponseHeaderRoutine(Response & response, Request & request)
@@ -136,25 +124,23 @@ void Response::ResponseHeaderRoutine(Response & response, Request & request)
 	ResponseDate(response);
 }
 
-void Response::initFileExt()
+void Response::ResponseRawRoutine()
 {
-	_exts[".html"] = "text/html";
-    _exts[".htm"] = "text/html";
-    _exts[".css"] = "text/css";
-    _exts[".ico"] = "image/x-icon";
-    _exts[".avi"] = "video/x-msvideo";
-    _exts[".bmp"] = "image/bmp";
-    _exts[".doc"] = "application/msword";
-    _exts[".gif"] = "image/gif";
-    _exts[".gz"] = "application/x-gzip";
-    _exts[".ico"] = "image/x-icon";
-    _exts[".jpg"] = "image/jpeg";
-    _exts[".jpeg"] = "image/jpeg";
-    _exts[".png"] = "image/png";
-    _exts[".txt"] = "text/plain";
-    _exts[".mp3"] = "audio/mp3";
-    _exts[".pdf"] = "application/pdf";
-    _exts["default"] = "text/html";
+	std::string raw;
+	std::map<std::string, std::string>::iterator it;
+
+	raw = getProtocol() + "/";
+	raw.append((getProtocolVersion() + " "
+	+ Utils::intToString(getStatusCode()) + " "
+	+ getStatusCodeMessage() +  "\n"));
+	for(it = getHeaders().begin(); it != getHeaders().end(); it++)
+	{
+		raw.append(it->first + " " + it->second + "\n");
+	}
+	raw.append("\n\n" + getContent());
+	setRaw(raw);
+
+	//std::cout << raw << std::endl;
 }
 
 Response::Response(int errCode, Request *request) : _errorResponse(true)
@@ -162,22 +148,39 @@ Response::Response(int errCode, Request *request) : _errorResponse(true)
 	initFileExt();
 	setStatusCode(errCode);
 	ResponseContentRoutine(*request, *this);
-	//setFile(request->getUri());
 	setProtocol(request->getProtocol());
 	setProtocolVersion(request->getProtocolVersion());
 	ResponseHeaderRoutine(*this, *request);
-
-	std::cout << getStatusCode() << std::endl;
+	ResponseRawRoutine();
+	/*std::cout << getStatusCode() << std::endl;
 	std::cout << getContent() << std::endl;
 	std::cout << getFile() << std::endl;
 	std::cout << getProtocol() << std::endl;
 	std::cout << getProtocolVersion() << std::endl;
+	std::cout << getStatusCodeMessage() << std::endl;
 	
 	for (std::map<std::string, std::string>::iterator it = getHeaders().begin(); 
 	it != getHeaders().end(); it++)
 	{
 		std::cout << it->first << it->second << std::endl;
-	}
+	}*/
+}
+
+Response::Response()
+{
+	_statusCode = 0;
+	_errorResponse = false;
+	_raw = "";
+	_content = "";
+	_file = "";
+	_protocol = "";
+	_protocolVersion = "";
+	 initFileExt();
+}
+
+Response::Response(const Response &response)
+{
+	*this = response;
 }
 
 Response &Response::operator=(const Response &response)
@@ -204,6 +207,16 @@ int Response::getStatusCode()
 void Response::setStatusCode(int statusCode)
 {
 	this->_statusCode = statusCode;
+}
+
+std::string & Response::getStatusCodeMessage()
+{
+	return (_statusCodeMessage);
+}
+
+void Response::setStatusCodeMessage(std::string & message)
+{
+	_statusCodeMessage = message;
 }
 
 std::map<std::string, std::string> &Response::getHeaders()
@@ -281,6 +294,27 @@ void Response::setErrorResponse(bool isError)
 bool & Response::getErrorResponse()
 {
 	return (_errorResponse);
+}
+
+void Response::initFileExt()
+{
+	_exts[".html"] = "text/html";
+    _exts[".htm"] = "text/html";
+    _exts[".css"] = "text/css";
+    _exts[".ico"] = "image/x-icon";
+    _exts[".avi"] = "video/x-msvideo";
+    _exts[".bmp"] = "image/bmp";
+    _exts[".doc"] = "application/msword";
+    _exts[".gif"] = "image/gif";
+    _exts[".gz"] = "application/x-gzip";
+    _exts[".ico"] = "image/x-icon";
+    _exts[".jpg"] = "image/jpeg";
+    _exts[".jpeg"] = "image/jpeg";
+    _exts[".png"] = "image/png";
+    _exts[".txt"] = "text/plain";
+    _exts[".mp3"] = "audio/mp3";
+    _exts[".pdf"] = "application/pdf";
+    _exts["default"] = "text/html";
 }
 
 

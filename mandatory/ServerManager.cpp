@@ -140,13 +140,14 @@ void ServerManager::handleClientRequest(EpollEvent &event)
 	}
 	if (event.events & EPOLLOUT)
 	{
-		handlerRoutine();
-		std::string response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 12\n\nHello, Javi!";
+		Response *response = handlerRoutine();
+		//std::string response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 12\n\nHello, Javi!";
 
-		if (send(event.data.fd, response.c_str(), response.size(), 0) == -1)
+		if (/*send(event.data.fd, response.c_str(), response.size(), 0) == -1*/send(event.data.fd, response->getRaw().c_str(), response->getRaw().size(), 0) == -1)
 			throw IOException();
 		this->_epoll.setSocketOnReadMode(*this->_clients[event.data.fd]);
 		std::cout << "Response sent!" << std::endl;
+		delete response;
 	}
 }
 
@@ -189,6 +190,7 @@ Response* ServerManager::handlerRoutine()
 		RequestHandler *handler = RequestFactory::makeRequestHandler(request);
 		std::cout << "Type of request: " << handler->getMethods() << std::endl;
 		Response *response = handler->handleRequest();
+		delete handler;
 		return (response);
 	}
 	catch (FactoryErrorException & e)

@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:39:56 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/08 17:13:28 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/10 11:11:16 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,5 +41,8 @@ RequestHandlerGet& RequestHandlerGet::operator=(RequestHandlerGet & other)
 
 Response * RequestHandlerGet::doHandleRequest(void)
 {
-	return (new Response());
+	Response *response = new Response();
+
+	
+	return (response);
 }

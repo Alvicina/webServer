@@ -10,6 +10,7 @@ class Response
 		int _statusCode;
 		bool _errorResponse;
 		std::map<std::string, std::string> _headers;
+		std::string _statusCodeMessage;
 		std::string _raw;
 		std::string _content;
 		std::string _file;
@@ -24,6 +25,8 @@ class Response
 		Response &operator=(const Response &response);
 		~Response();
 
+		std::string & getStatusCodeMessage(void);
+		void setStatusCodeMessage(std::string & message);
 		int getStatusCode();
 		void setStatusCode(int statusCode);
 		std::map<std::string, std::string> &getHeaders();
@@ -43,6 +46,7 @@ class Response
 		bool & getErrorResponse();
 		void ResponseHeaderRoutine(Response & response, Request & request);
 		void initFileExt();
+		void ResponseRawRoutine();
 };
 
 #endif

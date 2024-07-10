@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:40:14 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/08 18:23:56 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/10 10:23:39 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ class Utils
 		static int		typeOfFile(std::string const & path);
 		static int		fileExistsAndReadable(std::string const & path, std::string const & index);
 		static std::string codeStatus(int code);
+		static std::string intToString(int number);
 };
 
 class ParserErrorException : public std::exception
