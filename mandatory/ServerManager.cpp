@@ -173,6 +173,7 @@ std::string ServerManager::getRawRequestFromEpollEvent(EpollEvent &event)
 
 void ServerManager::closeClientConnection(int fd)
 {
+	this->_epoll.deleteClientSocket(*this->_clients[fd]);
 	delete this->_clients[fd];
 	this->_clients.erase(fd);
 	std::cout
