@@ -149,7 +149,7 @@ void ServerManager::handleClientRequest(EpollEvent &event)
 	// 		throw IOException();
 	// 	this->_epoll.setSocketOnReadMode(*this->_clients[event.data.fd]);
 	// 	std::cout << "Response sent!" << std::endl;
-	// 	// delete response;
+	delete response;
 	// }
 }
 

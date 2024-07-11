@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:39:56 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/10 18:47:16 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/11 11:00:25 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,9 +42,14 @@ RequestHandlerGet& RequestHandlerGet::operator=(RequestHandlerGet & other)
 
 void RequestHandlerGet::ResponseContentRoutine(Response *response)
 {
-	std::string pathToResource = this->_request->getLocation()->getLocationRoot() +
-	this->_request->getLocation()->getLocationPath() + this->_request->getUri();
-
+	std::string pathToResource;
+	if (this->_request->getLocation())
+	{
+		pathToResource = this->_request->getLocation()->getLocationRoot() +
+		this->_request->getLocation()->getLocationPath() + this->_request->getUri();
+	}
+	else
+		pathToResource = this->_request->getServer()->getRoot() + this->_request->getUri();
 	int typeOfResource = Utils::typeOfFile(pathToResource);
 	if (typeOfResource == 1)
 	{

@@ -108,8 +108,10 @@ static void ResponseLocation(Response & response, Request & request)
 	if (response.getErrorResponse() == true)
 		ResponseLocationForError(response);
 	else
-		response.getHeaders().insert(std::make_pair("Location: ",
-		request.getLocation()->getLocationPath()));
+	{
+		if (request.getLocation())
+			response.getHeaders().insert(std::make_pair("Location: ", request.getLocation()->getLocationPath()));
+	}
 }
 
 void Response::ResponseHeaderRoutine(Response & response, Request & request)
