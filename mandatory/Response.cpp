@@ -75,7 +75,9 @@ static void ResponseContentLength(Response & response)
 
 static void ResponseConnectionType(Request & request, Response & response)
 {
-	if (request.getHeaders()["Connection"] == "keep-alive")
+	std::map<std::string, std::string> headers = request.getHeaders();
+	
+	if (headers["Connection"] == "keep-alive\r")
 		response.getHeaders().insert(std::make_pair("Connection: ", "keep-alive"));
 	else
 		response.getHeaders().insert(std::make_pair("Connection: ", "close"));
