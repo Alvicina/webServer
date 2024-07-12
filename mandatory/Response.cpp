@@ -56,13 +56,13 @@ static void ResponseContentType(Response & response)
 	if (pos == std::string::npos)
 	{
 		std::string extToFind = "default";
-		response.getHeaders().insert(std::make_pair("Content-type: ",
+		response.getHeaders().insert(std::make_pair("Content-type:",
 		response.getFileExt(extToFind)));
 	}
 	else
 	{
 		std::string extToFind = ext.substr(pos);
-		response.getHeaders().insert(std::make_pair("Content-type: ",
+		response.getHeaders().insert(std::make_pair("Content-type:",
 		response.getFileExt(extToFind)));
 	}
 }
@@ -70,7 +70,7 @@ static void ResponseContentType(Response & response)
 static void ResponseContentLength(Response & response)
 {
 	std::string lengthTostring = Utils::intToString((int)response.getContent().size());
-	response.getHeaders().insert(std::make_pair("Content-Length: ", lengthTostring));
+	response.getHeaders().insert(std::make_pair("Content-Length:", lengthTostring));
 }
 
 static void ResponseConnectionType(Request & request, Response & response)
@@ -78,14 +78,14 @@ static void ResponseConnectionType(Request & request, Response & response)
 	std::map<std::string, std::string> headers = request.getHeaders();
 	
 	if (headers["Connection"] == "keep-alive\r")
-		response.getHeaders().insert(std::make_pair("Connection: ", "keep-alive"));
+		response.getHeaders().insert(std::make_pair("Connection:", "keep-alive"));
 	else
-		response.getHeaders().insert(std::make_pair("Connection: ", "close"));
+		response.getHeaders().insert(std::make_pair("Connection:", "close"));
 }
 
 static void ResponseServer(Response & response)
 {
-	response.getHeaders().insert(std::make_pair("Server: ", "WebServer42"));
+	response.getHeaders().insert(std::make_pair("Server:", "WebServer42"));
 }
 
 static void ResponseDate(Response & response)
@@ -94,15 +94,15 @@ static void ResponseDate(Response & response)
 	time_t actual = time(0);
 	struct tm *GMTtime = gmtime(&actual);
 	strftime(date, sizeof(date), "%a, %d %b %Y %H:%M:%S %Z", GMTtime);
-	response.getHeaders().insert(std::make_pair("Date: ", date));
+	response.getHeaders().insert(std::make_pair("Date:", date));
 }
 
 static void ResponseLocationForError(Response & response)
 {
 	if (response.getFile() == "default")
-		response.getHeaders().insert(std::make_pair("Location: ", "/"));
+		response.getHeaders().insert(std::make_pair("Location:", "/"));
 	else
-		response.getHeaders().insert(std::make_pair("Location: ", response.getFile()));
+		response.getHeaders().insert(std::make_pair("Location:", response.getFile()));
 }
 
 static void ResponseLocation(Response & response, Request & request)
@@ -112,7 +112,7 @@ static void ResponseLocation(Response & response, Request & request)
 	else
 	{
 		if (request.getLocation())
-			response.getHeaders().insert(std::make_pair("Location: ", request.getLocation()->getLocationPath()));
+			response.getHeaders().insert(std::make_pair("Location:", request.getLocation()->getLocationPath()));
 	}
 }
 
@@ -128,13 +128,21 @@ void Response::ResponseHeaderRoutine(Response & response, Request & request)
 
 void Response::ResponseRawRoutine()
 {
-	std::string raw;
-	std::map<std::string, std::string>::iterator it;
+	std::string raw = "";
+	std::string protocol = getProtocol();
+	size_t pos = protocol.find('\r');
+	if (pos != std::string::npos)
+		protocol.erase(pos, 1);
+	std::string pVersion = getProtocolVersion();
+	pos = pVersion.find('\r');
+	if (pos != std::string::npos)
+		pVersion.erase(pos, 1);
 
-	raw = getProtocol() + "/";
-	raw.append((getProtocolVersion() + " "
-	+ Utils::intToString(getStatusCode()) + " "
-	+ getStatusCodeMessage() +  "\n"));
+	raw.append(protocol + "/");
+	raw.append((pVersion + " "
+	  + Utils::intToString(getStatusCode()) + " "
+	  + getStatusCodeMessage() +  "\r\n"));
+	std::map<std::string, std::string>::iterator it;
 	for(it = getHeaders().begin(); it != getHeaders().end(); it++)
 	{
 		raw.append(it->first + it->second + "\n");
@@ -152,6 +160,15 @@ Response::Response(int errCode, Request *request) : _errorResponse(true)
 	setProtocolVersion(request->getProtocolVersion());
 	ResponseHeaderRoutine(*this, *request);
 	ResponseRawRoutine();
+
+	/*int count = 0;
+	std::map<std::string, std::string>::iterator it;
+	for(it = getHeaders().begin(); it != getHeaders().end(); it++)
+	{
+		count++;
+		std::cout << count << std::endl;
+		std::cout << it->first << " " << it->second << std::endl;
+	}*/
 }
 
 Response::Response()

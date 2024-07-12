@@ -131,7 +131,7 @@ void ServerManager::handleClientRequest(EpollEvent &event)
 		// TODO: Handle request parse errors (send a response with HTTP error code)
 		RequestParser requestParser(rawRequest);
 		Request &request = requestParser.parseRequest(this->_servers);
-		std::cout << request << std::endl;
+		//std::cout << request << std::endl;
 		response = request.getServer()->handleRequest(request);
 		// std::cout << response->getRaw() << std::endl;
 
