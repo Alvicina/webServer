@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afidalgo <afidalgo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/03 16:51:30 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/12 11:12:00 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -356,7 +356,8 @@ bool & methodsFlag, bool & autoIndexFlag, bool & maxSizeFlag)
 
 void Server::checkLocationCgiIndex(Location & location)
 {
-	std::string path = location.getLocationRoot() + location.getLocationPath() + "/" + location.getIndexLocation();
+	std::string path = getRoot() + location.getLocationPath() + "/" + location.getIndexLocation();
+	//std::string path = location.getLocationRoot() + location.getLocationPath() + "/" + location.getIndexLocation();
 	if (Utils::typeOfFile(path) != 1)
 	{
 		char *cwd = getcwd(NULL, 0);
