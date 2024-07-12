@@ -126,20 +126,26 @@ void Response::ResponseHeaderRoutine(Response & response, Request & request)
 	ResponseDate(response);
 }
 
-void Response::ResponseRawRoutine()
+static void parseProtocolandVersion(Response & response)
 {
-	std::string raw = "";
-	std::string protocol = getProtocol();
+	std::string protocol = response.getProtocol();
 	size_t pos = protocol.find('\r');
 	if (pos != std::string::npos)
 		protocol.erase(pos, 1);
-	std::string pVersion = getProtocolVersion();
+	std::string pVersion = response.getProtocolVersion();
 	pos = pVersion.find('\r');
 	if (pos != std::string::npos)
 		pVersion.erase(pos, 1);
+	response.setProtocol(protocol);
+	response.setProtocolVersion(pVersion);
+}
 
-	raw.append(protocol + "/");
-	raw.append((pVersion + " "
+void Response::ResponseRawRoutine()
+{
+	std::string raw = "";
+	parseProtocolandVersion(*this);
+	raw.append(getProtocol() + "/");
+	raw.append((getProtocolVersion() + " "
 	  + Utils::intToString(getStatusCode()) + " "
 	  + getStatusCodeMessage() +  "\r\n"));
 	std::map<std::string, std::string>::iterator it;
@@ -160,15 +166,6 @@ Response::Response(int errCode, Request *request) : _errorResponse(true)
 	setProtocolVersion(request->getProtocolVersion());
 	ResponseHeaderRoutine(*this, *request);
 	ResponseRawRoutine();
-
-	/*int count = 0;
-	std::map<std::string, std::string>::iterator it;
-	for(it = getHeaders().begin(); it != getHeaders().end(); it++)
-	{
-		count++;
-		std::cout << count << std::endl;
-		std::cout << it->first << " " << it->second << std::endl;
-	}*/
 }
 
 Response::Response()

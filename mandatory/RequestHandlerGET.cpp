@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:39:56 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/12 12:41:47 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/12 13:35:48 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,16 +107,5 @@ Response * RequestHandlerGet::doHandleRequest(void)
 	std::string statusCodeMessage = Utils::codeStatus(response->getStatusCode());
 	response->setStatusCodeMessage(statusCodeMessage);
 	response->ResponseRawRoutine();
-
-	/*int count = 0;
-	std::map<std::string, std::string>::iterator it;
-	for(it = response->getHeaders().begin(); it != response->getHeaders().end(); it++)
-	{
-		
-		count++;
-		std::cout << count << std::endl;
-		std::cout << it->first << " " << it->second << std::endl;
-	}*/
-
 	return (response);
 }
