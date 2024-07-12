@@ -141,6 +141,7 @@ void Response::ResponseRawRoutine()
 	}
 	raw.append("\n" + getContent());
 	setRaw(raw);
+	std::cout << getRaw() << std::endl;
 }
 
 Response::Response(int errCode, Request *request) : _errorResponse(true)

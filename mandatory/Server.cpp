@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afidalgo <afidalgo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/03 16:51:30 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/12 10:55:57 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -356,7 +356,8 @@ bool & methodsFlag, bool & autoIndexFlag, bool & maxSizeFlag)
 
 void Server::checkLocationCgiIndex(Location & location)
 {
-	std::string path = location.getLocationRoot() + location.getLocationPath() + "/" + location.getIndexLocation();
+	// std::string path = location.getLocationRoot() + location.getLocationPath() + "/" + location.getIndexLocation();
+	std::string path = this->getRoot() + location.getLocationPath() + "/" + location.getIndexLocation();
 	if (Utils::typeOfFile(path) != 1)
 	{
 		char *cwd = getcwd(NULL, 0);
@@ -366,7 +367,10 @@ void Server::checkLocationCgiIndex(Location & location)
 		path = root + location.getLocationPath() + "/" + location.getIndexLocation();
 	}
 	if (path.empty() || Utils::typeOfFile(path) != 1 || Utils::checkFile(path, R_OK) < 0)
+	{
 		throw ServerErrorException("Error: CGI not valid");
+	}
+		
 }
 
 void Server::checkLocationCgiPath(Location & location)
@@ -375,7 +379,9 @@ void Server::checkLocationCgiPath(Location & location)
 	for (it = location.getCgiPathLocation().begin(); it != location.getCgiPathLocation().end(); it++)
 	{
 		if (Utils::typeOfFile(*it) < 0)
-			throw ServerErrorException("Error: Error: CGI not valid");
+		{
+			throw ServerErrorException("Error: CGI not valid");
+		}
 	}
 }
 
@@ -386,7 +392,9 @@ void Server::checkLocationCgiExtension(Location & location)
 	for (it = location.getCgiExtensionLocation().begin(); it != location.getCgiExtensionLocation().end(); it++)
 	{
 		if (*it != ".py" && *it != ".sh" && *it != "*.py" && *it != "*.sh")
+		{
 			throw ServerErrorException("Error: CGI not valid");
+		}
 		for (itPath = location.getCgiPathLocation().begin(); itPath != location.getCgiPathLocation().end(); itPath++)
 		{
 			
@@ -407,15 +415,21 @@ void Server::checkLocationCgiExtension(Location & location)
 void Server::checkLocationForCGI(Location & location)
 {
 	if (location.getCgiPathLocation().empty() || location.getCgiExtensionLocation().empty() || location.getIndexLocation().empty())
+	{
 		throw ServerErrorException("Error: CGI not valid");
+	}
 	if (Utils::checkFile(location.getIndexLocation(), R_OK) < 0)
 		checkLocationCgiIndex(location);
 	if(location.getCgiPathLocation().size() != location.getCgiExtensionLocation().size())
+	{
 		throw ServerErrorException("Error: CGI not valid");
+	}
 	checkLocationCgiPath(location);
 	checkLocationCgiExtension(location);
 	if (location.getCgiPathLocation().size() != location.getExtPathMap().size())
+	{
 		throw ServerErrorException("Error: CGI not valid");
+	}
 }
 
 void Server::isLocationValid(Location & location)

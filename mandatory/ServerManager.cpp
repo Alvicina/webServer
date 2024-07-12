@@ -131,12 +131,7 @@ void ServerManager::handleClientRequest(EpollEvent &event)
 		// TODO: Handle request parse errors (send a response with HTTP error code)
 		RequestParser requestParser(rawRequest);
 		Request &request = requestParser.parseRequest(this->_servers);
-		std::cout << request << std::endl;
 		response = request.getServer()->handleRequest(request);
-		// std::cout << response->getRaw() << std::endl;
-
-
-		// std::cout << response->getRaw() << std::endl;
 		if (send(event.data.fd, response->getRaw().c_str(), response->getRaw().size(), 0) == -1)
 			throw IOException();
 		// this->_epoll.setSocketOnReadMode(*this->_clients[event.data.fd]);
