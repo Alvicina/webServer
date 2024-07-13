@@ -157,7 +157,6 @@ void ServerManager::handleClientRequest(EpollEvent &event)
 	}
 	if (event.events & EPOLLOUT)
 	{
-		std::cout << "respuestas en cola: " << client->getResponseQueue().size() << std::endl;
 		for (size_t i = 0; i < client->getResponseQueue().size(); i++)
 		{
 			Response *response = client->getResponseQueue()[i];
