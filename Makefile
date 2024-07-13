@@ -24,6 +24,7 @@ HEADER_SRCS = \
 	ServerManager.hpp Socket.hpp Epoll.hpp Request.hpp Response.hpp \
 	RequestFactory.hpp RequestHandler.hpp RequestHandlerDELETE.hpp \
 	RequestHandlerGET.hpp RequestHandlerPOST.hpp RequestParser.hpp \
+	Logger.hpp
 		      
 HEADER_DIR  = includes/
 HEADER      = $(addprefix $(HEADER_DIR), $(HEADER_SRCS))
@@ -33,6 +34,7 @@ MPATH_SRCS  =  \
 	ServerManager.cpp Socket.cpp Epoll.cpp Request.cpp Response.cpp \
 	RequestFactory.cpp RequestHandler.cpp RequestHandlerDELETE.cpp \
 	RequestHandlerGET.cpp RequestHandlerPOST.cpp RequestParser.cpp \
+	Logger.cpp
 
 MPATH_DIR   = mandatory/
 MPATH       = $(addprefix $(MPATH_DIR), $(MPATH_SRCS))

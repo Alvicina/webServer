@@ -2,6 +2,7 @@
 #define EPOLL_HPP
 
 #include "webserv.hpp"
+#include "Logger.hpp"
 
 class Socket;
 
@@ -19,6 +20,7 @@ class Epoll
 		void init();
 		void addMasterSocket(Socket &socket);
 		void addClientSocket(Socket &socket);
+		void deleteClientSocket(Socket &socket);
 		std::vector<EpollEvent> waitForEvents();
 		void setSocketOnReadMode(Socket &socket);
 		void setSocketOnWriteMode(Socket &socket);
@@ -34,6 +36,16 @@ class Epoll
 					return ("ERROR: Epoll could not be initialized due to an unexpected error.");
 				}
 		};
+
+		class EpollCtlException : public std::exception
+		{
+			public:
+				const char *what() const throw()
+				{
+					return ("ERROR: Epoll control interface caused an unexpected error.");
+				}
+		};
+		
 };
 
 #endif

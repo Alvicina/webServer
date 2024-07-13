@@ -59,14 +59,6 @@ long int	Utils::stringToInt(std::string const & string)
 	return (number);
 }
 
-void Utils::inputMessage(std::string const & message, bool error)
-{
-	if (error == true)
-		std::cerr << message << std::endl;
-	else	
-		std::cout << message << std::endl;
-}
-
 int Utils::checkFile(std::string const & path, int mode)
 {
 	return (access(path.c_str(), mode));
