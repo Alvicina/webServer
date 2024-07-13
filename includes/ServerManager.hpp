@@ -7,12 +7,13 @@
 #include "Response.hpp"
 #include "RequestParser.hpp"
 #include "Logger.hpp"
+#include "Client.hpp"
 
 class ServerManager
 {
 	private:
 		std::vector<Server> 	_servers;
-		std::map<int, Socket *>	_clients;
+		std::map<int, Client *>	_clients;
 		Epoll					_epoll;
 
 		void initServerMasterSockets();
@@ -31,11 +32,12 @@ class ServerManager
 		void logRequestReceived(Request &request, int fd) const;
 		void logResponseSent(Response &response, int fd) const;
 
+		ServerManager(const ServerManager &serverManager);
+		ServerManager &operator=(const ServerManager &serverManager);
+
 	public:
 		ServerManager();
 		ServerManager(const std::vector<Server> &servers);
-		ServerManager(const ServerManager &serverManager);
-		ServerManager &operator=(const ServerManager &serverManager);
 		~ServerManager();
 
 		void serve();

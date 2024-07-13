@@ -23,7 +23,7 @@ ServerManager &ServerManager::operator=(const ServerManager &serverManager)
 
 ServerManager::~ServerManager()
 {
-	std::map<int, Socket *>::iterator it = this->_clients.begin();
+	std::map<int, Client *>::iterator it = this->_clients.begin();
 	while (it != this->_clients.end())
 	{
 		delete it->second;
@@ -121,7 +121,8 @@ Server *ServerManager::findServerByFd(int fd)
 void ServerManager::handleNewConnection(Server &server)
 {
 	Socket *socket = server.getSocket().acceptConnection();
-	this->_clients[socket->getFd()] = socket;
+	// TODO: Probar si la siguiente linea está bien. Se llama al destructor de client?
+	this->_clients[socket->getFd()] = new Client(socket);
 	this->_epoll.addClientSocket(*socket);
 	this->logNewConnection(socket->getFd());
 }
@@ -136,8 +137,8 @@ void ServerManager::logNewConnection(int fd)
 
 void ServerManager::handleClientRequest(EpollEvent &event)
 {
-	Response *response;
-	
+	Client *client = this->_clients[event.data.fd];
+
 	if (event.events & EPOLLIN)
 	{
 		std::string rawRequest = this->getRawRequestFromEpollEvent(event);
@@ -146,27 +147,28 @@ void ServerManager::handleClientRequest(EpollEvent &event)
 			this->closeClientConnection(event.data.fd);
 			return;
 		}
-		// this->_epoll.setSocketOnWriteMode(*this->_clients[event.data.fd]);
+		this->_epoll.setSocketOnWriteMode(client->getSocket());
 		// TODO: Handle request parse errors (send a response with HTTP error code)
 		RequestParser requestParser(rawRequest);
 		Request &request = requestParser.parseRequest(this->_servers);
 		this->logRequestReceived(request, event.data.fd);
-		response = request.getServer()->handleRequest(request);
-
-		if (send(event.data.fd, response->getRaw().c_str(), response->getRaw().size(), 0) == -1)
-			throw IOException();
-		// this->_epoll.setSocketOnReadMode(*this->_clients[event.data.fd]);
-		this->logResponseSent(*response, event.data.fd);
+		Response *response = request.getServer()->handleRequest(request);
+		client->getResponseQueue().push_back(response);
 	}
-	// if (event.events & EPOLLOUT)
-	// {
-	// 	std::cout << response->getRaw() << std::endl;
-	// 	if (send(event.data.fd, response->getRaw().c_str(), response->getRaw().size(), 0) == -1)
-	// 		throw IOException();
-	// 	this->_epoll.setSocketOnReadMode(*this->_clients[event.data.fd]);
-	// 	std::cout << "Response sent!" << std::endl;
-	delete response;
-	// }
+	if (event.events & EPOLLOUT)
+	{
+		std::cout << "respuestas en cola: " << client->getResponseQueue().size() << std::endl;
+		for (size_t i = 0; i < client->getResponseQueue().size(); i++)
+		{
+			Response *response = client->getResponseQueue()[i];
+			if (send(event.data.fd, response->getRaw().c_str(), response->getRaw().size(), 0) == -1)
+				throw IOException();
+			this->logResponseSent(*response, event.data.fd);
+			delete response;
+		}
+		client->getResponseQueue().clear();
+		this->_epoll.setSocketOnReadMode(client->getSocket());
+	}
 }
 
 void ServerManager::logRequestReceived(Request &request, int fd) const
@@ -204,7 +206,7 @@ std::string ServerManager::getRawRequestFromEpollEvent(EpollEvent &event)
 
 void ServerManager::closeClientConnection(int fd)
 {
-	this->_epoll.deleteClientSocket(*this->_clients[fd]);
+	this->_epoll.deleteClientSocket(this->_clients[fd]->getSocket());
 	delete this->_clients[fd];
 	this->_clients.erase(fd);
 	this->logClosedConnection(fd);
