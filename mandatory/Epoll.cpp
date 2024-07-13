@@ -58,7 +58,7 @@ void Epoll::deleteClientSocket(Socket &socket)
 	}
 	catch (std::exception &e)
 	{
-		std::cerr << e.what() << std::endl;
+		Logger::logError(e.what());
 	}
 }
 

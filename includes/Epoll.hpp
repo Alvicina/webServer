@@ -2,6 +2,7 @@
 #define EPOLL_HPP
 
 #include "webserv.hpp"
+#include "Logger.hpp"
 
 class Socket;
 

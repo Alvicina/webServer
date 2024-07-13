@@ -16,6 +16,7 @@
 #include "../includes/Location.hpp"
 #include "../includes/Server.hpp"
 #include "../includes/ServerManager.hpp"
+#include "../includes/Logger.hpp"
 
 int startRoutine(std::string const & file)
 {
@@ -32,7 +33,7 @@ int startRoutine(std::string const & file)
 	}
 	catch (std::exception &e)
 	{
-		std::cerr << e.what() << std::endl;
+		Logger::logError(e.what());
 		return (EXIT_FAILURE);
 	}
 }
@@ -47,7 +48,7 @@ int main(int argc,  char **argv)
 		file = argv[1];
 	else
 	{
-		Utils::inputMessage("Error: Wrong number or arguments", true);
+		Logger::logError("Wrong number or arguments");
 		return (EXIT_FAILURE);
 	}
 	return (startRoutine(file));
