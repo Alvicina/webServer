@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:39:56 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/14 11:25:18 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/14 13:29:26 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,9 +42,23 @@ RequestHandlerGet& RequestHandlerGet::operator=(RequestHandlerGet & other)
 
 void RequestHandlerGet::ResponseContentRoutine(Response *response)
 {
+	std::string root = "/" + _request->getServer()->getRoot();
+	std::cout << root << std::endl;
+	std::cout << _request->getUri() << std::endl;
+	
+	size_t rootSize = root.size();
 	std::string pathToResource;
-	pathToResource = this->_request->getServer()->getRoot() + this->_request->getUri();
+	
+	if ((strncmp(root.c_str(), _request->getUri().c_str(), rootSize)) == 0 || (strncmp(root.c_str(), _request->getUri().c_str(), rootSize -1)) == 0)
+	{
+		pathToResource = _request->getUri();
+		if (pathToResource[0] == '/')
+			pathToResource.erase(0, 1);
+	}
+	else
+		pathToResource = this->_request->getServer()->getRoot() + this->_request->getUri();
 	int typeOfResource = Utils::typeOfFile(pathToResource);
+	std::cout << pathToResource << std::endl;
 	if (typeOfResource == 1)
 	{
 		if (access(pathToResource.c_str(), R_OK) == -1)
