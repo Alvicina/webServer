@@ -1,6 +1,87 @@
 #include "../includes/Response.hpp"
 #include "../includes/Server.hpp"
 
+static void insertHtmlEnd(std::string & indexHtml)
+{
+	indexHtml.append("</table>\n");
+	indexHtml.append("<hr>\n");
+	indexHtml.append("</body>\n");
+	indexHtml.append("</html>\n");
+}
+
+static void insertHtmlLoop(DIR *dir, std::string & dirName, std::string & indexHtml,
+ std::string & Location)
+{
+	struct stat objStats;
+	struct dirent *objInfo;
+	std::string path;
+
+	while ((objInfo = readdir(dir)) != NULL)
+	{
+		if (strcmp(objInfo->d_name, ".") == 0)
+			continue ;
+		path = dirName + "/" + objInfo->d_name;
+		std::cout << path << std::endl;
+		stat(path.c_str(), &objStats);
+		indexHtml.append("<tr>\n");
+		indexHtml.append("<td>\n");
+		indexHtml.append("<a href=\"");
+		indexHtml.append(/*objInfo->d_name*/Location + "/" + objInfo->d_name);
+		if (S_ISDIR(objStats.st_mode))
+			indexHtml.append("/");
+		indexHtml.append("\">");
+		indexHtml.append(objInfo->d_name);
+		if (S_ISDIR(objStats.st_mode))
+			indexHtml.append("/");
+		indexHtml.append("</a>\n");
+		indexHtml.append("</td>\n");
+		indexHtml.append("<td>\n");
+		indexHtml.append(ctime(&objStats.st_mtime));
+		indexHtml.append("</td>\n");
+		indexHtml.append("<td>\n");
+		if (!S_ISDIR(objStats.st_mode))
+			indexHtml.append(Utils::intToString(objStats.st_size));
+		indexHtml.append("</td>\n");
+		indexHtml.append("</tr>\n");
+	}
+}
+
+static void insertHtmlMain(std::string & indexHtml, std::string & dirName)
+{
+	indexHtml.append("<html>\n");
+	indexHtml.append("<head>\n");
+	indexHtml.append("<title> Index of");
+	indexHtml.append(dirName);
+	indexHtml.append("</title>\n");
+	indexHtml.append("</head>\n");
+	indexHtml.append("<body>\n");
+	indexHtml.append("<h1> Index of " + dirName + "</h1>\n");
+	indexHtml.append("<table style=\"width:80%; font-size: 15px\">\n");
+    indexHtml.append("<hr>\n");
+    indexHtml.append("<th style=\"text-align:left\"> File Name </th>\n");
+    indexHtml.append("<th style=\"text-align:left\"> Last Modification  </th>\n");
+    indexHtml.append("<th style=\"text-align:left\"> File Size </th>\n");
+}
+
+int Response::buildHtmlIndex(Request & request)
+{
+	std::string indexHtml = "";
+	std::string dirName = request.getServer()->getRoot() + request.getUri();
+
+	DIR *dir = opendir(dirName.c_str());
+	if (dir == NULL)
+	{
+		perror("Error: opendir : ");
+		return (500);
+	}
+	insertHtmlMain(indexHtml, dirName);
+	std::string Location = request.getLocation()->getLocationPath();
+	insertHtmlLoop(dir, dirName, indexHtml, Location);
+	insertHtmlEnd(indexHtml);
+	setContent(indexHtml);
+	return (0);
+}
+
 static void ResponseContentRoutine(Request & request, Response & response)
 {
 	std::map<int, std::string> errorPages = request.getServer()->getErrorPages();

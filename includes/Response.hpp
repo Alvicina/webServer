@@ -47,6 +47,7 @@ class Response
 		void ResponseHeaderRoutine(Response & response, Request & request);
 		void initFileExt();
 		void ResponseRawRoutine();
+		int buildHtmlIndex(Request & request);
 };
 
 #endif

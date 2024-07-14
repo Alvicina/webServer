@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:39:56 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/12 13:35:48 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/14 11:25:18 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,20 +71,39 @@ void RequestHandlerGet::ResponseContentRoutine(Response *response)
 		}
 		else
 		{
-			pathToResource = pathToResource + _request->getLocation()->getIndexLocation();
-			if (access(pathToResource.c_str(), R_OK) == -1)
+			if (_request->getLocation())
 			{
-				delete response;
-				throw HandlerErrorException(403, *_request);
+				pathToResource = pathToResource + _request->getLocation()->getIndexLocation();
+				if (_request->getLocation()->getAutoIndexLocation())
+				{
+					int status = response->buildHtmlIndex(*_request);
+					if (status)
+					{
+						delete response;
+						throw HandlerErrorException(status, *_request);
+					}
+					std::string file = "default";
+					response->setFile(file);
+				}
+				else if (access(pathToResource.c_str(), R_OK) == -1)
+				{
+					delete response;
+					throw HandlerErrorException(403, *_request);
+				}
+				else
+				{
+					std::ifstream resourse(pathToResource.c_str());
+					std::stringstream resourceContent;
+					resourceContent << resourse.rdbuf();
+					std::string content = resourceContent.str();
+					response->setContent(content);
+					response->setFile(pathToResource);
+				}
 			}
 			else
 			{
-				std::ifstream resourse(pathToResource.c_str());
-				std::stringstream resourceContent;
-				resourceContent << resourse.rdbuf();
-				std::string content = resourceContent.str();
-				response->setContent(content);
-				response->setFile(pathToResource);
+				delete response;
+				throw HandlerErrorException(403, *_request);
 			}
 		}
 	}
