@@ -21,7 +21,6 @@ static void insertHtmlLoop(DIR *dir, std::string & dirName, std::string & indexH
 		if (strcmp(objInfo->d_name, ".") == 0)
 			continue ;
 		path = dirName + "/" + objInfo->d_name;
-		std::cout << path << std::endl;
 		stat(path.c_str(), &objStats);
 		indexHtml.append("<tr>\n");
 		indexHtml.append("<td>\n");
@@ -91,49 +90,47 @@ int Response::buildHtmlIndex(Request & request)
 	return (0);
 }
 
-static void ResponseContentRoutine(Request & request, Response & response)
+void Response::contentErrorPage(std::string & path, const int statusCode)
+{
+	std::string content = Utils::codeStatus(statusCode);
+	this->setStatusCodeMessage(content);
+	std::ifstream ErrorPageOpen(path.c_str());
+	std::stringstream ErrorPageContent;
+	ErrorPageContent << ErrorPageOpen.rdbuf();
+	content = ErrorPageContent.str();
+	this->setContent(content);
+	this->setFile(path);
+}
+
+void Response::contentForNoErrorPage(const int statusCode)
+{
+	std::string content = Utils::codeStatus(statusCode);
+	this->setContent(content);
+	this->setStatusCodeMessage(content);
+	std::string path = "default";
+	this->setFile(path);
+}
+
+void Response::errorResponseContentRoutine(Request & request)
 {
 	std::map<int, std::string> errorPages = request.getServer()->getErrorPages();
 	std::map<int, std::string>::iterator it;
 
 	for (it = errorPages.begin(); it != errorPages.end(); it++)
 	{
-		if (it->first == response.getStatusCode())
+		if (it->first == this->getStatusCode())
 		{
 			if (it->second.empty())
-			{
-				std::string content = Utils::codeStatus(it->first);
-				response.setContent(content);
-				response.setStatusCodeMessage(content);
-				std::string path = "default";
-				response.setFile(path);
-				break ;
-			}
+				contentForNoErrorPage(it->first);
 			else
 			{
 				std::string path = (request.getServer()->getRoot() + it->second);
 				if (access(path.c_str(), F_OK) == -1 && access(path.c_str(), R_OK) == -1)
-				{
-					std::string content = Utils::codeStatus(it->first);
-					response.setContent(content);
-					response.setStatusCodeMessage(content);
-					path = "default";
-					response.setFile(path);
-					break ;
-				}
+					contentForNoErrorPage(it->first);
 				else
-				{
-					std::string content = Utils::codeStatus(it->first);
-					response.setStatusCodeMessage(content);
-					std::ifstream ErrorPageOpen(path.c_str());
-					std::stringstream ErrorPageContent;
-					ErrorPageContent << ErrorPageOpen.rdbuf();
-					content = ErrorPageContent.str();
-					response.setContent(content);
-					response.setFile(path);
-					break ;
-				}
+					contentErrorPage(path, it->first);
 			}
+			break ;
 		}
 	}
 }
@@ -216,24 +213,24 @@ void Response::ResponseHeaderRoutine(Response & response, Request & request)
 	ResponseDate(response);
 }
 
-static void parseProtocolandVersion(Response & response)
+void Response::parseProtocolandVersion()
 {
-	std::string protocol = response.getProtocol();
+	std::string protocol = this->getProtocol();
 	size_t pos = protocol.find('\r');
 	if (pos != std::string::npos)
 		protocol.erase(pos, 1);
-	std::string pVersion = response.getProtocolVersion();
+	std::string pVersion = this->getProtocolVersion();
 	pos = pVersion.find('\r');
 	if (pos != std::string::npos)
 		pVersion.erase(pos, 1);
-	response.setProtocol(protocol);
-	response.setProtocolVersion(pVersion);
+	this->setProtocol(protocol);
+	this->setProtocolVersion(pVersion);
 }
 
 void Response::ResponseRawRoutine()
 {
 	std::string raw = "";
-	parseProtocolandVersion(*this);
+	parseProtocolandVersion();
 	raw.append(getProtocol() + "/");
 	raw.append((getProtocolVersion() + " "
 	  + Utils::intToString(getStatusCode()) + " "
@@ -251,7 +248,7 @@ Response::Response(int errCode, Request *request) : _errorResponse(true)
 {
 	initFileExt();
 	setStatusCode(errCode);
-	ResponseContentRoutine(*request, *this);
+	errorResponseContentRoutine(*request);
 	setProtocol(request->getProtocol());
 	setProtocolVersion(request->getProtocolVersion());
 	ResponseHeaderRoutine(*this, *request);
