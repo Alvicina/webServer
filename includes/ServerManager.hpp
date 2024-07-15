@@ -6,12 +6,14 @@
 #include "RequestFactory.hpp"
 #include "Response.hpp"
 #include "RequestParser.hpp"
+#include "Logger.hpp"
+#include "Client.hpp"
 
 class ServerManager
 {
 	private:
 		std::vector<Server> 	_servers;
-		std::map<int, Socket *>	_clients;
+		std::map<int, Client *>	_clients;
 		Epoll					_epoll;
 
 		void initServerMasterSockets();
@@ -24,12 +26,18 @@ class ServerManager
 		void handleClientRequest(EpollEvent &event);
 		void closeClientConnection(int fd);
 		std::string getRawRequestFromEpollEvent(EpollEvent &event);
+		void logServerListening();
+		void logNewConnection(int fd);
+		void logClosedConnection(int fd);
+		void logRequestReceived(Request &request, int fd) const;
+		void logResponseSent(Response &response, int fd) const;
+
+		ServerManager(const ServerManager &serverManager);
+		ServerManager &operator=(const ServerManager &serverManager);
 
 	public:
 		ServerManager();
 		ServerManager(const std::vector<Server> &servers);
-		ServerManager(const ServerManager &serverManager);
-		ServerManager &operator=(const ServerManager &serverManager);
 		~ServerManager();
 
 		void serve();

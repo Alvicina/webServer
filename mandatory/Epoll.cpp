@@ -36,7 +36,7 @@ void Epoll::addMasterSocket(Socket &socket)
 	event.data.fd = socket.getFd();
 	socket.setEpollEvent(event);
 	if (epoll_ctl(this->_fd, EPOLL_CTL_ADD, event.data.fd, &socket.getEpollEvent()) == -1)
-		throw EpollInitializationFailedException();
+		throw EpollCtlException();
 }
 
 void Epoll::addClientSocket(Socket &socket)
@@ -46,7 +46,20 @@ void Epoll::addClientSocket(Socket &socket)
 	event.data.fd = socket.getFd();
 	socket.setEpollEvent(event);
 	if (epoll_ctl(this->_fd, EPOLL_CTL_ADD, socket.getFd(), &socket.getEpollEvent()) == -1)
-		throw EpollInitializationFailedException();
+		throw EpollCtlException();
+}
+
+void Epoll::deleteClientSocket(Socket &socket)
+{
+	try
+	{
+		if (epoll_ctl(this->_fd, EPOLL_CTL_DEL, socket.getFd(), &socket.getEpollEvent()) == -1)
+			throw EpollCtlException();
+	}
+	catch (std::exception &e)
+	{
+		Logger::logError(e.what());
+	}
 }
 
 std::vector<EpollEvent> Epoll::waitForEvents()
@@ -64,7 +77,7 @@ void Epoll::setSocketOnReadMode(Socket &socket)
 	EpollEvent &event = socket.getEpollEvent();
 	event.events = EPOLLIN | EPOLLET;
 	if (epoll_ctl(this->_fd, EPOLL_CTL_MOD, socket.getFd(), &event) == -1)
-		throw EpollInitializationFailedException();
+		throw EpollCtlException();
 }
 
 void Epoll::setSocketOnWriteMode(Socket &socket)
@@ -72,7 +85,7 @@ void Epoll::setSocketOnWriteMode(Socket &socket)
 	EpollEvent &event = socket.getEpollEvent();
 	event.events = EPOLLOUT | EPOLLET;
 	if (epoll_ctl(this->_fd, EPOLL_CTL_MOD, socket.getFd(), &event) == -1)
-		throw EpollInitializationFailedException();
+		throw EpollCtlException();
 }
 
 int Epoll::getFd() const

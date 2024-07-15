@@ -20,7 +20,6 @@ class Utils
 	private:
 	
 	public:
-		static void inputMessage(std::string const & message, bool error);
 		static long int	stringToInt(std::string const & string);
 		static int		checkFile(std::string const & path, int mode);
 		static int		typeOfFile(std::string const & path);
