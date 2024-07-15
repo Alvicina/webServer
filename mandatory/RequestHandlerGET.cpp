@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:39:56 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/15 13:43:32 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/15 17:31:18 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,12 +162,27 @@ void RequestHandlerGet::checkAndSetReturn(Request & request, bool & reddir)
 	}
 }
 
+/*void RequestHandlerGet::checkAndSetAlias(Request & request)
+{
+	if (request.getLocation())
+	{
+		if(!request.getLocation()->getAliasLocation().empty())
+		{
+			request.setUri(request.getLocation()->getAliasLocation());
+			setNewLocation(*_request);
+		}
+	}
+	std::cout << request.getLocation()->getAliasLocation() << std::endl;
+}*/
+
 Response * RequestHandlerGet::doHandleRequest(void)
 {
 	Response	*response = new Response();
 	bool		reddir = false;
 
-	//rutina para el alias
+	//checkAndSetAlias(*_request);
+	/*if (_request->getLocation())
+		std::cout << "hay location :" << _request->getLocation()->getLocationPath() << std::endl;*/
 	checkAndSetReturn(*_request, reddir);
 	ResponseContentRoutine(response);
 	response->setProtocol(_request->getProtocol());

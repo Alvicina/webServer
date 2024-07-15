@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 11:42:18 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/15 12:24:16 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/15 17:12:19 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ class RequestHandlerGet : public RequestHandler
 		void htmlIndexBuilder(Response * response);
 		void openReadCopyFile(Response *response, std::string & pathToResource);
 		void exceptionRoutine(int statusCode, Response *response);
+		void checkAndSetAlias(Request & request);
 	public:
 		RequestHandlerGet(Request & request);
 		RequestHandlerGet(RequestHandlerGet & copy);
