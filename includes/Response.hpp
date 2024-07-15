@@ -17,6 +17,11 @@ class Response
 		std::string _protocol;
 		std::string _protocolVersion;
 		std::map<std::string, std::string> _exts;
+		void parseProtocolandVersion();
+		void errorResponseContentRoutine(Request & request);
+		void contentForNoErrorPage(const int statusCode);
+		void contentErrorPage(std::string & path, const int statusCode);
+		void initFileExt();
 
 	public:
 		Response();
@@ -45,8 +50,8 @@ class Response
 		void setErrorResponse(bool isError);
 		bool & getErrorResponse();
 		void ResponseHeaderRoutine(Response & response, Request & request);
-		void initFileExt();
 		void ResponseRawRoutine();
+		int  buildHtmlIndex(Request & request);
 };
 
 #endif

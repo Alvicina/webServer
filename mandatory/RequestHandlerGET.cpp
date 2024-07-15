@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:39:56 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/11 11:00:25 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/15 17:31:18 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,76 +40,157 @@ RequestHandlerGet& RequestHandlerGet::operator=(RequestHandlerGet & other)
 	return (*this);
 }
 
-void RequestHandlerGet::ResponseContentRoutine(Response *response)
+std::string RequestHandlerGet::createPathToResource()
 {
+	std::string root = "/" + _request->getServer()->getRoot();
+	size_t rootSize = root.size();
 	std::string pathToResource;
-	if (this->_request->getLocation())
+	
+	if ((strncmp(root.c_str(), _request->getUri().c_str(), rootSize)) == 0
+	 || (strncmp(root.c_str(), _request->getUri().c_str(), rootSize -1)) == 0)
 	{
-		pathToResource = this->_request->getLocation()->getLocationRoot() +
-		this->_request->getLocation()->getLocationPath() + this->_request->getUri();
+		pathToResource = _request->getUri();
+		if (pathToResource[0] == '/')
+			pathToResource.erase(0, 1);
 	}
 	else
 		pathToResource = this->_request->getServer()->getRoot() + this->_request->getUri();
+	return (pathToResource);
+}
+
+void RequestHandlerGet::exceptionRoutine(int statusCode, Response *response)
+{
+		delete response;
+		throw HandlerErrorException(statusCode, *_request);
+}
+
+void RequestHandlerGet::openReadCopyFile(Response *response, std::string & pathToResource)
+{
+	std::ifstream resourse(pathToResource.c_str());
+	std::stringstream resourceContent;
+	resourceContent << resourse.rdbuf();
+	std::string content = resourceContent.str();
+	response->setContent(content);
+	response->setFile(pathToResource);
+}
+
+void RequestHandlerGet::htmlIndexBuilder(Response * response)
+{
+	int status = response->buildHtmlIndex(*_request);
+	if (status)
+		exceptionRoutine(status, response);
+	std::string file = "default";
+	response->setFile(file);
+}
+
+void RequestHandlerGet::contentForDIR(Response * response, std::string & pathToResource)
+{
+	if (access(pathToResource.c_str(), R_OK) == -1)
+		exceptionRoutine(403, response);
+	else
+	{
+		if (_request->getLocation())
+		{
+			std:: cout << "aqui" << std::endl;
+			pathToResource = pathToResource + "/" + _request->getLocation()->getIndexLocation();
+			if (_request->getLocation()->getAutoIndexLocation())
+				htmlIndexBuilder(response);
+			else if (access(pathToResource.c_str(), R_OK) == -1)
+				exceptionRoutine(403, response);
+			else
+				openReadCopyFile(response, pathToResource);
+		}
+		else
+			exceptionRoutine(403, response);
+	}
+}
+
+void RequestHandlerGet::contentForFile(Response *response, std::string & pathToResource)
+{
+	if (access(pathToResource.c_str(), R_OK) == -1)
+		exceptionRoutine(403, response);
+	else
+		openReadCopyFile(response,  pathToResource);
+}
+
+void RequestHandlerGet::ResponseContentRoutine(Response *response)
+{
+	std::string pathToResource = createPathToResource();
 	int typeOfResource = Utils::typeOfFile(pathToResource);
 	if (typeOfResource == 1)
-	{
-		if (access(pathToResource.c_str(), R_OK) == -1)
-		{
-			delete response;
-			throw HandlerErrorException(403, *_request);
-		}
-		else
-		{
-			std::ifstream resourse(pathToResource.c_str());
-			std::stringstream resourceContent;
-			resourceContent << resourse.rdbuf();
-			std::string content = resourceContent.str();
-			response->setContent(content);
-			response->setFile(pathToResource);
-		}
-	}
+		contentForFile(response, pathToResource);
 	else if (typeOfResource == 2)
+		contentForDIR(response, pathToResource);
+	else if (typeOfResource == -1)
+		exceptionRoutine(404, response);	
+}
+
+void RequestHandlerGet::setNewLocation(Request & request)
+{
+	std::vector<Location> &locations = request.getServer()->getLocation();
+
+	for (size_t i = 0; i < locations.size(); i++)
 	{
-		if (access(pathToResource.c_str(), R_OK) == -1)
+		std::string testDir;
+		size_t uriSize;
+		size_t locationPathSize;
+
+		uriSize = request.getUri().size();
+		locationPathSize = locations[i].getLocationPath().size();
+		testDir = request.getUri();
+		testDir = testDir.substr(0, locationPathSize);
+		if (testDir.compare(locations[i].getLocationPath()) != 0)
+			continue;
+		if (uriSize > locationPathSize && request.getUri()[locationPathSize] != '/')
+			continue;
+		Location *requestLocation = request.getLocation();
+		if (!requestLocation || requestLocation->getLocationPath().size() < locationPathSize)
+			request.setLocation(locations[i]);
+	}
+}
+
+void RequestHandlerGet::checkAndSetReturn(Request & request, bool & reddir)
+{
+	if (request.getLocation())
+	{
+		if(!request.getLocation()->getReturnLocation().empty())
 		{
-			delete response;
-			throw HandlerErrorException(403, *_request);
-		}
-		else
-		{
-			pathToResource = pathToResource + _request->getLocation()->getIndexLocation();
-			if (access(pathToResource.c_str(), R_OK) == -1)
-			{
-				delete response;
-				throw HandlerErrorException(403, *_request);
-			}
-			else
-			{
-				std::ifstream resourse(pathToResource.c_str());
-				std::stringstream resourceContent;
-				resourceContent << resourse.rdbuf();
-				std::string content = resourceContent.str();
-				response->setContent(content);
-				response->setFile(pathToResource);
-			}
+			request.setUri(request.getLocation()->getReturnLocation());
+			setNewLocation(*_request);
+			reddir = true;
 		}
 	}
-	else if (typeOfResource == -1)
-	{
-		delete response;
-		throw HandlerErrorException(404, *_request);
-	}		
 }
+
+/*void RequestHandlerGet::checkAndSetAlias(Request & request)
+{
+	if (request.getLocation())
+	{
+		if(!request.getLocation()->getAliasLocation().empty())
+		{
+			request.setUri(request.getLocation()->getAliasLocation());
+			setNewLocation(*_request);
+		}
+	}
+	std::cout << request.getLocation()->getAliasLocation() << std::endl;
+}*/
 
 Response * RequestHandlerGet::doHandleRequest(void)
 {
-	Response *response = new Response();
+	Response	*response = new Response();
+	bool		reddir = false;
 
+	//checkAndSetAlias(*_request);
+	/*if (_request->getLocation())
+		std::cout << "hay location :" << _request->getLocation()->getLocationPath() << std::endl;*/
+	checkAndSetReturn(*_request, reddir);
 	ResponseContentRoutine(response);
 	response->setProtocol(_request->getProtocol());
 	response->setProtocolVersion(_request->getProtocolVersion());
 	response->ResponseHeaderRoutine(*response, *_request);
 	response->setStatusCode(200);
+	if (reddir)
+		response->setStatusCode(301);
 	std::string statusCodeMessage = Utils::codeStatus(response->getStatusCode());
 	response->setStatusCodeMessage(statusCodeMessage);
 	response->ResponseRawRoutine();

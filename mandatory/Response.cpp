@@ -1,49 +1,136 @@
 #include "../includes/Response.hpp"
 #include "../includes/Server.hpp"
 
-static void ResponseContentRoutine(Request & request, Response & response)
+static void insertHtmlEnd(std::string & indexHtml)
+{
+	indexHtml.append("</table>\n");
+	indexHtml.append("<hr>\n");
+	indexHtml.append("</body>\n");
+	indexHtml.append("</html>\n");
+}
+
+static void insertHtmlLoop(DIR *dir, std::string & dirName, std::string & indexHtml,
+ std::string & location)
+{
+	struct stat objStats;
+	struct dirent *objInfo;
+	std::string path;
+
+	while ((objInfo = readdir(dir)) != NULL)
+	{
+		if (strcmp(objInfo->d_name, ".") == 0)
+			continue ;
+		path = dirName + "/" + objInfo->d_name;
+		stat(path.c_str(), &objStats);
+		indexHtml.append("<tr>\n");
+		indexHtml.append("<td>\n");
+		indexHtml.append("<a href=\"");
+		indexHtml.append(/*objInfo->d_name*/location + "/" + objInfo->d_name);
+		if (S_ISDIR(objStats.st_mode))
+			indexHtml.append("/");
+		indexHtml.append("\">");
+		indexHtml.append(objInfo->d_name);
+		if (S_ISDIR(objStats.st_mode))
+			indexHtml.append("/");
+		indexHtml.append("</a>\n");
+		indexHtml.append("</td>\n");
+		indexHtml.append("<td>\n");
+		indexHtml.append(ctime(&objStats.st_mtime));
+		indexHtml.append("</td>\n");
+		indexHtml.append("<td>\n");
+		if (!S_ISDIR(objStats.st_mode))
+			indexHtml.append(Utils::intToString(objStats.st_size));
+		indexHtml.append("</td>\n");
+		indexHtml.append("</tr>\n");
+	}
+}
+
+static void insertHtmlMain(std::string & indexHtml, std::string & dirName)
+{
+	indexHtml.append("<html>\n");
+	indexHtml.append("<head>\n");
+	indexHtml.append("<title> Index of");
+	indexHtml.append(dirName);
+	indexHtml.append("</title>\n");
+	indexHtml.append("</head>\n");
+	indexHtml.append("<body>\n");
+	indexHtml.append("<h1> Index of " + dirName + "</h1>\n");
+	indexHtml.append("<table style=\"width:80%; font-size: 15px\">\n");
+    indexHtml.append("<hr>\n");
+    indexHtml.append("<th style=\"text-align:left\"> File Name </th>\n");
+    indexHtml.append("<th style=\"text-align:left\"> Last Modification  </th>\n");
+    indexHtml.append("<th style=\"text-align:left\"> File Size </th>\n");
+}
+
+int Response::buildHtmlIndex(Request & request)
+{
+	std::string indexHtml = "";
+	std::string dirName = request.getServer()->getRoot() + request.getUri();
+
+	DIR *dir = opendir(dirName.c_str());
+	if (dir == NULL)
+	{
+		perror("Error: opendir : ");
+		return (500);
+	}
+	insertHtmlMain(indexHtml, dirName);
+	std::string location;
+	if (request.getLocation())
+	{
+		if (request.getLocation()->getLocationPath() == "/")
+			location = request.getServer()->getRoot();
+		else
+			location = request.getLocation()->getLocationPath();
+	}
+	else
+		location = request.getServer()->getRoot();
+	insertHtmlLoop(dir, dirName, indexHtml, location);
+	insertHtmlEnd(indexHtml);
+	setContent(indexHtml);
+	return (0);
+}
+
+void Response::contentErrorPage(std::string & path, const int statusCode)
+{
+	std::string content = Utils::codeStatus(statusCode);
+	this->setStatusCodeMessage(content);
+	std::ifstream ErrorPageOpen(path.c_str());
+	std::stringstream ErrorPageContent;
+	ErrorPageContent << ErrorPageOpen.rdbuf();
+	content = ErrorPageContent.str();
+	this->setContent(content);
+	this->setFile(path);
+}
+
+void Response::contentForNoErrorPage(const int statusCode)
+{
+	std::string content = Utils::codeStatus(statusCode);
+	this->setContent(content);
+	this->setStatusCodeMessage(content);
+	std::string path = "default";
+	this->setFile(path);
+}
+
+void Response::errorResponseContentRoutine(Request & request)
 {
 	std::map<int, std::string> errorPages = request.getServer()->getErrorPages();
 	std::map<int, std::string>::iterator it;
 
 	for (it = errorPages.begin(); it != errorPages.end(); it++)
 	{
-		if (it->first == response.getStatusCode())
+		if (it->first == this->getStatusCode())
 		{
 			if (it->second.empty())
-			{
-				std::string content = Utils::codeStatus(it->first);
-				response.setContent(content);
-				response.setStatusCodeMessage(content);
-				std::string path = "default";
-				response.setFile(path);
-				break ;
-			}
+				contentForNoErrorPage(it->first);
 			else
 			{
 				std::string path = (request.getServer()->getRoot() + it->second);
 				if (access(path.c_str(), F_OK) == -1 && access(path.c_str(), R_OK) == -1)
-				{
-					std::string content = Utils::codeStatus(it->first);
-					response.setContent(content);
-					response.setStatusCodeMessage(content);
-					path = "default";
-					response.setFile(path);
-					break ;
-				}
+					contentForNoErrorPage(it->first);
 				else
-				{
-					std::string content = Utils::codeStatus(it->first);
-					response.setStatusCodeMessage(content);
-					std::ifstream ErrorPageOpen(path.c_str());
-					std::stringstream ErrorPageContent;
-					ErrorPageContent << ErrorPageOpen.rdbuf();
-					content = ErrorPageContent.str();
-					response.setContent(content);
-					response.setFile(path);
-					break ;
-				}
+					contentErrorPage(path, it->first);
 			}
+			break ;
 		}
 	}
 }
@@ -56,13 +143,13 @@ static void ResponseContentType(Response & response)
 	if (pos == std::string::npos)
 	{
 		std::string extToFind = "default";
-		response.getHeaders().insert(std::make_pair("Content-type: ",
+		response.getHeaders().insert(std::make_pair("Content-type:",
 		response.getFileExt(extToFind)));
 	}
 	else
 	{
 		std::string extToFind = ext.substr(pos);
-		response.getHeaders().insert(std::make_pair("Content-type: ",
+		response.getHeaders().insert(std::make_pair("Content-type:",
 		response.getFileExt(extToFind)));
 	}
 }
@@ -70,7 +157,7 @@ static void ResponseContentType(Response & response)
 static void ResponseContentLength(Response & response)
 {
 	std::string lengthTostring = Utils::intToString((int)response.getContent().size());
-	response.getHeaders().insert(std::make_pair("Content-Length: ", lengthTostring));
+	response.getHeaders().insert(std::make_pair("Content-Length:", lengthTostring));
 }
 
 static void ResponseConnectionType(Request & request, Response & response)
@@ -78,14 +165,14 @@ static void ResponseConnectionType(Request & request, Response & response)
 	std::map<std::string, std::string> headers = request.getHeaders();
 	
 	if (headers["Connection"] == "keep-alive\r")
-		response.getHeaders().insert(std::make_pair("Connection: ", "keep-alive"));
+		response.getHeaders().insert(std::make_pair("Connection:", "keep-alive"));
 	else
-		response.getHeaders().insert(std::make_pair("Connection: ", "close"));
+		response.getHeaders().insert(std::make_pair("Connection:", "close"));
 }
 
 static void ResponseServer(Response & response)
 {
-	response.getHeaders().insert(std::make_pair("Server: ", "WebServer42"));
+	response.getHeaders().insert(std::make_pair("Server:", "WebServer42"));
 }
 
 static void ResponseDate(Response & response)
@@ -94,15 +181,15 @@ static void ResponseDate(Response & response)
 	time_t actual = time(0);
 	struct tm *GMTtime = gmtime(&actual);
 	strftime(date, sizeof(date), "%a, %d %b %Y %H:%M:%S %Z", GMTtime);
-	response.getHeaders().insert(std::make_pair("Date: ", date));
+	response.getHeaders().insert(std::make_pair("Date:", date));
 }
 
 static void ResponseLocationForError(Response & response)
 {
 	if (response.getFile() == "default")
-		response.getHeaders().insert(std::make_pair("Location: ", "/"));
+		response.getHeaders().insert(std::make_pair("Location:", "/"));
 	else
-		response.getHeaders().insert(std::make_pair("Location: ", response.getFile()));
+		response.getHeaders().insert(std::make_pair("Location:", response.getFile()));
 }
 
 static void ResponseLocation(Response & response, Request & request)
@@ -112,7 +199,7 @@ static void ResponseLocation(Response & response, Request & request)
 	else
 	{
 		if (request.getLocation())
-			response.getHeaders().insert(std::make_pair("Location: ", request.getLocation()->getLocationPath()));
+			response.getHeaders().insert(std::make_pair("Location:", request.getLocation()->getLocationPath()));
 	}
 }
 
@@ -126,15 +213,29 @@ void Response::ResponseHeaderRoutine(Response & response, Request & request)
 	ResponseDate(response);
 }
 
+void Response::parseProtocolandVersion()
+{
+	std::string protocol = this->getProtocol();
+	size_t pos = protocol.find('\r');
+	if (pos != std::string::npos)
+		protocol.erase(pos, 1);
+	std::string pVersion = this->getProtocolVersion();
+	pos = pVersion.find('\r');
+	if (pos != std::string::npos)
+		pVersion.erase(pos, 1);
+	this->setProtocol(protocol);
+	this->setProtocolVersion(pVersion);
+}
+
 void Response::ResponseRawRoutine()
 {
-	std::string raw;
-	std::map<std::string, std::string>::iterator it;
-
-	raw = getProtocol() + "/";
+	std::string raw = "";
+	parseProtocolandVersion();
+	raw.append(getProtocol() + "/");
 	raw.append((getProtocolVersion() + " "
-	+ Utils::intToString(getStatusCode()) + " "
-	+ getStatusCodeMessage() +  "\n"));
+	  + Utils::intToString(getStatusCode()) + " "
+	  + getStatusCodeMessage() +  "\r\n"));
+	std::map<std::string, std::string>::iterator it;
 	for(it = getHeaders().begin(); it != getHeaders().end(); it++)
 	{
 		raw.append(it->first + it->second + "\n");
@@ -147,7 +248,7 @@ Response::Response(int errCode, Request *request) : _errorResponse(true)
 {
 	initFileExt();
 	setStatusCode(errCode);
-	ResponseContentRoutine(*request, *this);
+	errorResponseContentRoutine(*request);
 	setProtocol(request->getProtocol());
 	setProtocolVersion(request->getProtocolVersion());
 	ResponseHeaderRoutine(*this, *request);
