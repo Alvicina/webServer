@@ -23,7 +23,9 @@ class ServerManager
 		void handleEpollEvent(EpollEvent &event);
 		Server *findServerByFd(int fd);
 		void handleNewConnection(Server &server);
-		void handleClientRequest(EpollEvent &event);
+		void handleClientEvent(EpollEvent &event);
+		void handleClientRequest(EpollEvent &event, Client *client);
+		void sendResponseToClient(EpollEvent &event, Client *client);
 		void closeClientConnection(int fd);
 		std::string getRawRequestFromEpollEvent(EpollEvent &event);
 		void logServerListening();

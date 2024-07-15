@@ -90,7 +90,7 @@ void ServerManager::handleEpollEvent(EpollEvent &event)
 		if (server != NULL)
 			this->handleNewConnection(*server);
 		else
-			this->handleClientRequest(event);
+			this->handleClientEvent(event);
 	}
 	catch (IOException &e)
 	{
@@ -135,54 +135,31 @@ void ServerManager::logNewConnection(int fd)
 		), 1);
 }
 
-void ServerManager::handleClientRequest(EpollEvent &event)
+void ServerManager::handleClientEvent(EpollEvent &event)
 {
 	Client *client = this->_clients[event.data.fd];
 
 	if (event.events & EPOLLIN)
-	{
-		std::string rawRequest = this->getRawRequestFromEpollEvent(event);
-		if (rawRequest.size() == 0)
-		{
-			this->closeClientConnection(event.data.fd);
-			return;
-		}
-		this->_epoll.setSocketOnWriteMode(client->getSocket());
-		// TODO: Handle request parse errors (send a response with HTTP error code)
-		RequestParser requestParser(rawRequest);
-		Request &request = requestParser.parseRequest(this->_servers);
-		this->logRequestReceived(request, event.data.fd);
-		Response *response = request.getServer()->handleRequest(request);
-		client->getResponseQueue().push_back(response);
-	}
+		this->handleClientRequest(event, client);
 	if (event.events & EPOLLOUT)
+		this->sendResponseToClient(event, client);
+}
+
+void ServerManager::handleClientRequest(EpollEvent &event, Client *client)
+{
+	std::string rawRequest = this->getRawRequestFromEpollEvent(event);
+	if (rawRequest.size() == 0)
 	{
-		for (size_t i = 0; i < client->getResponseQueue().size(); i++)
-		{
-			Response *response = client->getResponseQueue()[i];
-			if (send(event.data.fd, response->getRaw().c_str(), response->getRaw().size(), 0) == -1)
-				throw IOException();
-			this->logResponseSent(*response, event.data.fd);
-			delete response;
-		}
-		client->getResponseQueue().clear();
-		this->_epoll.setSocketOnReadMode(client->getSocket());
+		this->closeClientConnection(event.data.fd);
+		return;
 	}
-}
-
-void ServerManager::logRequestReceived(Request &request, int fd) const
-{
-	Logger::logInfo((std::ostringstream &)(std::ostringstream().flush()
-		<< "⬇️  Request received from client " << fd << ": "
-		<< Request::getMethodName(request.getMethod()) << " "
-		<< request.getUri()));
-}
-
-void ServerManager::logResponseSent(Response &response, int fd) const
-{
-	Logger::logInfo((std::ostringstream &)(std::ostringstream().flush()
-		<< "⬆️  Response sent to client " << fd << ": "
-		<< response.getStatusCode() << " " << response.getStatusCodeMessage()));
+	this->_epoll.setSocketOnWriteMode(client->getSocket());
+	// TODO: Handle request parse errors (send a response with HTTP error code)
+	RequestParser requestParser(rawRequest);
+	Request &request = requestParser.parseRequest(this->_servers);
+	this->logRequestReceived(request, event.data.fd);
+	Response *response = request.getServer()->handleRequest(request);
+	client->getResponseQueue().push_back(response);
 }
 
 std::string ServerManager::getRawRequestFromEpollEvent(EpollEvent &event)
@@ -201,6 +178,35 @@ std::string ServerManager::getRawRequestFromEpollEvent(EpollEvent &event)
 	}
 	while (bytes == sizeof(bufferTmp) - 1);
 	return (buffer);
+}
+
+void ServerManager::sendResponseToClient(EpollEvent &event, Client *client)
+{
+	for (size_t i = 0; i < client->getResponseQueue().size(); i++)
+	{
+		Response *response = client->getResponseQueue()[i];
+		if (send(event.data.fd, response->getRaw().c_str(), response->getRaw().size(), 0) == -1)
+			throw IOException();
+		this->logResponseSent(*response, event.data.fd);
+		delete response;
+	}
+	client->getResponseQueue().clear();
+	this->_epoll.setSocketOnReadMode(client->getSocket());
+}
+
+void ServerManager::logRequestReceived(Request &request, int fd) const
+{
+	Logger::logInfo((std::ostringstream &)(std::ostringstream().flush()
+		<< "🡇  Request received from client " << fd << ": "
+		<< Request::getMethodName(request.getMethod()) << " "
+		<< request.getUri()));
+}
+
+void ServerManager::logResponseSent(Response &response, int fd) const
+{
+	Logger::logInfo((std::ostringstream &)(std::ostringstream().flush()
+		<< "🡅  Response sent to client " << fd << ": "
+		<< response.getStatusCode() << " " << response.getStatusCodeMessage()));
 }
 
 void ServerManager::closeClientConnection(int fd)
