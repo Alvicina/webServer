@@ -12,6 +12,8 @@ static void insertHtmlEnd(std::string & indexHtml)
 static void insertHtmlLoop(DIR *dir, std::string & dirName, std::string & indexHtml,
  std::string & location)
 {
+	(void) location;
+
 	struct stat objStats;
 	struct dirent *objInfo;
 	std::string path;
@@ -25,7 +27,8 @@ static void insertHtmlLoop(DIR *dir, std::string & dirName, std::string & indexH
 		indexHtml.append("<tr>\n");
 		indexHtml.append("<td>\n");
 		indexHtml.append("<a href=\"");
-		indexHtml.append(/*objInfo->d_name*/location + "/" + objInfo->d_name);
+		indexHtml.append(/*objInfo->d_name/location + "/" + */objInfo->d_name);
+		//std::cout << "objinfo: " << objInfo->d_name << std::endl;
 		if (S_ISDIR(objStats.st_mode))
 			indexHtml.append("/");
 		indexHtml.append("\">");
@@ -199,7 +202,12 @@ static void ResponseLocation(Response & response, Request & request)
 	else
 	{
 		if (request.getLocation())
-			response.getHeaders().insert(std::make_pair("Location:", request.getLocation()->getLocationPath()));
+		{
+			if (!request.getLocation()->getReturnLocation().empty())
+				response.getHeaders().insert(std::make_pair("Location:", request.getLocation()->getReturnLocation()));
+			else
+				response.getHeaders().insert(std::make_pair("Location:", request.getLocation()->getLocationPath()));
+		}
 	}
 }
 

@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:39:56 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/15 17:31:18 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/15 18:57:04 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,6 @@ void RequestHandlerGet::contentForDIR(Response * response, std::string & pathToR
 	{
 		if (_request->getLocation())
 		{
-			std:: cout << "aqui" << std::endl;
 			pathToResource = pathToResource + "/" + _request->getLocation()->getIndexLocation();
 			if (_request->getLocation()->getAutoIndexLocation())
 				htmlIndexBuilder(response);
@@ -155,8 +154,6 @@ void RequestHandlerGet::checkAndSetReturn(Request & request, bool & reddir)
 	{
 		if(!request.getLocation()->getReturnLocation().empty())
 		{
-			request.setUri(request.getLocation()->getReturnLocation());
-			setNewLocation(*_request);
 			reddir = true;
 		}
 	}
@@ -170,6 +167,7 @@ void RequestHandlerGet::checkAndSetReturn(Request & request, bool & reddir)
 		{
 			request.setUri(request.getLocation()->getAliasLocation());
 			setNewLocation(*_request);
+			
 		}
 	}
 	std::cout << request.getLocation()->getAliasLocation() << std::endl;
@@ -181,10 +179,9 @@ Response * RequestHandlerGet::doHandleRequest(void)
 	bool		reddir = false;
 
 	//checkAndSetAlias(*_request);
-	/*if (_request->getLocation())
-		std::cout << "hay location :" << _request->getLocation()->getLocationPath() << std::endl;*/
 	checkAndSetReturn(*_request, reddir);
-	ResponseContentRoutine(response);
+	if (reddir == false)
+		ResponseContentRoutine(response);
 	response->setProtocol(_request->getProtocol());
 	response->setProtocolVersion(_request->getProtocolVersion());
 	response->ResponseHeaderRoutine(*response, *_request);
