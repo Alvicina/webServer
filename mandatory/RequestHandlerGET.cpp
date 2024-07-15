@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:39:56 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/15 12:24:50 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/15 13:43:32 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,7 @@ void RequestHandlerGet::contentForDIR(Response * response, std::string & pathToR
 	{
 		if (_request->getLocation())
 		{
+			std:: cout << "aqui" << std::endl;
 			pathToResource = pathToResource + "/" + _request->getLocation()->getIndexLocation();
 			if (_request->getLocation()->getAutoIndexLocation())
 				htmlIndexBuilder(response);
@@ -166,6 +167,7 @@ Response * RequestHandlerGet::doHandleRequest(void)
 	Response	*response = new Response();
 	bool		reddir = false;
 
+	//rutina para el alias
 	checkAndSetReturn(*_request, reddir);
 	ResponseContentRoutine(response);
 	response->setProtocol(_request->getProtocol());

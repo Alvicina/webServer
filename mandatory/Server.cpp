@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/12 11:12:00 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/15 13:32:40 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -438,7 +438,8 @@ void Server::isLocationValid(Location & location)
 		}
 		if (!location.getAliasLocation().empty())
 		{
-			if (Utils::fileExistsAndReadable(location.getLocationRoot(), location.getAliasLocation()))
+			std::string path = "";
+			if (Utils::fileExistsAndReadable(path, location.getAliasLocation()))
 				throw ServerErrorException("Error: Alias for location invalid");
 		}
 	}

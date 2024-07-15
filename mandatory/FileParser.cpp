@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/15 12:25:39 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/15 13:23:04 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -318,7 +318,7 @@ void FileParser::buildServers(void)
 		_servers.push_back(serv);
 		i++;
 	}
-	//printServers();
+	printServers();
 }
 
 void FileParser::printServers()
