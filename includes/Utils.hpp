@@ -26,6 +26,7 @@ class Utils
 		static int		fileExistsAndReadable(std::string const & path, std::string const & index);
 		static std::string codeStatus(int code);
 		static std::string intToString(int number);
+		static std::string strToLower(std::string str);
 };
 
 class ParserErrorException : public std::exception

@@ -14,7 +14,7 @@
 #include "../includes/Request.hpp"
 #include "../includes/Response.hpp"
 
-Server::Server() 
+Server::Server(): _masterSocket(NULL)
 {
 	_port = 0;
 	_host = 0;
@@ -33,7 +33,8 @@ Server::Server(Server const & copy)
 
 Server::~Server()
 {
-	
+	if (this->_masterSocket)
+		delete this->_masterSocket;
 }
 
 Server& Server::operator=(Server const & other)
@@ -478,12 +479,13 @@ void Server::checkParamToken(std::string & param)
 
 void Server::initMasterSocket()
 {
-	this->_masterSocket.initAsMasterSocket(this->_host, this->_port);
+	this->_masterSocket = new Socket();
+	this->_masterSocket->initAsMasterSocket(this->_host, this->_port);
 }
 
 Socket &Server::getSocket()
 {
-	return (this->_masterSocket);
+	return (*this->_masterSocket);
 }
 
 void Server::initErrorPages(void)

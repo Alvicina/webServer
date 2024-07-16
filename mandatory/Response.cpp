@@ -100,9 +100,9 @@ void Response::contentForNoErrorPage(const int statusCode)
 	this->setFile(path);
 }
 
-void Response::errorResponseContentRoutine(Request & request)
+void Response::errorResponseContentRoutine(Server &server)
 {
-	std::map<int, std::string> errorPages = request.getServer()->getErrorPages();
+	std::map<int, std::string> errorPages = server.getErrorPages();
 	std::map<int, std::string>::iterator it;
 
 	for (it = errorPages.begin(); it != errorPages.end(); it++)
@@ -113,7 +113,7 @@ void Response::errorResponseContentRoutine(Request & request)
 				contentForNoErrorPage(it->first);
 			else
 			{
-				std::string path = (request.getServer()->getRoot() + it->second);
+				std::string path = (server.getRoot() + it->second);
 				if (access(path.c_str(), F_OK) == -1 && access(path.c_str(), R_OK) == -1)
 					contentForNoErrorPage(it->first);
 				else
@@ -149,11 +149,9 @@ static void ResponseContentLength(Response & response)
 	response.getHeaders().insert(std::make_pair("Content-Length:", lengthTostring));
 }
 
-static void ResponseConnectionType(Request & request, Response & response)
+static void ResponseConnectionType(Request *request, Response & response)
 {
-	std::map<std::string, std::string> headers = request.getHeaders();
-	
-	if (headers["Connection"] == "keep-alive\r")
+	if (request && request->getHeaders()["connection"] == "keep-alive\r")
 		response.getHeaders().insert(std::make_pair("Connection:", "keep-alive"));
 	else
 		response.getHeaders().insert(std::make_pair("Connection:", "close"));
@@ -181,23 +179,24 @@ static void ResponseLocationForError(Response & response)
 		response.getHeaders().insert(std::make_pair("Location:", response.getFile()));
 }
 
-static void ResponseLocation(Response & response, Request & request)
+static void ResponseLocation(Response & response, Request *request)
 {
 	if (response.getErrorResponse() == true)
 		ResponseLocationForError(response);
 	else
 	{
-		if (request.getLocation())
+		if (request && request->getLocation())
 		{
-			if (!request.getLocation()->getReturnLocation().empty())
-				response.getHeaders().insert(std::make_pair("Location:", request.getLocation()->getReturnLocation()));
+			std::string &returnLocation = request->getLocation()->getReturnLocation();
+			if (!returnLocation.empty())
+				response.getHeaders().insert(std::make_pair("Location:", returnLocation));
 			else
-				response.getHeaders().insert(std::make_pair("Location:", request.getLocation()->getLocationPath()));
+				response.getHeaders().insert(std::make_pair("Location:", returnLocation));
 		}
 	}
 }
 
-void Response::ResponseHeaderRoutine(Response & response, Request & request)
+void Response::ResponseHeaderRoutine(Response &response, Request *request)
 {
 	ResponseContentType(response); //cuidado si metemos algun archivo con extension no contemplada
 	ResponseContentLength(response);
@@ -242,10 +241,21 @@ Response::Response(int errCode, Request *request) : _errorResponse(true)
 {
 	initFileExt();
 	setStatusCode(errCode);
-	errorResponseContentRoutine(*request);
+	errorResponseContentRoutine(*request->getServer());
 	setProtocol(request->getProtocol());
 	setProtocolVersion(request->getProtocolVersion());
-	ResponseHeaderRoutine(*this, *request);
+	ResponseHeaderRoutine(*this, request);
+	ResponseRawRoutine();
+}
+
+Response::Response(int errCode, Server &server) : _errorResponse(true)
+{
+	initFileExt();
+	setStatusCode(errCode);
+	setProtocol("HTTP");
+	setProtocolVersion("1.1");
+	errorResponseContentRoutine(server);
+	ResponseHeaderRoutine(*this, NULL);
 	ResponseRawRoutine();
 }
 
@@ -258,7 +268,7 @@ Response::Response()
 	_file = "";
 	_protocol = "";
 	_protocolVersion = "";
-	 initFileExt();
+	initFileExt();
 }
 
 Response::Response(const Response &response)
@@ -337,7 +347,7 @@ std::string &Response::getProtocol()
 	return (this->_protocol);
 }
 
-void Response::setProtocol(std::string &protocol)
+void Response::setProtocol(const std::string &protocol)
 {
 	this->_protocol = protocol;
 }
@@ -347,7 +357,7 @@ std::string &Response::getProtocolVersion()
 	return (this->_protocolVersion);
 }
 
-void Response::setProtocolVersion(std::string &protocolVersion)
+void Response::setProtocolVersion(const std::string &protocolVersion)
 {
 	this->_protocolVersion = protocolVersion;
 }
