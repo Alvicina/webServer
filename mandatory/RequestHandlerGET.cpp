@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:39:56 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/16 16:55:55 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/16 17:59:32 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,10 +163,14 @@ std::string RequestHandlerGet::createNewUriForAlias(std::string & alias)
 {
 	std::string root = _request->getServer()->getRoot();
 	size_t rootSize = root.size();
-	std::string pathToResource = alias.substr(rootSize);
-	if (pathToResource[0] != '/')
-		pathToResource = "/" + pathToResource;
-	return (pathToResource);
+	std::string insertToOldUri = alias.substr(rootSize);
+	if (insertToOldUri[0] != '/')
+		insertToOldUri = "/" + insertToOldUri;
+	std::string locationPath = _request->getLocation()->getLocationPath();
+	size_t locationPathSize = locationPath.size();
+	std::string oldUri = _request->getUri();
+	std::string newUri = insertToOldUri + oldUri.erase(0, locationPathSize);
+	return (newUri);
 }
 
 void RequestHandlerGet::checkAndSetAlias()
