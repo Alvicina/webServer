@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:39:56 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/15 18:57:04 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/16 16:55:55 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,38 +148,47 @@ void RequestHandlerGet::setNewLocation(Request & request)
 	}
 }
 
-void RequestHandlerGet::checkAndSetReturn(Request & request, bool & reddir)
+void RequestHandlerGet::checkAndSetReturn(bool & reddir)
 {
-	if (request.getLocation())
+	if (_request->getLocation())
 	{
-		if(!request.getLocation()->getReturnLocation().empty())
+		if(!_request->getLocation()->getReturnLocation().empty())
 		{
 			reddir = true;
 		}
 	}
 }
 
-/*void RequestHandlerGet::checkAndSetAlias(Request & request)
+std::string RequestHandlerGet::createNewUriForAlias(std::string & alias)
 {
-	if (request.getLocation())
+	std::string root = _request->getServer()->getRoot();
+	size_t rootSize = root.size();
+	std::string pathToResource = alias.substr(rootSize);
+	if (pathToResource[0] != '/')
+		pathToResource = "/" + pathToResource;
+	return (pathToResource);
+}
+
+void RequestHandlerGet::checkAndSetAlias()
+{
+	if (_request->getLocation())
 	{
-		if(!request.getLocation()->getAliasLocation().empty())
+		if(!_request->getLocation()->getAliasLocation().empty())
 		{
-			request.setUri(request.getLocation()->getAliasLocation());
+			std::string newUri = createNewUriForAlias(_request->getLocation()->getAliasLocation());
+			_request->setUri(newUri);
 			setNewLocation(*_request);
-			
 		}
 	}
-	std::cout << request.getLocation()->getAliasLocation() << std::endl;
-}*/
+}
 
 Response * RequestHandlerGet::doHandleRequest(void)
 {
 	Response	*response = new Response();
 	bool		reddir = false;
 
-	//checkAndSetAlias(*_request);
-	checkAndSetReturn(*_request, reddir);
+	checkAndSetAlias();
+	checkAndSetReturn(reddir);
 	if (reddir == false)
 		ResponseContentRoutine(response);
 	response->setProtocol(_request->getProtocol());
