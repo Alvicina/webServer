@@ -12,6 +12,7 @@
 #include <cstring>
 #include <string>
 #include <fcntl.h>
+#include <dirent.h>
 
 /*NETWORK*/
 #include <netinet/in.h>

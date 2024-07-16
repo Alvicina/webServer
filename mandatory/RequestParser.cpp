@@ -160,6 +160,7 @@ void RequestParser::setRequestLocations()
 		locationPathSize = locations[i].getLocationPath().size();
 		testDir = this->_request->getUri();
 		testDir = testDir.substr(0, locationPathSize);
+		//std::cout << "test dir: " << testDir << " location: " << locations[i].getLocationPath() << std::endl;
 		if (testDir.compare(locations[i].getLocationPath()) != 0)
 			continue;
 		if (uriSize > locationPathSize && this->_request->getUri()[locationPathSize] != '/')
