@@ -142,6 +142,7 @@ void ServerManager::handleClientRequest(EpollEvent &event)
 	if (event.events & EPOLLIN)
 	{
 		std::string rawRequest = this->getRawRequestFromEpollEvent(event);
+		//std::cout << "rawRequest: " << rawRequest << std::endl;
 		if (rawRequest.size() == 0)
 		{
 			this->closeClientConnection(event.data.fd);
