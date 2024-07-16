@@ -184,7 +184,7 @@ Response * RequestHandlerGet::doHandleRequest(void)
 		ResponseContentRoutine(response);
 	response->setProtocol(_request->getProtocol());
 	response->setProtocolVersion(_request->getProtocolVersion());
-	response->ResponseHeaderRoutine(*response, *_request);
+	response->ResponseHeaderRoutine(*response, _request);
 	response->setStatusCode(200);
 	if (reddir)
 		response->setStatusCode(301);

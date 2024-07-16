@@ -3,6 +3,7 @@
 
 #include "webserv.hpp"
 #include "Request.hpp"
+#include "Utils.hpp"
 
 class RequestParser
 {

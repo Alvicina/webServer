@@ -18,7 +18,7 @@ class Response
 		std::string _protocolVersion;
 		std::map<std::string, std::string> _exts;
 		void parseProtocolandVersion();
-		void errorResponseContentRoutine(Request & request);
+		void errorResponseContentRoutine(Server &server);
 		void contentForNoErrorPage(const int statusCode);
 		void contentErrorPage(std::string & path, const int statusCode);
 		void initFileExt();
@@ -26,6 +26,7 @@ class Response
 	public:
 		Response();
 		Response(int errCode, Request *request);
+		Response(int errCode, Server &server);
 		Response(const Response &response);
 		Response &operator=(const Response &response);
 		~Response();
@@ -41,15 +42,15 @@ class Response
 		std::string &getContent();
 		void setContent(std::string &content);
 		std::string &getProtocol();
-		void setProtocol(std::string &protocol);
+		void setProtocol(const std::string &protocol);
 		std::string &getProtocolVersion();
-		void setProtocolVersion(std::string &protocolVersion);
+		void setProtocolVersion(const std::string &protocolVersion);
 		std::string &getFile();
 		void setFile(std::string & file);
 		std::string & getFileExt(std::string & ext);
 		void setErrorResponse(bool isError);
 		bool & getErrorResponse();
-		void ResponseHeaderRoutine(Response & response, Request & request);
+		void ResponseHeaderRoutine(Response & response, Request *request);
 		void ResponseRawRoutine();
 		int  buildHtmlIndex(Request & request);
 };

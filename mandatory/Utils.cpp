@@ -209,3 +209,12 @@ std::string Utils::codeStatus(int code)
         }
 }
 
+std::string Utils::strToLower(std::string str)
+{
+	for (size_t i = 0; i < str.size(); i++)
+	{
+		if (isalpha(str[i]))
+			str[i] = tolower(str[i]);
+	}
+	return (str);
+}

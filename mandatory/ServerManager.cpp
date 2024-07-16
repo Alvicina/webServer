@@ -121,8 +121,7 @@ Server *ServerManager::findServerByFd(int fd)
 void ServerManager::handleNewConnection(Server &server)
 {
 	Socket *socket = server.getSocket().acceptConnection();
-	// TODO: Probar si la siguiente linea está bien. Se llama al destructor de client?
-	this->_clients[socket->getFd()] = new Client(socket);
+	this->_clients[socket->getFd()] = new Client(socket, &server);
 	this->_epoll.addClientSocket(*socket);
 	this->logNewConnection(socket->getFd());
 }
@@ -147,19 +146,31 @@ void ServerManager::handleClientEvent(EpollEvent &event)
 
 void ServerManager::handleClientRequest(EpollEvent &event, Client *client)
 {
-	std::string rawRequest = this->getRawRequestFromEpollEvent(event);
-	if (rawRequest.size() == 0)
+	try
 	{
-		this->closeClientConnection(event.data.fd);
-		return;
+		std::string rawRequest = this->getRawRequestFromEpollEvent(event);
+		if (rawRequest.size() == 0)
+		{
+			this->closeClientConnection(event.data.fd);
+			return;
+		}
+		this->_epoll.setSocketOnWriteMode(client->getSocket());
+		RequestParser requestParser(rawRequest);
+		Request &request = requestParser.parseRequest(this->_servers);
+		this->logRequestReceived(request, event.data.fd);
+		Response *response = request.getServer()->handleRequest(request);
+		client->getResponseQueue().push_back(response);
 	}
-	this->_epoll.setSocketOnWriteMode(client->getSocket());
-	// TODO: Handle request parse errors (send a response with HTTP error code)
-	RequestParser requestParser(rawRequest);
-	Request &request = requestParser.parseRequest(this->_servers);
-	this->logRequestReceived(request, event.data.fd);
-	Response *response = request.getServer()->handleRequest(request);
-	client->getResponseQueue().push_back(response);
+	catch (RequestParser::RequestParseErrorException &e)
+	{
+		client->getResponseQueue().push_back(new Response(400, client->getServer()));
+		Logger::logError(e.what());
+	}
+	catch (std::exception &e)
+	{
+		client->getResponseQueue().push_back(new Response(500, client->getServer()));
+		Logger::logError(e.what());
+	}
 }
 
 std::string ServerManager::getRawRequestFromEpollEvent(EpollEvent &event)
