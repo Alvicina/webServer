@@ -13,12 +13,14 @@
 #ifndef REQUESTHANDLERDELETE_HPP
 #define REQUESTHANDLERDELETE_HPP
 
+#define MAX_FILENAME_LENGTH 30
+
 #include "RequestHandler.hpp"
 
 class RequestHandlerDelete : public RequestHandler
 {
 	private:
-
+		void ResponseContentRoutine(Response *response);
 	public:
 		RequestHandlerDelete(Request & request);
 		RequestHandlerDelete(RequestHandlerDelete & copy);
@@ -26,6 +28,5 @@ class RequestHandlerDelete : public RequestHandler
 		virtual ~RequestHandlerDelete();
 		virtual Response* doHandleRequest(void);
 };
-
 
 #endif
