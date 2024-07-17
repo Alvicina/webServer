@@ -17,6 +17,7 @@
 #include "../includes/Server.hpp"
 #include "../includes/ServerManager.hpp"
 #include "../includes/Logger.hpp"
+#include "../includes/webserv.hpp"
 
 int startRoutine(std::string const & file)
 {
@@ -27,7 +28,8 @@ int startRoutine(std::string const & file)
 		content = configFile.checkAndRead();
 		FileParser serverConf(content);
 		serverConf.parse();
-		ServerManager serverManager(serverConf.getServers());
+		ServerManager &serverManager = ServerManager::getInstance();
+		serverManager.setServers(serverConf.getServers());
 		serverManager.serve();
 		return (EXIT_SUCCESS);
 	}
@@ -36,6 +38,21 @@ int startRoutine(std::string const & file)
 		Logger::logError(e.what());
 		return (EXIT_FAILURE);
 	}
+}
+
+void handleSIGINT(int signum)
+{
+	if (signum == SIGINT)
+		ServerManager::getInstance().stop();
+}
+
+int setEventHandlers()
+{
+	struct sigaction action;
+    action.sa_handler = handleSIGINT;
+    sigemptyset(&action.sa_mask);
+    action.sa_flags = 0;
+	return (sigaction(SIGINT, &action, NULL));
 }
 
 int main(int argc,  char **argv)
@@ -49,6 +66,11 @@ int main(int argc,  char **argv)
 	else
 	{
 		Logger::logError("Wrong number or arguments");
+		return (EXIT_FAILURE);
+	}
+	if (setEventHandlers() == -1)
+	{
+		Logger::logError("Could not setup signal handlers");
 		return (EXIT_FAILURE);
 	}
 	return (startRoutine(file));

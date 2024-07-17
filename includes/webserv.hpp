@@ -13,6 +13,7 @@
 #include <string>
 #include <fcntl.h>
 #include <dirent.h>
+#include <csignal>
 
 /*NETWORK*/
 #include <netinet/in.h>
