@@ -64,11 +64,15 @@ void Epoll::deleteClientSocket(Socket &socket)
 
 std::vector<EpollEvent> Epoll::waitForEvents()
 {
+	std::vector<EpollEvent> events;
 	EpollEvent eventsArray[MAX_EPOLL_EVENTS];
 	int numOfEvents = epoll_wait(this->_fd, eventsArray, MAX_EPOLL_EVENTS, -1);
-	if (numOfEvents == -1)
+	if (numOfEvents == -1 && errno != EINTR)
 		throw EpollInitializationFailedException();
-	std::vector<EpollEvent> events(eventsArray, eventsArray + numOfEvents);
+	for (int i = 0; i < numOfEvents; i++)
+	{
+		events.push_back(eventsArray[i]);
+	}
 	return (events);
 }
 

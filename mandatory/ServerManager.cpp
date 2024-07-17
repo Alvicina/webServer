@@ -1,9 +1,6 @@
 #include "../includes/ServerManager.hpp"
 
-ServerManager::ServerManager() {}
-
-ServerManager::ServerManager(const std::vector<Server> &servers):
-	_servers(servers) {}
+ServerManager::ServerManager(): _isRunning(false) {}
 
 ServerManager::ServerManager(const ServerManager &serverManager)
 {
@@ -27,7 +24,20 @@ ServerManager::~ServerManager()
 	while (it != this->_clients.end())
 	{
 		delete it->second;
+		it++;
 	}
+}
+
+ServerManager &ServerManager::getInstance()
+{
+	static ServerManager serverManager;
+	return (serverManager);
+}
+
+void ServerManager::stop()
+{
+	Logger::logInfo("⏻ Server terminating sequence started", 1);
+	this->_isRunning = false;
 }
 
 void ServerManager::serve()
@@ -57,7 +67,8 @@ void ServerManager::initEpoll()
 void ServerManager::epollLoop()
 {
 	this->logServerListening();
-	while (true)
+	this->_isRunning = true;
+	while (this->_isRunning)
 	{
 		this->handleEpollEvents(this->_epoll.waitForEvents());
 	}
@@ -94,12 +105,12 @@ void ServerManager::handleEpollEvent(EpollEvent &event)
 	}
 	catch (IOException &e)
 	{
-		this->closeClientConnection(event.data.fd);
+		this->closeClientConnection(this->_clients[event.data.fd]);
 		Logger::logError(e.what());
 	}
 	catch (Epoll::EpollInitializationFailedException &e)
 	{
-		this->closeClientConnection(event.data.fd);
+		this->closeClientConnection(this->_clients[event.data.fd]);
 		Logger::logError(e.what());
 	}
 	catch (std::exception &e)
@@ -151,7 +162,7 @@ void ServerManager::handleClientRequest(EpollEvent &event, Client *client)
 		std::string rawRequest = this->getRawRequestFromEpollEvent(event);
 		if (rawRequest.size() == 0)
 		{
-			this->closeClientConnection(event.data.fd);
+			this->closeClientConnection(client);
 			return;
 		}
 		this->_epoll.setSocketOnWriteMode(client->getSocket());
@@ -220,11 +231,12 @@ void ServerManager::logResponseSent(Response &response, int fd) const
 		<< response.getStatusCode() << " " << response.getStatusCodeMessage()));
 }
 
-void ServerManager::closeClientConnection(int fd)
+void ServerManager::closeClientConnection(Client *client)
 {
-	this->_epoll.deleteClientSocket(this->_clients[fd]->getSocket());
-	delete this->_clients[fd];
+	int fd = client->getSocket().getFd();
+	this->_epoll.deleteClientSocket(client->getSocket());
 	this->_clients.erase(fd);
+	delete client;
 	this->logClosedConnection(fd);
 }
 

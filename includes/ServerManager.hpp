@@ -15,6 +15,7 @@ class ServerManager
 		std::vector<Server> 	_servers;
 		std::map<int, Client *>	_clients;
 		Epoll					_epoll;
+		bool					_isRunning;
 
 		void initServerMasterSockets();
 		void initEpoll();
@@ -26,7 +27,7 @@ class ServerManager
 		void handleClientEvent(EpollEvent &event);
 		void handleClientRequest(EpollEvent &event, Client *client);
 		void sendResponseToClient(EpollEvent &event, Client *client);
-		void closeClientConnection(int fd);
+		void closeClientConnection(Client *client);
 		std::string getRawRequestFromEpollEvent(EpollEvent &event);
 		void logServerListening();
 		void logNewConnection(int fd);
@@ -34,15 +35,16 @@ class ServerManager
 		void logRequestReceived(Request &request, int fd) const;
 		void logResponseSent(Response &response, int fd) const;
 
+		ServerManager();
 		ServerManager(const ServerManager &serverManager);
 		ServerManager &operator=(const ServerManager &serverManager);
 
 	public:
-		ServerManager();
-		ServerManager(const std::vector<Server> &servers);
 		~ServerManager();
 
 		void serve();
+		void stop();
+		static ServerManager &getInstance();
 
 		void setServers(const std::vector<Server> &servers);
 
