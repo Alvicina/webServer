@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:39:56 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/17 13:30:52 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/17 17:13:47 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,7 +192,7 @@ Response * RequestHandlerGet::doHandleRequest(void)
 	bool		reddir = false;
 
 	std::cout << "REQUEST:  " << std::endl;
-	std::cout << *_request << std::endl;
+	std::cout << _request->getUri() << std::endl;
 	
 	std::map<std::string, std::string>::iterator it;
 	for (it = _request->getArgs().begin(); it != _request->getArgs().end(); it++)

@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/17 10:11:48 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/17 13:53:26 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/17 18:25:29 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,27 +107,69 @@ void CgiHandler::contentForDIR(Response *response, std::string & pathToResource)
 	}
 }
 
+std::string CgiHandler::methodToString(int number)
+{
+	switch (number)
+	{
+		case 1:
+			return "GET";
+		case 2:
+			return "POST";
+		case 3:
+			return "DELETE";
+		case 4:
+			return "PUT";
+		case 5:
+			return "HEAD";
+		default:
+			return "UNKNOWN";
+	}
+}
+
+std::string CgiHandler::getScriptName(void)
+{
+	std::string Uri = _request->getUri();
+	size_t pos = Uri.find(".");
+	if (pos == std::string::npos)
+		return (_request->getLocation()->getIndexLocation());
+	pos = Uri.find_last_of('/');
+	std::string scriptName = Uri.substr(pos);
+	return (scriptName);
+}
+
 void CgiHandler::initEnv(Response *response, std::string & pathToResource)
 {
 	(void) response;
 	(void) pathToResource;
 
 	_mapEnv["AUTH_TYPE"] = "Basic";
-	if (_request->getMethod() == POST)
-	{
-		_mapEnv["CONTENT_LENGTH"] = _request->getHeaders()["Content-length"];
-		_mapEnv["CONTENT_TYPE"] = _request->getHeaders()["Content-type"];
-	}
+	_mapEnv["CONTENT_LENGTH"] = _request->getHeaders()["Content-length"];
+	_mapEnv["CONTENT_TYPE"] = _request->getHeaders()["Content-type"];
 	_mapEnv["GATEWAY_INTERFACE"] = "CGI/1.1";
-	///
+	_mapEnv["SCRIPT_NAME"] = _request->getUri();
+	_mapEnv["SCRIPT_FILENAME"] = getScriptName();
+	_mapEnv[""];
 	
+	
+	
+	
+	///
+
+	//_mapEnv[""];
+	_mapEnv["REQUEST_METHOD"] = methodToString((int)_request->getMethod());
+	_mapEnv["HTTP_COOKIE"] = _request->getHeaders()["Cookie"];
+	_mapEnv["DOCUMENT_ROOT"] = _request->getLocation()->getLocationRoot();
+	_mapEnv["REQUEST_URI"] = _request->getUri();
+	_mapEnv["SERVER_PROTOCOL"] = "HTTP/1.1";
+	_mapEnv["REDIRECT_STATURS"] = "200";
+	_mapEnv["SERVER_SOFTWARE"] = "WebServer42";
 	
 	
 }
 
 void CgiHandler::cgiExecute(Response *response, std::string & pathToResource)
 {
-	initEnv(response, pathToResource);
+	//initEnv(response, pathToResource);
 }
 
 void CgiHandler::handleCgiRequest(Response *response)
