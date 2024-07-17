@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 11:41:57 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/10 10:30:04 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/17 11:58:31 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,4 +208,6 @@ std::string Utils::codeStatus(int code)
             return "Undefined";
         }
 }
+
+
 
