@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:39:56 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/18 12:35:21 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/18 13:33:51 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,6 +147,11 @@ void RequestHandlerGet::checkAndSetReturn(bool & reddir)
 	if (typeOfFile == 2 && pathToResource[pos - 1] != '/')
 	{
 		reddir = true;
+	}
+	else if (_request->getLocation())
+	{
+		if (!_request->getLocation()->getReturnLocation().empty())
+			reddir = true;
 	}
 }
 
