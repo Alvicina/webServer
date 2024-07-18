@@ -27,6 +27,7 @@ class RequestHandlerDelete : public RequestHandler
 		RequestHandlerDelete& operator=(RequestHandlerDelete & other);
 		virtual ~RequestHandlerDelete();
 		virtual Response* doHandleRequest(void);
+		int fileError();
 };
 
 #endif

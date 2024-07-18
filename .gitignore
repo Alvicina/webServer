@@ -22,3 +22,11 @@ webserv
 
 # Mac OS:
 .DS_Store
+
+# Testers
+ubuntu_cgi_tester
+ubuntu_tester
+
+# Folders
+files
+

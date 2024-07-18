@@ -42,7 +42,7 @@ RequestHandlerDelete& RequestHandlerDelete::operator=(RequestHandlerDelete & oth
 Response* RequestHandlerDelete::doHandleRequest(void)
 {
 	Response *response = new Response();
-	struct stat	attri;
+/*	struct stat	attri;
 	std::string relativeFilePath = "./files/";
 
 	std::string	fileName = _request->getUri();
@@ -83,18 +83,24 @@ Response* RequestHandlerDelete::doHandleRequest(void)
 		delete response;
 		throw HandlerErrorException(403, *_request);
 		//std::cerr << "Error 403: " << pathAndFile << " is a folder, and deleting folders is not allowed." << std::endl;
-	}
+	}*/
 	// Intentar borrar el fichero
-	else if (std::remove(pathAndFile.c_str()) != 0)
+
+	std::string	pathAndFile = '.' + _request->getUri();
+
+	int err = std::remove(pathAndFile.c_str());
+
+	if ( err != 0)
 	{
 		delete response;
-		throw HandlerErrorException(406, *_request);
+		int errnum = this->fileError();
+		throw HandlerErrorException(errnum, *_request);
 		//std::cerr << "Error: Unable to delete the file " << pathAndFile << std::endl;
 	}
 	else
 	{
 		//std::cout << "El fichero " << pathAndFile << " fue borrado exitosamente.\n";
-		std::string content = fileName + " has been successfully deleted!!";  
+		std::string content = pathAndFile + " has been successfully deleted!!";  
 		response->setContent(content);
 		response->setProtocol(_request->getProtocol());
 		response->setProtocolVersion(_request->getProtocolVersion());
@@ -105,4 +111,14 @@ Response* RequestHandlerDelete::doHandleRequest(void)
 		response->ResponseRawRoutine();
 	}
 	return (response);
+}
+
+int RequestHandlerDelete::fileError()
+{
+	std::string	pathAndFile = '.' + _request->getUri();
+
+	std::ifstream file(pathAndFile.c_str());
+	if (!file.good())
+		return (404); // Si no existe el fichero o carpeta, mensaje de no existe
+	return (403); // Si existe, mensaje de forbidden
 }
