@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/17 10:11:48 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/17 18:25:29 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/18 12:02:14 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ std::string& CgiHandler::getContent(void)
 	return (_content);
 }
 
+//lo tengo que cambiar//
 std::string CgiHandler::createPathToResource(void)
 {
 	std::string root = "/" + _request->getServer()->getRoot();

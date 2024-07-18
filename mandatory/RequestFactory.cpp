@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 11:04:21 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/18 09:56:11 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/18 10:14:12 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,6 @@ bool RequestFactory::isRequestMethodAllow(Request & request)
 			if (request.getMethod() == *it)
 				return (true);
 		}
-		std::cout << "me salgo aqui" << std::endl;
 		return (false);
 	}
 	return (true);

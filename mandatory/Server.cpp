@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/16 16:18:14 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/18 12:30:16 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -407,6 +407,8 @@ void Server::checkLocationCgiExtension(Location & location)
 
 void Server::checkLocationForCGI(Location & location)
 {
+	if (location.getLocationRoot().empty())
+		location.setRootLocation(this->getRoot());
 	if (location.getCgiPathLocation().empty() || location.getCgiExtensionLocation().empty() || location.getIndexLocation().empty())
 		throw ServerErrorException("Error: CGI not valid");
 	if (Utils::checkFile(location.getIndexLocation(), R_OK) < 0)

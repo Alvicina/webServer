@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:39:56 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/17 17:13:47 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/18 12:35:21 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,19 +42,10 @@ RequestHandlerGet& RequestHandlerGet::operator=(RequestHandlerGet & other)
 
 std::string RequestHandlerGet::createPathToResource()
 {
-	std::string root = "/" + _request->getServer()->getRoot();
-	size_t rootSize = root.size();
 	std::string pathToResource;
-	
-	if ((strncmp(root.c_str(), _request->getUri().c_str(), rootSize)) == 0
-	 || (strncmp(root.c_str(), _request->getUri().c_str(), rootSize -1)) == 0)
-	{
-		pathToResource = _request->getUri();
-		if (pathToResource[0] == '/')
-			pathToResource.erase(0, 1);
-	}
-	else
-		pathToResource = this->_request->getServer()->getRoot() + this->_request->getUri();
+	pathToResource = this->_request->getServer()->getRoot() + this->_request->getUri();
+	if (_request->getLocation())
+		pathToResource = _request->getLocation()->getLocationRoot() + _request->getUri();
 	return (pathToResource);
 }
 
@@ -150,12 +141,12 @@ void RequestHandlerGet::setNewLocation(Request & request)
 
 void RequestHandlerGet::checkAndSetReturn(bool & reddir)
 {
-	if (_request->getLocation())
+	std::string pathToResource = createPathToResource();
+	int typeOfFile = Utils::typeOfFile(pathToResource);
+	size_t pos = pathToResource.size();
+	if (typeOfFile == 2 && pathToResource[pos - 1] != '/')
 	{
-		if(!_request->getLocation()->getReturnLocation().empty())
-		{
-			reddir = true;
-		}
+		reddir = true;
 	}
 }
 
@@ -191,12 +182,12 @@ Response * RequestHandlerGet::doHandleRequest(void)
 	Response	*response = new Response();
 	bool		reddir = false;
 
-	std::cout << "REQUEST:  " << std::endl;
+	/*std::cout << "REQUEST:  " << std::endl;
 	std::cout << _request->getUri() << std::endl;
 	
 	std::map<std::string, std::string>::iterator it;
 	for (it = _request->getArgs().begin(); it != _request->getArgs().end(); it++)
-		std::cout << it->first << " " << it->second << std::endl;
+		std::cout << it->first << " " << it->second << std::endl;*/
 
 	
 	checkAndSetAlias();
