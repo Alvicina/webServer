@@ -84,7 +84,8 @@ Response* RequestHandlerDelete::doHandleRequest(void)
 		throw HandlerErrorException(403, *_request);
 		//std::cerr << "Error 403: " << pathAndFile << " is a folder, and deleting folders is not allowed." << std::endl;
 	}*/
-	// Intentar borrar el fichero
+
+	// ********** Delete file if possible **********
 
 	std::string	pathAndFile = '.' + _request->getUri();
 
@@ -119,6 +120,6 @@ int RequestHandlerDelete::fileError()
 
 	std::ifstream file(pathAndFile.c_str());
 	if (!file.good())
-		return (404); // Si no existe el fichero o carpeta, mensaje de no existe
-	return (403); // Si existe, mensaje de forbidden
+		return (404); // If file/folder doesn't exist, 404 doesn't exist error
+	return (403); // If it exist, 403 forbidden error
 }
