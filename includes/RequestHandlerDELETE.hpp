@@ -16,6 +16,7 @@
 #define MAX_FILENAME_LENGTH 30
 
 #include "RequestHandler.hpp"
+#include "Server.hpp"
 
 class RequestHandlerDelete : public RequestHandler
 {
@@ -26,8 +27,10 @@ class RequestHandlerDelete : public RequestHandler
 		RequestHandlerDelete(RequestHandlerDelete & copy);
 		RequestHandlerDelete& operator=(RequestHandlerDelete & other);
 		virtual ~RequestHandlerDelete();
-		virtual Response* doHandleRequest(void);
-		int fileError();
+
+		virtual Response*	doHandleRequest(void);
+		int 				fileError(std::string);
+		std::string			strPathAndFile();
 };
 
 #endif

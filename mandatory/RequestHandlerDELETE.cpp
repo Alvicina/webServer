@@ -85,16 +85,18 @@ Response* RequestHandlerDelete::doHandleRequest(void)
 		//std::cerr << "Error 403: " << pathAndFile << " is a folder, and deleting folders is not allowed." << std::endl;
 	}*/
 
-	// ********** Delete file if possible **********
+	// ********** Deletes file if possible **********
 
-	std::string	pathAndFile = '.' + _request->getUri();
+//	std::string	pathAndFile = '.' + _request->getUri();
+
+	std::string	pathAndFile = strPathAndFile();
 
 	int err = std::remove(pathAndFile.c_str());
 
-	if ( err != 0)
+	if (err != 0)
 	{
 		delete response;
-		int errnum = this->fileError();
+		int errnum = this->fileError(pathAndFile);
 		throw HandlerErrorException(errnum, *_request);
 		//std::cerr << "Error: Unable to delete the file " << pathAndFile << std::endl;
 	}
@@ -114,12 +116,64 @@ Response* RequestHandlerDelete::doHandleRequest(void)
 	return (response);
 }
 
-int RequestHandlerDelete::fileError()
+// Considering the fact that an error has happend, returns the type of the error
+int RequestHandlerDelete::fileError(std::string pathAndFile)
 {
-	std::string	pathAndFile = '.' + _request->getUri();
-
 	std::ifstream file(pathAndFile.c_str());
 	if (!file.good())
 		return (404); // If file/folder doesn't exist, 404 doesn't exist error
 	return (403); // If it exist, 403 forbidden error
+}
+
+// Returns "path + file" used to delete considering configuration of location and server
+std::string	RequestHandlerDelete::strPathAndFile()
+{
+	std::string path;
+	std::string file;
+	std::string pathAndFile = _request->getUri();
+
+	if (_request->getLocation()) // if location exists
+	{
+		std::string::size_type pos = pathAndFile.find_last_of('/');
+		if (pos != std::string::npos && pos != pathAndFile.length() - 1)
+		{
+    	    path = pathAndFile.substr(0, pos + 1);
+			file = pathAndFile.substr(pos + 1);
+    	}
+		else
+		{
+			path = pathAndFile;
+		}
+
+		std::string substPath = _request->getLocation()->getReturnLocation();
+		if (!substPath.empty()) // if _return exists in location
+		{
+			return ("301");
+		}
+		substPath = _request->getLocation()->getAliasLocation();
+		if (!substPath.empty()) // if _alias exists in location
+		{
+			if (substPath[substPath.size() - 1] == '/' && file[0] == '/')
+				file.erase(0, 1);
+			if (substPath[0] != '/')
+				substPath.insert(0, "/");
+			return ('.' + substPath + file);
+		}
+		substPath = _request->getLocation()->getLocationRoot(); // root of location
+		if (!substPath.empty()) // if _root exists in location
+		{
+			if (substPath[substPath.size() - 1] == '/' && pathAndFile[0] == '/')
+				pathAndFile.erase(0, 1);
+			if (substPath[0] != '/')
+				substPath.insert(0, "/");
+			return ('.' + substPath + pathAndFile);
+		}
+	}
+	std::string root = _request->getServer()->getRoot();
+	if (root[root.size() - 1] == '/' && pathAndFile[0] == '/')
+		pathAndFile.erase(0, 1);
+	if (root[0] != '/')
+		root.insert(0, "/");
+//	std::string prueba = '.' + root + pathAndFile;
+	return ('.' + root + pathAndFile); //root of Server class
 }
