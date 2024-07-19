@@ -182,6 +182,22 @@ void RequestHandlerGet::checkAndSetAlias()
 	}
 }
 
+void RequestHandlerGet::doCgi(Response *response)
+{
+    CgiHandler cgiHandler(*_request);
+    cgiHandler.handleCgiRequest(response);
+}
+
+bool RequestHandlerGet::isCgiRequest()
+{
+	if (_request->getLocation())
+    {
+        if (_request->getLocation()->getLocationPath() == "/cgi-bin")
+            return (true);
+    }
+    return (false);
+}
+
 Response * RequestHandlerGet::doHandleRequest(void)
 {
 	Response	*response = new Response();
@@ -203,7 +219,8 @@ Response * RequestHandlerGet::doHandleRequest(void)
 	if (reddir == false)
 		checkAndSetAlias();
 	isCgi = isCgiRequest();
-	doCgi(response);
+	if (isCgi == true)
+		doCgi(response);
 	if (reddir == false && isCgi == false)
 		ResponseContentRoutine(response);
 	response->setProtocol(_request->getProtocol());

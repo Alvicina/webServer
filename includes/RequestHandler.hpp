@@ -16,7 +16,6 @@
 #include "webserv.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
-#include "CGIHandler.hpp"
 
 class RequestHandler
 {
@@ -27,8 +26,6 @@ class RequestHandler
 		std::map<std::string, std::string> _exts;
 
 	public:
-		void doCgi(Response *response);
-		bool isCgiRequest();
 		bool isRequestMethodAllow();
 		RequestHandler(Request & request);
 		RequestHandler(RequestHandler & copy);

@@ -14,12 +14,15 @@
 #define REQUESTHANDLERGET_HPP
 
 #include "RequestHandler.hpp"
+#include "CGIHandler.hpp"
 
 class Response; 
 
 class RequestHandlerGet : public RequestHandler
 {
 	private:
+		void doCgi(Response *response);
+		bool isCgiRequest();
 		void ResponseContentRoutine(Response *response);
 		void setNewLocation(Request & request);
 		void checkAndSetReturn(bool & reddir);

@@ -22,6 +22,7 @@ class CgiHandler
 	private:
 		Request 	*_request;
 		std::string _content;
+		char		**_env;
 		std::map<std::string, std::string>  _mapEnv;
 		
 		std::string createPathToResource(void);
@@ -29,7 +30,8 @@ class CgiHandler
 		void contentForFile(Response *response, std::string & pathToResource);
 		void contentForDIR(Response *response, std::string & pathToResource);
 		void cgiExecute(Response *response, std::string & pathToResource);
-		void initEnv(std::string & pathToResource);
+		void initEnvironmentForCgi(std::string & pathToResource);
+		void parseEnvironmentForCgi(void);
 		std::string methodToString(int number);
 		std::string getScriptName(void);
 		

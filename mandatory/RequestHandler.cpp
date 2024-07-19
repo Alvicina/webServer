@@ -104,22 +104,6 @@ bool RequestHandler::isRequestMethodAllow()
 	return (true);
 }
 
-void RequestHandler::doCgi(Response *response)
-{
-    CgiHandler cgiHandler(*_request);
-    cgiHandler.handleCgiRequest(response);
-}
-
-bool RequestHandler::isCgiRequest()
-{
-	if (_request->getLocation())
-    {
-        if (_request->getLocation()->getLocationPath() == "/cgi-bin")
-            return (true);
-    }
-    return (false);
-}
-
 HandlerErrorException::HandlerErrorException(int errCode, Request & request) throw()
 {
     _errCode = errCode;

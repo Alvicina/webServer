@@ -127,7 +127,7 @@ std::string CgiHandler::getScriptName(void)
 	return (scriptName);
 }
 
-void CgiHandler::initEnv(std::string & pathToResource)
+void CgiHandler::initEnvironmentForCgi(std::string & pathToResource)
 {
 	//_mapEnv["AUTH_TYPE"] = "Basic";
 	_mapEnv["CONTENT_LENGTH"] = _request->getHeaders()["Content-length"];
@@ -161,9 +161,31 @@ void CgiHandler::initEnv(std::string & pathToResource)
 	_mapEnv["REDIRECT_STATUS"] = "200";
 }
 
+void CgiHandler::parseEnvironmentForCgi()
+{
+	_env = (char **)malloc(sizeof(char *) * (_mapEnv.size() + 1));
+	std::map<std::string, std::string>::iterator it;
+	size_t i = 0;
+	for (it = _mapEnv.begin(); it != _mapEnv.end(); it++)
+	{
+		std::string temp = it->first + "=" + it->second;
+		_env[i] = strdup(temp.c_str());
+		i++;
+	}
+
+	i = 0;
+	while (_env[i])
+	{
+		printf("%s\n", _env[i]);
+		i++;
+	}
+}
+
 void CgiHandler::cgiExecute(Response *response, std::string & pathToResource)
 {
-	initEnv(pathToResource);
+	(void) response;
+	initEnvironmentForCgi(pathToResource);
+	parseEnvironmentForCgi();
 }
 
 void CgiHandler::handleCgiRequest(Response *response)
