@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:03:13 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/10 11:21:56 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/19 10:21:40 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,22 @@ Response* RequestHandler::handleRequest()
     }
 }
 
+bool RequestHandler::isRequestMethodAllow(Request & request)
+{
+	if (request.getLocation())
+	{
+		std::vector<int>::iterator it;
+		std::vector<int> methods = request.getLocation()->getLocationMethods();
+		for (it = methods.begin(); it != methods.end(); it++)
+		{
+			if (request.getMethod() == *it)
+				return (true);
+		}
+		return (false);
+	}
+	return (true);
+}
+
 HandlerErrorException::HandlerErrorException(int errCode, Request & request) throw()
 {
     _errCode = errCode;
@@ -106,3 +122,4 @@ int & HandlerErrorException::getErrCode(void)
 {
     return (_errCode);
 }
+

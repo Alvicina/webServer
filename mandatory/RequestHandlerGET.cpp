@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:39:56 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/18 13:33:51 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/19 12:36:13 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,14 +187,17 @@ Response * RequestHandlerGet::doHandleRequest(void)
 	Response	*response = new Response();
 	bool		reddir = false;
 
-	/*std::cout << "REQUEST:  " << std::endl;
-	std::cout << _request->getUri() << std::endl;
-	
+	/*/////
+	std::cout << "REQUEST:  " << std::endl;
+	std::cout << *_request << std::endl;
 	std::map<std::string, std::string>::iterator it;
 	for (it = _request->getArgs().begin(); it != _request->getArgs().end(); it++)
-		std::cout << it->first << " " << it->second << std::endl;*/
+		std::cout << it->first << " " << it->second << std::endl;
+	/////*/
 
-	
+	bool isValid = isRequestMethodAllow(*_request);
+	if (isValid == false)
+		throw FactoryErrorException(405, *_request);
 	checkAndSetAlias();
 	checkAndSetReturn(reddir);
 	if (reddir == false)

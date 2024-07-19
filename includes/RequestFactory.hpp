@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/04 18:51:51 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/18 09:49:38 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/19 10:19:42 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 class RequestFactory
 {
 	private:
-		static bool isRequestMethodAllow(Request & request);
+		
 	public:
 		RequestFactory();
 		~RequestFactory();

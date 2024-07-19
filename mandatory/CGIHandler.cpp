@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/17 10:11:48 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/18 12:02:14 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/19 12:34:06 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,31 +141,37 @@ std::string CgiHandler::getScriptName(void)
 void CgiHandler::initEnv(Response *response, std::string & pathToResource)
 {
 	(void) response;
-	(void) pathToResource;
-
-	_mapEnv["AUTH_TYPE"] = "Basic";
+	
+	//_mapEnv["AUTH_TYPE"] = "Basic";
 	_mapEnv["CONTENT_LENGTH"] = _request->getHeaders()["Content-length"];
 	_mapEnv["CONTENT_TYPE"] = _request->getHeaders()["Content-type"];
-	_mapEnv["GATEWAY_INTERFACE"] = "CGI/1.1";
-	_mapEnv["SCRIPT_NAME"] = _request->getUri();
-	_mapEnv["SCRIPT_FILENAME"] = getScriptName();
-	_mapEnv[""];
-	
-	
-	
-	
-	///
-
-	//_mapEnv[""];
+	//_mapEnv["GATEWAY_INTERFACE"] = "CGI/1.1";
+	_mapEnv["HTTP_ACCEPT"] = _request->getHeaders()["Accept"];
+	_mapEnv["HTTP_ACCEPT_CHARSET"] = _request->getHeaders()["Accept-Charset"];
+	_mapEnv["HTTP_ACCEPT_ENCODING"] = _request->getHeaders()["Accept-Encoding"];
+	_mapEnv["HTTP_ACCEPT_LANGUAGE"] = _request->getHeaders()["Accept-Language"];
+	_mapEnv["HTTP_FORWARDED"] = _request->getHeaders()["Forwarded"];
+	_mapEnv["HTTP_HOST"] = _request->getHeaders()["Host"];
+	_mapEnv["HTTP_PROXY_AUTHORIZATION"] = _request->getHeaders()["Proxy-Authorization"];
+	_mapEnv["HTTP_USER_AGENT"] = _request->getHeaders()["User-Agent"];
+	//_mapEnv["PATH_INFO"] = _request->getPathInfo();	
+	//_mapEnv["PATH_TRANSLATED"] = 
+	_mapEnv["QUERY_STRING"] = _request->getQueryString();
+	//_mapEnv["REMOTE_ADDR"] = 
+	//_mapEnv["REMOTE_HOST"] =
+	//_mapEnv["REMOTE_USER"] = 
 	_mapEnv["REQUEST_METHOD"] = methodToString((int)_request->getMethod());
+	_mapEnv["SCRIPT_NAME"] = _request->getUri();
+	_mapEnv["SCRIPT_FILENAME"] = pathToResource;
+	_mapEnv["SERVER_NAME"] = _request->getServer()->getServerName();
+	_mapEnv["SERVER_PORT"] = Utils::intToString(_request->getServer()->getPort());
+	_mapEnv["SERVER_PROTOCOL"] = _request->getProtocol() + "/" +_request->getProtocolVersion();
+	_mapEnv["SERVER_SOFTWARE"] = "WebServer42";
 	_mapEnv["HTTP_COOKIE"] = _request->getHeaders()["Cookie"];
+	//_mapEnv["WEBTOP_USER"] =
 	_mapEnv["DOCUMENT_ROOT"] = _request->getLocation()->getLocationRoot();
 	_mapEnv["REQUEST_URI"] = _request->getUri();
-	_mapEnv["SERVER_PROTOCOL"] = "HTTP/1.1";
-	_mapEnv["REDIRECT_STATURS"] = "200";
-	_mapEnv["SERVER_SOFTWARE"] = "WebServer42";
-	
-	
+	_mapEnv["REDIRECT_STATUS"] = "200";
 }
 
 void CgiHandler::cgiExecute(Response *response, std::string & pathToResource)

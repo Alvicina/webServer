@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 11:04:21 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/18 10:14:12 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/19 10:22:07 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,27 +33,8 @@ RequestFactory& RequestFactory::operator=(RequestFactory & other)
 	return (*this);	
 }
 
-bool RequestFactory::isRequestMethodAllow(Request & request)
-{
-	if (request.getLocation())
-	{
-		std::vector<int>::iterator it;
-		std::vector<int> methods = request.getLocation()->getLocationMethods();
-		for (it = methods.begin(); it != methods.end(); it++)
-		{
-			if (request.getMethod() == *it)
-				return (true);
-		}
-		return (false);
-	}
-	return (true);
-}
-
 RequestHandler* RequestFactory::makeRequestHandler(Request & request)
 {
-	bool isValid = isRequestMethodAllow(request);
-	if (isValid == false)
-		throw FactoryErrorException(405, request);
 	switch(request.getMethod())
 	{
 		case GET:
