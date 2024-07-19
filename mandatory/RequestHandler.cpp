@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:03:13 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/19 13:21:57 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/19 13:45:12 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,7 @@ void RequestHandler::doCgi(Response *response)
     cgiHandler.handleCgiRequest(response);
 }
 
-bool RequestHandler::isCgiRequest(bool & isCgi)
+bool RequestHandler::isCgiRequest()
 {
 	if (_request->getLocation())
     {

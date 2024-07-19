@@ -6,7 +6,7 @@
 #    By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/13 11:42:41 by alvicina          #+#    #+#              #
-#    Updated: 2024/07/08 18:06:33 by alvicina         ###   ########.fr        #
+#    Updated: 2024/07/19 13:35:49 by alvicina         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,7 @@ HEADER_SRCS = \
 	ServerManager.hpp Socket.hpp Epoll.hpp Request.hpp Response.hpp \
 	RequestFactory.hpp RequestHandler.hpp RequestHandlerDELETE.hpp \
 	RequestHandlerGET.hpp RequestHandlerPOST.hpp RequestParser.hpp \
-	Logger.hpp Client.hpp
+	Logger.hpp Client.hpp CGIHandler.hpp \
 		      
 HEADER_DIR  = includes/
 HEADER      = $(addprefix $(HEADER_DIR), $(HEADER_SRCS))
@@ -34,7 +34,7 @@ MPATH_SRCS  =  \
 	ServerManager.cpp Socket.cpp Epoll.cpp Request.cpp Response.cpp \
 	RequestFactory.cpp RequestHandler.cpp RequestHandlerDELETE.cpp \
 	RequestHandlerGET.cpp RequestHandlerPOST.cpp RequestParser.cpp \
-	Logger.cpp Client.cpp
+	Logger.cpp Client.cpp CGIHandler.cpp \
 
 MPATH_DIR   = mandatory/
 MPATH       = $(addprefix $(MPATH_DIR), $(MPATH_SRCS))

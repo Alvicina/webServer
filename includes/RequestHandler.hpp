@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/04 18:54:34 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/19 13:18:08 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/19 13:56:11 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ class RequestHandler
 
 	public:
 		void doCgi(Response *response);
-		bool isCgiRequest(bool & isCgi);
+		bool isCgiRequest();
 		bool isRequestMethodAllow();
 		RequestHandler(Request & request);
 		RequestHandler(RequestHandler & copy);

@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:39:56 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/19 13:16:45 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/19 13:34:43 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,9 +202,9 @@ Response * RequestHandlerGet::doHandleRequest(void)
 	checkAndSetReturn(reddir);
 	if (reddir == false)
 		checkAndSetAlias();
-	isCgi = isCgiRequest(isCgi);
+	isCgi = isCgiRequest();
 	doCgi(response);
-	if (reddir == false)
+	if (reddir == false && isCgi == false)
 		ResponseContentRoutine(response);
 	response->setProtocol(_request->getProtocol());
 	response->setProtocolVersion(_request->getProtocolVersion());

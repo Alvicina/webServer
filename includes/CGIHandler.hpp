@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/17 10:11:57 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/19 13:23:35 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/19 13:51:03 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 #define CGIHANDLER_HPP
 
 #include "Request.hpp"
-#include "Server.hpp"
 #include "Response.hpp"
+#include "Server.hpp"
 
 class CgiHandler
 {

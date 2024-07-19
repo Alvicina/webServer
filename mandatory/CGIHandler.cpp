@@ -6,11 +6,11 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/17 10:11:48 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/19 13:24:14 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/19 13:50:13 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "includes/CGIHandler.hpp"
+#include "../includes/CGIHandler.hpp"
 
 CgiHandler::CgiHandler(Request & request)
 {
