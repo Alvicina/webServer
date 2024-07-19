@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/17 10:11:48 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/19 12:34:06 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/19 13:24:14 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,23 +55,12 @@ std::string& CgiHandler::getContent(void)
 	return (_content);
 }
 
-//lo tengo que cambiar//
 std::string CgiHandler::createPathToResource(void)
 {
-	std::string root = "/" + _request->getServer()->getRoot();
-	size_t rootSize = root.size();
 	std::string pathToResource;
-	
-	if ((strncmp(root.c_str(), _request->getUri().c_str(), rootSize)) == 0
-	 || (strncmp(root.c_str(), _request->getUri().c_str(), rootSize -1)) == 0)
-	{
-		pathToResource = _request->getUri();
-		if (pathToResource[0] == '/')
-			pathToResource.erase(0, 1);
-	}
-	else
-		pathToResource = this->_request->getServer()->getRoot()
-		 + this->_request->getUri();
+	pathToResource = this->_request->getServer()->getRoot() + this->_request->getUri();
+	if (_request->getLocation())
+		pathToResource = _request->getLocation()->getLocationRoot() + _request->getUri();
 	return (pathToResource);
 }
 
@@ -138,10 +127,8 @@ std::string CgiHandler::getScriptName(void)
 	return (scriptName);
 }
 
-void CgiHandler::initEnv(Response *response, std::string & pathToResource)
+void CgiHandler::initEnv(std::string & pathToResource)
 {
-	(void) response;
-	
 	//_mapEnv["AUTH_TYPE"] = "Basic";
 	_mapEnv["CONTENT_LENGTH"] = _request->getHeaders()["Content-length"];
 	_mapEnv["CONTENT_TYPE"] = _request->getHeaders()["Content-type"];
@@ -176,7 +163,7 @@ void CgiHandler::initEnv(Response *response, std::string & pathToResource)
 
 void CgiHandler::cgiExecute(Response *response, std::string & pathToResource)
 {
-	//initEnv(response, pathToResource);
+	initEnv(pathToResource);
 }
 
 void CgiHandler::handleCgiRequest(Response *response)

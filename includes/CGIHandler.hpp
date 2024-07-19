@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/17 10:11:57 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/17 16:38:29 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/19 13:23:35 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ class CgiHandler
 		void contentForFile(Response *response, std::string & pathToResource);
 		void contentForDIR(Response *response, std::string & pathToResource);
 		void cgiExecute(Response *response, std::string & pathToResource);
-		void initEnv(Response *response, std::string & pathToResource);
+		void initEnv(std::string & pathToResource);
 		std::string methodToString(int number);
 		std::string getScriptName(void);
 		

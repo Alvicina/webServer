@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/04 18:54:34 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/19 10:20:01 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/19 13:18:08 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "webserv.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
+#include "CGIHandler.hpp"
 
 class RequestHandler
 {
@@ -26,12 +27,13 @@ class RequestHandler
 		std::map<std::string, std::string> _exts;
 
 	public:
-		bool isRequestMethodAllow(Request & request);
+		void doCgi(Response *response);
+		bool isCgiRequest(bool & isCgi);
+		bool isRequestMethodAllow();
 		RequestHandler(Request & request);
 		RequestHandler(RequestHandler & copy);
 		virtual ~RequestHandler();
 		RequestHandler& operator=(RequestHandler & other);
-		
 		Methods& getMethods(void);
 		Request* getRequest(void);
 		virtual Response* doHandleRequest(void) = 0;

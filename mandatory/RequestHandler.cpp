@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:03:13 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/19 10:21:40 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/19 13:21:57 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,20 +86,38 @@ Response* RequestHandler::handleRequest()
     }
 }
 
-bool RequestHandler::isRequestMethodAllow(Request & request)
+bool RequestHandler::isRequestMethodAllow()
 {
-	if (request.getLocation())
+	if (_request->getLocation())
 	{
 		std::vector<int>::iterator it;
-		std::vector<int> methods = request.getLocation()->getLocationMethods();
+		std::vector<int> methods = _request->getLocation()->getLocationMethods();
+        if (methods.empty())
+            return (true);
 		for (it = methods.begin(); it != methods.end(); it++)
 		{
-			if (request.getMethod() == *it)
+			if (_request->getMethod() == *it)
 				return (true);
 		}
 		return (false);
 	}
 	return (true);
+}
+
+void RequestHandler::doCgi(Response *response)
+{
+    CgiHandler cgiHandler(*_request);
+    cgiHandler.handleCgiRequest(response);
+}
+
+bool RequestHandler::isCgiRequest(bool & isCgi)
+{
+	if (_request->getLocation())
+    {
+        if (_request->getLocation()->getLocationPath() == "/cgi-bin")
+            return (true);
+    }
+    return (false);
 }
 
 HandlerErrorException::HandlerErrorException(int errCode, Request & request) throw()

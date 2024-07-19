@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:39:56 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/19 12:36:13 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/19 13:16:45 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,6 +186,7 @@ Response * RequestHandlerGet::doHandleRequest(void)
 {
 	Response	*response = new Response();
 	bool		reddir = false;
+	bool 		isCgi = false;
 
 	/*/////
 	std::cout << "REQUEST:  " << std::endl;
@@ -195,11 +196,14 @@ Response * RequestHandlerGet::doHandleRequest(void)
 		std::cout << it->first << " " << it->second << std::endl;
 	/////*/
 
-	bool isValid = isRequestMethodAllow(*_request);
+	bool isValid = isRequestMethodAllow();
 	if (isValid == false)
 		throw FactoryErrorException(405, *_request);
-	checkAndSetAlias();
 	checkAndSetReturn(reddir);
+	if (reddir == false)
+		checkAndSetAlias();
+	isCgi = isCgiRequest(isCgi);
+	doCgi(response);
 	if (reddir == false)
 		ResponseContentRoutine(response);
 	response->setProtocol(_request->getProtocol());
