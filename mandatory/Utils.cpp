@@ -209,5 +209,17 @@ std::string Utils::codeStatus(int code)
         }
 }
 
-
+void    Utils::ftFree(char **str)
+{
+    if (str)
+    {
+        size_t i = 0;
+        while (str[i])
+        {
+            free(str[i]);
+            i++;
+        }
+        free(str);
+    }
+}
 

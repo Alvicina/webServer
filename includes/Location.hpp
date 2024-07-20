@@ -29,9 +29,10 @@ class Location
 		std::vector<std::string>	_cgiPath;
 		std::vector<std::string>	_cgiExt;
 		long int					_clientMaxBodySize;
+		std::map<std::string, std::string> _extPath;
 		
 	public:
-		std::map<std::string, std::string> _extPath;
+		
 		
 		Location();
 		Location(Location const & copy);

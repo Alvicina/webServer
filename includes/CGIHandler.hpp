@@ -23,6 +23,7 @@ class CgiHandler
 		Request 	*_request;
 		std::string _content;
 		char		**_env;
+		char		**_args;
 		std::map<std::string, std::string>  _mapEnv;
 		
 		std::string createPathToResource(void);
@@ -32,6 +33,7 @@ class CgiHandler
 		void cgiExecute(Response *response, std::string & pathToResource);
 		void initEnvironmentForCgi(std::string & pathToResource);
 		void parseEnvironmentForCgi(void);
+		void initArgsForCgi(std::string & pathToResource, Response *response);
 		std::string methodToString(int number);
 		std::string getScriptName(void);
 		

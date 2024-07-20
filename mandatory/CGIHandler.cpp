@@ -15,11 +15,15 @@
 CgiHandler::CgiHandler(Request & request)
 {
 	_request = &request;
+	_content = "";
+	_env = NULL;
+	_args = NULL;
 }
 
 CgiHandler::~CgiHandler()
 {
-
+	//Utils::ftFree(_env);
+	//Utils::ftFree(_args);
 }
 
 CgiHandler::CgiHandler(CgiHandler & copy)
@@ -32,6 +36,10 @@ CgiHandler& CgiHandler::operator=(CgiHandler & other)
 	if (this != &other)
 	{
 		_request = other._request;
+		_content = other._content;
+		_env = other._env;
+		_args = other._args;
+		_mapEnv = other._mapEnv;
 	}
 	return (*this);
 }
@@ -58,9 +66,11 @@ std::string& CgiHandler::getContent(void)
 std::string CgiHandler::createPathToResource(void)
 {
 	std::string pathToResource;
-	pathToResource = this->_request->getServer()->getRoot() + this->_request->getUri();
+	pathToResource = this->_request->getServer()->getRoot() 
+	+ this->_request->getUri();
 	if (_request->getLocation())
-		pathToResource = _request->getLocation()->getLocationRoot() + _request->getUri();
+		pathToResource = _request->getLocation()->getLocationRoot()
+		 + _request->getUri();
 	return (pathToResource);
 }
 
@@ -86,7 +96,8 @@ void CgiHandler::contentForDIR(Response *response, std::string & pathToResource)
 	{
 		if (_request->getLocation())
 		{
-			pathToResource = pathToResource + "/" + _request->getLocation()->getIndexLocation();
+			pathToResource = pathToResource + "/"
+			 + _request->getLocation()->getIndexLocation();
 			if (access(pathToResource.c_str(), R_OK) == -1)
 				exceptionRoutine(403, response);
 			else
@@ -173,12 +184,33 @@ void CgiHandler::parseEnvironmentForCgi()
 		i++;
 	}
 
-	i = 0;
+	/*i = 0;
 	while (_env[i])
 	{
 		printf("%s\n", _env[i]);
 		i++;
+	}*/
+}
+
+void CgiHandler::initArgsForCgi(std::string & pathToResource, Response *response)
+{
+	size_t pos = pathToResource.find('.');
+	std::string extension = pathToResource.substr(pos);
+	std::map<std::string, std::string> map = _request->getLocation()->getExtPathMap();
+	std::map<std::string, std::string>::iterator it;
+	bool isValidExt = false;
+
+	for (it = map.begin(); it != map.end(); it++)
+	{
+		if (it->first == extension)
+		{
+			isValidExt = true;
+			break ;
+		}
 	}
+	if (isValidExt == false)
+		exceptionRoutine(400, response);
+	//TERMINAR AQUI
 }
 
 void CgiHandler::cgiExecute(Response *response, std::string & pathToResource)
@@ -186,6 +218,7 @@ void CgiHandler::cgiExecute(Response *response, std::string & pathToResource)
 	(void) response;
 	initEnvironmentForCgi(pathToResource);
 	parseEnvironmentForCgi();
+	initArgsForCgi(pathToResource, response);
 }
 
 void CgiHandler::handleCgiRequest(Response *response)

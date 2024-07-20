@@ -394,12 +394,12 @@ void Server::checkLocationCgiExtension(Location & location)
 			if (*it == ".py" || *it == "*.py")
 			{
 				if ((*itPath).find("python") != std::string::npos)
-					location._extPath[".py"] = *itPath;
+					location.getExtPathMap().insert(std::make_pair(".py", *itPath));
 			}
 			else if (*it == ".sh" || *it == "*.sh")
 			{
 				if ((*itPath).find("bash") != std::string::npos)
-					location._extPath["sh"] = *itPath;
+					location.getExtPathMap().insert(std::make_pair(".sh", *itPath));
 			}
 		}
 	}
