@@ -220,6 +220,7 @@ void    Utils::ftFree(char **str)
             i++;
         }
         free(str);
+        str = NULL;
     }
 }
 

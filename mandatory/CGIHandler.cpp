@@ -22,8 +22,8 @@ CgiHandler::CgiHandler(Request & request)
 
 CgiHandler::~CgiHandler()
 {
-	//Utils::ftFree(_env);
-	//Utils::ftFree(_args);
+	Utils::ftFree(_env);
+	Utils::ftFree(_args);
 }
 
 CgiHandler::CgiHandler(CgiHandler & copy)
@@ -140,10 +140,10 @@ std::string CgiHandler::getScriptName(void)
 
 void CgiHandler::initEnvironmentForCgi(std::string & pathToResource)
 {
-	//_mapEnv["AUTH_TYPE"] = "Basic";
+	_mapEnv["AUTH_TYPE"] = "Basic";
 	_mapEnv["CONTENT_LENGTH"] = _request->getHeaders()["Content-length"];
 	_mapEnv["CONTENT_TYPE"] = _request->getHeaders()["Content-type"];
-	//_mapEnv["GATEWAY_INTERFACE"] = "CGI/1.1";
+	_mapEnv["GATEWAY_INTERFACE"] = "CGI/1.1";
 	_mapEnv["HTTP_ACCEPT"] = _request->getHeaders()["Accept"];
 	_mapEnv["HTTP_ACCEPT_CHARSET"] = _request->getHeaders()["Accept-Charset"];
 	_mapEnv["HTTP_ACCEPT_ENCODING"] = _request->getHeaders()["Accept-Encoding"];
@@ -172,9 +172,11 @@ void CgiHandler::initEnvironmentForCgi(std::string & pathToResource)
 	_mapEnv["REDIRECT_STATUS"] = "200";
 }
 
-void CgiHandler::parseEnvironmentForCgi()
+void CgiHandler::parseEnvironmentForCgi(Response *response)
 {
 	_env = (char **)malloc(sizeof(char *) * (_mapEnv.size() + 1));
+	if (_env == NULL)
+		exceptionRoutine(500, response);
 	std::map<std::string, std::string>::iterator it;
 	size_t i = 0;
 	for (it = _mapEnv.begin(); it != _mapEnv.end(); it++)
@@ -183,6 +185,7 @@ void CgiHandler::parseEnvironmentForCgi()
 		_env[i] = strdup(temp.c_str());
 		i++;
 	}
+	_env[_mapEnv.size()] = NULL;
 
 	/*i = 0;
 	while (_env[i])
@@ -199,7 +202,6 @@ void CgiHandler::initArgsForCgi(std::string & pathToResource, Response *response
 	std::map<std::string, std::string> map = _request->getLocation()->getExtPathMap();
 	std::map<std::string, std::string>::iterator it;
 	bool isValidExt = false;
-
 	for (it = map.begin(); it != map.end(); it++)
 	{
 		if (it->first == extension)
@@ -210,15 +212,33 @@ void CgiHandler::initArgsForCgi(std::string & pathToResource, Response *response
 	}
 	if (isValidExt == false)
 		exceptionRoutine(400, response);
-	//TERMINAR AQUI
+	_args = (char **)malloc(sizeof(char *) * 3);
+	if (_args == NULL)
+		exceptionRoutine(500, response);
+	_args[0] = strdup(pathToResource.c_str());
+	_args[1] = strdup(it->second.c_str());
+	_args[2] = NULL;
+
+	
+	/*size_t i = 0;
+	while (_args[i])
+	{
+		printf("%s\n", _args[i]);
+		i++;
+	}*/
+}
+
+void CgiHandler::forkAndExecve(std::string & pathToResource, Response *response)
+{
+	
 }
 
 void CgiHandler::cgiExecute(Response *response, std::string & pathToResource)
 {
-	(void) response;
 	initEnvironmentForCgi(pathToResource);
-	parseEnvironmentForCgi();
+	parseEnvironmentForCgi(response);
 	initArgsForCgi(pathToResource, response);
+	forkAndExecve(pathToResource, response);
 }
 
 void CgiHandler::handleCgiRequest(Response *response)

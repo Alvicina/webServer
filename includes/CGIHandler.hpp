@@ -32,8 +32,9 @@ class CgiHandler
 		void contentForDIR(Response *response, std::string & pathToResource);
 		void cgiExecute(Response *response, std::string & pathToResource);
 		void initEnvironmentForCgi(std::string & pathToResource);
-		void parseEnvironmentForCgi(void);
+		void parseEnvironmentForCgi(Response *response);
 		void initArgsForCgi(std::string & pathToResource, Response *response);
+		void forkAndExecve(std::string & pathToResource, Response *response);
 		std::string methodToString(int number);
 		std::string getScriptName(void);
 		
