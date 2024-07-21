@@ -172,30 +172,36 @@ void CgiHandler::initEnvironmentForCgi(std::string & pathToResource)
 	_mapEnv["REDIRECT_STATUS"] = "200";
 }
 
-void CgiHandler::parseEnvironmentForCgi(Response *response)
+void CgiHandler::transformEnvToChar(Response *response)
 {
-	_env = (char **)malloc(sizeof(char *) * (_mapEnv.size() + 1));
-	if (_env == NULL)
-		exceptionRoutine(500, response);
 	std::map<std::string, std::string>::iterator it;
 	size_t i = 0;
 	for (it = _mapEnv.begin(); it != _mapEnv.end(); it++)
 	{
 		std::string temp = it->first + "=" + it->second;
 		_env[i] = strdup(temp.c_str());
+		if (_env[i] == NULL)
+			exceptionRoutine(500, response);
 		i++;
 	}
-	_env[_mapEnv.size()] = NULL;
-
-	/*i = 0;
-	while (_env[i])
-	{
-		printf("%s\n", _env[i]);
-		i++;
-	}*/
+	_env[_mapEnv.size() - 1] = NULL;
 }
 
-void CgiHandler::initArgsForCgi(std::string & pathToResource, Response *response)
+void CgiHandler::allocSpaceForEnv(Response *response)
+{
+	_env = (char **)malloc(sizeof(char *) * (_mapEnv.size() + 1));
+	if (_env == NULL)
+		exceptionRoutine(500, response);
+}
+
+void CgiHandler::parseEnvironmentForCgi(Response *response)
+{
+	allocSpaceForEnv(response);
+	transformEnvToChar(response);
+}
+
+std::string CgiHandler::validateResourseExtension(std::string & pathToResource,
+ Response *response)
 {
 	size_t pos = pathToResource.find('.');
 	std::string extension = pathToResource.substr(pos);
@@ -212,25 +218,51 @@ void CgiHandler::initArgsForCgi(std::string & pathToResource, Response *response
 	}
 	if (isValidExt == false)
 		exceptionRoutine(400, response);
-	_args = (char **)malloc(sizeof(char *) * 3);
+	return (it->second);
+}
+
+void CgiHandler::allocSpaceForCgiArgs(Response *response, size_t numberOfArguments)
+{
+	_args = (char **)malloc(sizeof(char *) * numberOfArguments);
 	if (_args == NULL)
 		exceptionRoutine(500, response);
-	_args[0] = strdup(pathToResource.c_str());
-	_args[1] = strdup(it->second.c_str());
-	_args[2] = NULL;
+}
 
-	
-	/*size_t i = 0;
-	while (_args[i])
+void CgiHandler::setResourcePathAndInterpreter(std::string & pathToResource,
+ std::string & pathToInterpreter)
+{
+	_args[0] = strdup(pathToResource.c_str());
+	_args[1] = strdup(pathToInterpreter.c_str());
+}
+
+void CgiHandler::setOtherArgs(size_t & numberOfArguments, Response *response)
+{
+	std::map<std::string, std::string>::iterator it;
+	size_t i = 2;
+	for (it = _request->getArgs().begin(); it != _request->getArgs().end(); it++)
 	{
-		printf("%s\n", _args[i]);
+		std::string temp = it->first + "=" + it->second;
+		_args[i] = strdup(temp.c_str());
+		if (_args[i] == NULL)
+			exceptionRoutine(500, response);
 		i++;
-	}*/
+	}
+	_args[numberOfArguments - 1] = NULL;
+}
+
+void CgiHandler::initArgsForCgi(std::string & pathToResource, Response *response)
+{
+	std::string pathToInterpreter = validateResourseExtension(pathToResource, response);
+	size_t numberOfArguments = 2 + _request->getArgs().size() + 1;
+	allocSpaceForCgiArgs(response, numberOfArguments);
+	setResourcePathAndInterpreter(pathToResource, pathToInterpreter);
+	setOtherArgs(numberOfArguments, response);
 }
 
 void CgiHandler::forkAndExecve(std::string & pathToResource, Response *response)
 {
-	
+	(void) pathToResource;
+	(void) response;
 }
 
 void CgiHandler::cgiExecute(Response *response, std::string & pathToResource)
