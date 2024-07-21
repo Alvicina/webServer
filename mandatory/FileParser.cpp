@@ -318,7 +318,7 @@ void FileParser::buildServers(void)
 		_servers.push_back(serv);
 		i++;
 	}
-	printServers();
+	//printServers();
 }
 
 void FileParser::printServers()

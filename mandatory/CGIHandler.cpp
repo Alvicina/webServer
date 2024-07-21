@@ -286,16 +286,20 @@ void CgiHandler::forkAndExecve(std::string & pathToResource, Response *response)
 		while (bytesRead)
 		{
 			bytesRead = read(pipeFD[0], buffer, sizeof(buffer));
+			buffer[bytesRead] = 0;
+			if (bytesRead == 0)
+				break ;
 			if (bytesRead == -1)
 				exceptionRoutine(500, response);
 			std::string bufferString(buffer);
 			content = content + bufferString;
+			//std::cout << "content cgi: " << content << std::endl;
 		}
 		close(pipeFD[0]);
 		int status;
 		if (waitpid(pid, &status, 0) == -1)
 			exceptionRoutine(500, response);
-		std::cout << "cgi content: " << content << std::endl;
+		//std::cout << "cgi content: " << content << std::endl;
 		response->setContent(content);
 	}
 	
