@@ -261,8 +261,44 @@ void CgiHandler::initArgsForCgi(std::string & pathToResource, Response *response
 
 void CgiHandler::forkAndExecve(std::string & pathToResource, Response *response)
 {
-	(void) pathToResource;
-	(void) response;
+	int pipeFD[2];
+	
+	if (pipe(pipeFD) == -1)
+		exceptionRoutine(500, response);
+	pid_t pid = fork();
+	if (pid == -1)
+		exceptionRoutine(500, response);
+	else if (pid == 0)
+	{
+		close(pipeFD[0]);
+		if (dup2(pipeFD[1], STDOUT_FILENO) == -1)
+			exceptionRoutine(500, response);
+		close(pipeFD[1]);
+		if (execve(pathToResource.c_str(), _args, _env) == -1)
+			exceptionRoutine(500, response);
+	}
+	else
+	{
+		close(pipeFD[1]);
+		char buffer[1024];
+		ssize_t bytesRead = 1;
+		std::string content = "";
+		while (bytesRead)
+		{
+			bytesRead = read(pipeFD[0], buffer, sizeof(buffer));
+			if (bytesRead == -1)
+				exceptionRoutine(500, response);
+			std::string bufferString(buffer);
+			content = content + bufferString;
+		}
+		close(pipeFD[0]);
+		int status;
+		if (waitpid(pid, &status, 0) == -1)
+			exceptionRoutine(500, response);
+		std::cout << "cgi content: " << content << std::endl;
+		response->setContent(content);
+	}
+	
 }
 
 void CgiHandler::cgiExecute(Response *response, std::string & pathToResource)

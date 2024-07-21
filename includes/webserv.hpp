@@ -28,6 +28,7 @@
 #include <sys/types.h>
 #include <netdb.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 
 #define SOCKET_MAX_CONN 1000
 #define MAX_EPOLL_EVENTS 1000
