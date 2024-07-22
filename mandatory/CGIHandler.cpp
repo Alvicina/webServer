@@ -82,8 +82,12 @@ void CgiHandler::exceptionRoutine(int statusCode, Response *response)
 
 void CgiHandler::contentForFile(Response *response, std::string & pathToResource)
 {
+	if (access(pathToResource.c_str(), F_OK) == -1) 
+		exceptionRoutine(404, response); 
 	if (access(pathToResource.c_str(), R_OK) == -1)
 		exceptionRoutine(403, response);
+	if (access(pathToResource.c_str(), X_OK) == -1) 
+			exceptionRoutine(403, response); 
 	else
 		cgiExecute(response,  pathToResource);
 }
@@ -98,8 +102,12 @@ void CgiHandler::contentForDIR(Response *response, std::string & pathToResource)
 		{
 			pathToResource = pathToResource + "/"
 			 + _request->getLocation()->getIndexLocation();
+			if (access(pathToResource.c_str(), F_OK) == -1) 
+				exceptionRoutine(404, response); 
 			if (access(pathToResource.c_str(), R_OK) == -1)
 				exceptionRoutine(403, response);
+			if (access(pathToResource.c_str(), X_OK) == -1) 
+				exceptionRoutine(403, response); 
 			else
 				cgiExecute(response, pathToResource);
 		}
@@ -223,7 +231,8 @@ std::string CgiHandler::validateResourseExtension(std::string & pathToResource)
 	return ("");
 }
 
-void CgiHandler::allocSpaceForCgiArgs(Response *response, size_t numberOfArguments)
+void CgiHandler::allocSpaceForCgiArgs(Response *response,
+ size_t numberOfArguments)
 {
 	_args = (char **)malloc(sizeof(char *) * numberOfArguments);
 	if (_args == NULL)
@@ -256,15 +265,62 @@ std::string pathToInterpreter)
 	_args[numberOfArguments - 1] = NULL;
 }
 
-void CgiHandler::initArgsForCgi(std::string & pathToResource, Response *response)
+void CgiHandler::isInterpreterOK(std::string & pathToInterpreter, 
+Response *response)
+{
+	if (access(pathToInterpreter.c_str(), F_OK) == -1) 
+			exceptionRoutine(500, response); 
+	if (access(pathToInterpreter.c_str(), X_OK) == -1) 
+			exceptionRoutine(500, response); 
+}
+
+void CgiHandler::initArgsForCgi(std::string & pathToResource, 
+Response *response)
 {
 	std::string pathToInterpreter = validateResourseExtension(pathToResource);
 	size_t numberOfArguments = 2 + _request->getArgs().size() + 1;
 	if (pathToInterpreter == "")
 		numberOfArguments = 1 + _request->getArgs().size() + 1;
+	else
+		isInterpreterOK(pathToInterpreter, response);
 	allocSpaceForCgiArgs(response, numberOfArguments);
 	setResourcePathAndInterpreter(pathToResource, pathToInterpreter);
 	setOtherArgs(numberOfArguments, response, pathToInterpreter);
+}
+
+void CgiHandler::childRoutine(int *pipeFD, std::string & pathToResource, 
+Response *response)
+{
+	close(pipeFD[0]);
+	if (dup2(pipeFD[1], STDOUT_FILENO) == -1)
+		exceptionRoutine(500, response);
+	close(pipeFD[1]);
+	if (execve(pathToResource.c_str(), _args, _env) == -1)
+		exceptionRoutine(500, response);
+}
+
+void CgiHandler::parentRoutine(int *pipeFD, Response *response, pid_t *pid)
+{
+	close(pipeFD[1]);
+	char buffer[1024];
+	ssize_t bytesRead = 1;
+	std::string content = "";
+	while (bytesRead)
+	{
+		bytesRead = read(pipeFD[0], buffer, sizeof(buffer));
+		buffer[bytesRead] = 0;
+		if (bytesRead == 0)
+			break ;
+		if (bytesRead == -1)
+			exceptionRoutine(500, response);
+		std::string bufferString(buffer);
+		content = content + bufferString;
+	}
+	close(pipeFD[0]);
+	int status;
+	if (waitpid(*pid, &status, 0) == -1)
+		exceptionRoutine(500, response);
+	response->setContent(content);
 }
 
 void CgiHandler::forkAndExecve(std::string & pathToResource, Response *response)
@@ -277,40 +333,9 @@ void CgiHandler::forkAndExecve(std::string & pathToResource, Response *response)
 	if (pid == -1)
 		exceptionRoutine(500, response);
 	else if (pid == 0)
-	{
-		close(pipeFD[0]);
-		if (dup2(pipeFD[1], STDOUT_FILENO) == -1)
-			exceptionRoutine(500, response);
-		close(pipeFD[1]);
-		if (execve(pathToResource.c_str(), _args, _env) == -1)
-			exceptionRoutine(500, response);
-	}
+		childRoutine(pipeFD, pathToResource, response);
 	else
-	{
-		close(pipeFD[1]);
-		char buffer[1024];
-		ssize_t bytesRead = 1;
-		std::string content = "";
-		while (bytesRead)
-		{
-			bytesRead = read(pipeFD[0], buffer, sizeof(buffer));
-			buffer[bytesRead] = 0;
-			if (bytesRead == 0)
-				break ;
-			if (bytesRead == -1)
-				exceptionRoutine(500, response);
-			std::string bufferString(buffer);
-			content = content + bufferString;
-			//std::cout << "content cgi: " << content << std::endl;
-		}
-		close(pipeFD[0]);
-		int status;
-		if (waitpid(pid, &status, 0) == -1)
-			exceptionRoutine(500, response);
-		//std::cout << "cgi content: " << content << std::endl;
-		response->setContent(content);
-	}
-	
+		parentRoutine(pipeFD, response, &pid);
 }
 
 void CgiHandler::cgiExecute(Response *response, std::string & pathToResource)
