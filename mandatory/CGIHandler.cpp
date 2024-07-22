@@ -192,7 +192,7 @@ void CgiHandler::transformEnvToChar(Response *response)
 			exceptionRoutine(500, response);
 		i++;
 	}
-	_env[_mapEnv.size() - 1] = NULL;
+	_env[_mapEnv.size()] = NULL;
 }
 
 void CgiHandler::allocSpaceForEnv(Response *response)

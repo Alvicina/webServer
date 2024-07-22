@@ -59,7 +59,11 @@ void RequestParser::parseRequestLine(std::string &rawRequest)
 	separator = rawRequest.find("\n");
 	if (separator == std::string::npos)
 		throw RequestParseErrorException();
-	this->_request->setProtocolVersion(rawRequest.substr(0, separator));
+	std::string protocolVersion = rawRequest.substr(0, separator);
+	size_t removeSpace = protocolVersion.find("\r");
+	if (removeSpace != std::string::npos)
+		protocolVersion.erase(removeSpace);
+	this->_request->setProtocolVersion(protocolVersion);
 	rawRequest = rawRequest.substr(separator + 1);
 }
 
