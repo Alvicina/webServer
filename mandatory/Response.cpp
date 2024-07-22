@@ -191,7 +191,26 @@ static void ResponseLocation(Response & response, Request *request)
 			if (!returnLocation.empty())
 				response.getHeaders().insert(std::make_pair("Location:", returnLocation));
 			else
-				response.getHeaders().insert(std::make_pair("Location:", returnLocation));
+			{
+				std::string pathToResource = request.getLocation()->getLocationRoot() + request.getUri();
+				int typeOfResource = Utils::typeOfFile(pathToResource);
+				if (typeOfResource == 1)
+					response.getHeaders().insert(std::make_pair("Location:", request.getLocation()->getLocationPath()));
+				else if (typeOfResource == 2)
+					response.getHeaders().insert(std::make_pair("Location:", request.getLocation()->getLocationPath() + "/"));
+			}
+		}
+		else
+		{
+			std::string pathToResource = request.getServer()->getRoot() + request.getUri();
+			int typeOfResource = Utils::typeOfFile(pathToResource);
+			size_t pos = pathToResource.size();
+			if (typeOfResource == 2 && pathToResource[pos - 1] != '/')
+			{
+				size_t posBegin = pathToResource.find_last_of('/', pos);
+				std::string location = pathToResource.substr(posBegin) + "/";
+				response.getHeaders().insert(std::make_pair("Location:", location));
+			}
 		}
 	}
 }

@@ -11,7 +11,7 @@ class Session:
     def __init__(self, name):
         self.name = name
         self.sid = hashlib.sha1(str(time.time()).encode("utf-8")).hexdigest()
-        with open('cgi-bin/sessions/session_' + self.sid, 'wb') as f:
+        with open('docs/fusion_web/cgi-bin/sessions/session_' + self.sid, 'wb') as f:
             pickle.dump(self, f)
     def getSid(self):
         return self.sid
@@ -24,12 +24,12 @@ class UserDataBase:
     def addUser(self, username, password, firstname):
         self.user_pass[username] = password
         self.user_firstname[username] = firstname
-        with open('cgi-bin/user_database', 'wb') as f:
+        with open('docs/fusion_web/cgi-bin/user_database', 'wb') as f:
             pickle.dump(self, f)
 
 
 def printAccPage(session):
-    print("Content-type: text/html\r\n")
+    #print("Content-type: text/html\r\n")
     print("<html>")
     print("<head>")
     print("<title>Account Page</title>")
@@ -42,7 +42,7 @@ def printAccPage(session):
     print("</html>")
 
 def printUserMsg(msg):
-    print("Content-type: text/html\r\n")
+    #print("Content-type: text/html\r\n")
     print("<html>")
     print("<head>")
     print("<title>USER MSG</title>")
@@ -54,7 +54,7 @@ def printUserMsg(msg):
     print("</html>")
 
 def printLogin():
-    print("Content-Type: text/html\r\n")
+    #print("Content-Type: text/html\r\n")
     print("<html> ")
     print("<head>")
     print("<meta charset=\"UTF-8\" name=\"viewport\" content=\"width=device-width, initial-scale=1\">")
@@ -80,8 +80,8 @@ def printLogin():
 
 
 def authUser(name, password):
-    if os.path.exists('cgi-bin/user_database'):
-        with open('cgi-bin/user_database', 'rb') as f:
+    if os.path.exists('docs/fusion_web/cgi-bin/user_database'):
+        with open('docs/fusion_web/cgi-bin/user_database', 'rb') as f:
             database = pickle.load(f)
             if name in database.user_pass and database.user_pass[name] == password:
                 session = Session(database.user_firstname[name])
@@ -102,17 +102,18 @@ def handleLogin():
         if(session == None):
             printUserMsg("Failed To Login, Username or Passowrd is wrong!")
         else:
-            print("Correct Crenditales :D",file=sys.stderr)
+            printUserMsg("Correct Credentials :D!")
+            #print("Correct Crenditales :D")#,file=sys.stderr)
             cookies.clear()
             cookies["SID"] = session.getSid()
             cookies["SID"]["expires"] = 120 # Session Expires after 2 mins
-            print("HTTP/1.1 301 OK")
-            print(cookies.output())
-            print("location: acc.py")
+            #print("HTTP/1.1 301 OK")
+            #print(cookies.output())
+            #print("location: acc.py")
             print("\r\n")
     else :
-        if os.path.exists('cgi-bin/user_database'):
-            with open('cgi-bin/user_database', 'rb') as f:
+        if os.path.exists('docs/fusion_web/cgi-bin/user_database'):
+            with open('docs/fusion_web/cgi-bin/user_database', 'rb') as f:
                 database = pickle.load(f)
                 if username in database.user_pass:
                     printUserMsg("Username is already Registerd !")
@@ -134,7 +135,7 @@ if 'HTTP_COOKIE' in os.environ:
 
     if "SID" in cookies:
         print("Your Session ID is", cookies["SID"].value,file=sys.stderr)
-        with open('cgi-bin/sessions/session_'+ cookies["SID"].value, 'rb') as f:
+        with open('docs/fusion_web/cgi-bin/sessions/session_'+ cookies["SID"].value, 'rb') as f:
             sess = pickle.load(f)
         printAccPage(sess)
     else:

@@ -75,6 +75,7 @@ void RequestParser::parseUri(std::string uri)
 	else
 	{
 		this->_request->setUri(uri.substr(0, separator));
+		this->_request->setQueryString(uri.substr(separator + 1));
 		this->parseArgs(uri.substr(separator + 1));
 	}
 }

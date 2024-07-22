@@ -53,6 +53,7 @@ Location& Location::operator=(Location const & other)
 		_cgiPath = other._cgiPath;
 		_cgiExt = other._cgiExt;
 		_clientMaxBodySize = other._clientMaxBodySize;
+		_extPath = other._extPath;
 	}
 	return (*this);
 }
