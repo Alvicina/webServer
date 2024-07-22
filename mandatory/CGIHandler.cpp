@@ -200,25 +200,27 @@ void CgiHandler::parseEnvironmentForCgi(Response *response)
 	transformEnvToChar(response);
 }
 
-std::string CgiHandler::validateResourseExtension(std::string & pathToResource,
- Response *response)
+std::string CgiHandler::validateResourseExtension(std::string & pathToResource)
 {
 	size_t pos = pathToResource.find('.');
+	if (pos == std::string::npos)
+		return ("");
 	std::string extension = pathToResource.substr(pos);
 	std::map<std::string, std::string> map = _request->getLocation()->getExtPathMap();
 	std::map<std::string, std::string>::iterator it;
-	bool isValidExt = false;
+	//bool isValidExt = false;
 	for (it = map.begin(); it != map.end(); it++)
 	{
 		if (it->first == extension)
 		{
-			isValidExt = true;
-			break ;
+			return (it->second);
+			//isValidExt = true;
+			//break ;
 		}
 	}
-	if (isValidExt == false)
-		exceptionRoutine(400, response);
-	return (it->second);
+	//if (isValidExt == false)
+	//	exceptionRoutine(400, response);
+	return ("");
 }
 
 void CgiHandler::allocSpaceForCgiArgs(Response *response, size_t numberOfArguments)
@@ -232,13 +234,17 @@ void CgiHandler::setResourcePathAndInterpreter(std::string & pathToResource,
  std::string & pathToInterpreter)
 {
 	_args[0] = strdup(pathToResource.c_str());
-	_args[1] = strdup(pathToInterpreter.c_str());
+	if (pathToInterpreter != "")
+		_args[1] = strdup(pathToInterpreter.c_str());
 }
 
-void CgiHandler::setOtherArgs(size_t & numberOfArguments, Response *response)
+void CgiHandler::setOtherArgs(size_t & numberOfArguments, Response *response,
+std::string pathToInterpreter)
 {
 	std::map<std::string, std::string>::iterator it;
 	size_t i = 2;
+	if (pathToInterpreter == "")
+		i = 1;
 	for (it = _request->getArgs().begin(); it != _request->getArgs().end(); it++)
 	{
 		std::string temp = it->first + "=" + it->second;
@@ -252,11 +258,13 @@ void CgiHandler::setOtherArgs(size_t & numberOfArguments, Response *response)
 
 void CgiHandler::initArgsForCgi(std::string & pathToResource, Response *response)
 {
-	std::string pathToInterpreter = validateResourseExtension(pathToResource, response);
+	std::string pathToInterpreter = validateResourseExtension(pathToResource);
 	size_t numberOfArguments = 2 + _request->getArgs().size() + 1;
+	if (pathToInterpreter == "")
+		numberOfArguments = 1 + _request->getArgs().size() + 1;
 	allocSpaceForCgiArgs(response, numberOfArguments);
 	setResourcePathAndInterpreter(pathToResource, pathToInterpreter);
-	setOtherArgs(numberOfArguments, response);
+	setOtherArgs(numberOfArguments, response, pathToInterpreter);
 }
 
 void CgiHandler::forkAndExecve(std::string & pathToResource, Response *response)
