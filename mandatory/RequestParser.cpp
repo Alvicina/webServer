@@ -122,7 +122,7 @@ void RequestParser::parseHeaders(std::string &rawRequest)
 		size_t separator = line.find(": ");
 		if (separator == std::string::npos)
 			throw RequestParseErrorException();
-		headers[line.substr(0, separator)] = line.substr(separator + 2);
+		headers[Utils::strToLower(line.substr(0, separator))] = line.substr(separator + 2);
 		std::getline(stream, line);
 	}
 	rawRequest = rawRequest.substr(headersLen + 2);
@@ -134,7 +134,7 @@ void RequestParser::setRequestServer(std::vector<Server> &servers)
 	size_t hostPortSeparator;
 	int requestPort;
 
-	requestHost = this->_request->getHeaders()["Host"];
+	requestHost = this->_request->getHeaders()["host"];
 	hostPortSeparator = requestHost.find(":");
 	if (hostPortSeparator == std::string::npos)
 		requestPort = 80;
@@ -161,7 +161,6 @@ void RequestParser::setRequestLocations()
 		locationPathSize = locations[i].getLocationPath().size();
 		testDir = this->_request->getUri();
 		testDir = testDir.substr(0, locationPathSize);
-		//std::cout << "test dir: " << testDir << " location: " << locations[i].getLocationPath() << std::endl;
 		if (testDir.compare(locations[i].getLocationPath()) != 0)
 			continue;
 		if (uriSize > locationPathSize && this->_request->getUri()[locationPathSize] != '/')

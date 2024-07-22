@@ -1,9 +1,6 @@
 #include "../includes/ServerManager.hpp"
 
-ServerManager::ServerManager() {}
-
-ServerManager::ServerManager(const std::vector<Server> &servers):
-	_servers(servers) {}
+ServerManager::ServerManager(): _isRunning(false) {}
 
 ServerManager::ServerManager(const ServerManager &serverManager)
 {
@@ -27,7 +24,20 @@ ServerManager::~ServerManager()
 	while (it != this->_clients.end())
 	{
 		delete it->second;
+		it++;
 	}
+}
+
+ServerManager &ServerManager::getInstance()
+{
+	static ServerManager serverManager;
+	return (serverManager);
+}
+
+void ServerManager::stop()
+{
+	Logger::logInfo("⏻ Server terminating sequence started", 1);
+	this->_isRunning = false;
 }
 
 void ServerManager::serve()
@@ -57,7 +67,8 @@ void ServerManager::initEpoll()
 void ServerManager::epollLoop()
 {
 	this->logServerListening();
-	while (true)
+	this->_isRunning = true;
+	while (this->_isRunning)
 	{
 		this->handleEpollEvents(this->_epoll.waitForEvents());
 	}
@@ -90,16 +101,16 @@ void ServerManager::handleEpollEvent(EpollEvent &event)
 		if (server != NULL)
 			this->handleNewConnection(*server);
 		else
-			this->handleClientRequest(event);
+			this->handleClientEvent(event);
 	}
 	catch (IOException &e)
 	{
-		this->closeClientConnection(event.data.fd);
+		this->closeClientConnection(this->_clients[event.data.fd]);
 		Logger::logError(e.what());
 	}
 	catch (Epoll::EpollInitializationFailedException &e)
 	{
-		this->closeClientConnection(event.data.fd);
+		this->closeClientConnection(this->_clients[event.data.fd]);
 		Logger::logError(e.what());
 	}
 	catch (std::exception &e)
@@ -121,8 +132,7 @@ Server *ServerManager::findServerByFd(int fd)
 void ServerManager::handleNewConnection(Server &server)
 {
 	Socket *socket = server.getSocket().acceptConnection();
-	// TODO: Probar si la siguiente linea está bien. Se llama al destructor de client?
-	this->_clients[socket->getFd()] = new Client(socket);
+	this->_clients[socket->getFd()] = new Client(socket, &server);
 	this->_epoll.addClientSocket(*socket);
 	this->logNewConnection(socket->getFd());
 }
@@ -135,55 +145,43 @@ void ServerManager::logNewConnection(int fd)
 		), 1);
 }
 
-void ServerManager::handleClientRequest(EpollEvent &event)
+void ServerManager::handleClientEvent(EpollEvent &event)
 {
 	Client *client = this->_clients[event.data.fd];
 
 	if (event.events & EPOLLIN)
+		this->handleClientRequest(event, client);
+	if (event.events & EPOLLOUT)
+		this->sendResponseToClient(event, client);
+}
+
+void ServerManager::handleClientRequest(EpollEvent &event, Client *client)
+{
+	try
 	{
 		std::string rawRequest = this->getRawRequestFromEpollEvent(event);
-		//std::cout << "rawRequest: " << rawRequest << std::endl;
 		if (rawRequest.size() == 0)
 		{
-			this->closeClientConnection(event.data.fd);
+			this->closeClientConnection(client);
 			return;
 		}
 		this->_epoll.setSocketOnWriteMode(client->getSocket());
-		// TODO: Handle request parse errors (send a response with HTTP error code)
 		RequestParser requestParser(rawRequest);
 		Request &request = requestParser.parseRequest(this->_servers);
 		this->logRequestReceived(request, event.data.fd);
 		Response *response = request.getServer()->handleRequest(request);
 		client->getResponseQueue().push_back(response);
 	}
-	if (event.events & EPOLLOUT)
+	catch (RequestParser::RequestParseErrorException &e)
 	{
-		for (size_t i = 0; i < client->getResponseQueue().size(); i++)
-		{
-			Response *response = client->getResponseQueue()[i];
-			if (send(event.data.fd, response->getRaw().c_str(), response->getRaw().size(), 0) == -1)
-				throw IOException();
-			this->logResponseSent(*response, event.data.fd);
-			delete response;
-		}
-		client->getResponseQueue().clear();
-		this->_epoll.setSocketOnReadMode(client->getSocket());
+		client->getResponseQueue().push_back(new Response(400, client->getServer()));
+		Logger::logError(e.what());
 	}
-}
-
-void ServerManager::logRequestReceived(Request &request, int fd) const
-{
-	Logger::logInfo((std::ostringstream &)(std::ostringstream().flush()
-		<< "⬇️  Request received from client " << fd << ": "
-		<< Request::getMethodName(request.getMethod()) << " "
-		<< request.getUri()));
-}
-
-void ServerManager::logResponseSent(Response &response, int fd) const
-{
-	Logger::logInfo((std::ostringstream &)(std::ostringstream().flush()
-		<< "⬆️  Response sent to client " << fd << ": "
-		<< response.getStatusCode() << " " << response.getStatusCodeMessage()));
+	catch (std::exception &e)
+	{
+		client->getResponseQueue().push_back(new Response(500, client->getServer()));
+		Logger::logError(e.what());
+	}
 }
 
 std::string ServerManager::getRawRequestFromEpollEvent(EpollEvent &event)
@@ -204,11 +202,41 @@ std::string ServerManager::getRawRequestFromEpollEvent(EpollEvent &event)
 	return (buffer);
 }
 
-void ServerManager::closeClientConnection(int fd)
+void ServerManager::sendResponseToClient(EpollEvent &event, Client *client)
 {
-	this->_epoll.deleteClientSocket(this->_clients[fd]->getSocket());
-	delete this->_clients[fd];
+	for (size_t i = 0; i < client->getResponseQueue().size(); i++)
+	{
+		Response *response = client->getResponseQueue()[i];
+		if (send(event.data.fd, response->getRaw().c_str(), response->getRaw().size(), 0) == -1)
+			throw IOException();
+		this->logResponseSent(*response, event.data.fd);
+		delete response;
+	}
+	client->getResponseQueue().clear();
+	this->_epoll.setSocketOnReadMode(client->getSocket());
+}
+
+void ServerManager::logRequestReceived(Request &request, int fd) const
+{
+	Logger::logInfo((std::ostringstream &)(std::ostringstream().flush()
+		<< "🡇  Request received from client " << fd << ": "
+		<< Request::getMethodName(request.getMethod()) << " "
+		<< request.getUri()));
+}
+
+void ServerManager::logResponseSent(Response &response, int fd) const
+{
+	Logger::logInfo((std::ostringstream &)(std::ostringstream().flush()
+		<< "🡅  Response sent to client " << fd << ": "
+		<< response.getStatusCode() << " " << response.getStatusCodeMessage()));
+}
+
+void ServerManager::closeClientConnection(Client *client)
+{
+	int fd = client->getSocket().getFd();
+	this->_epoll.deleteClientSocket(client->getSocket());
 	this->_clients.erase(fd);
+	delete client;
 	this->logClosedConnection(fd);
 }
 

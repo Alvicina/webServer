@@ -27,6 +27,7 @@ class Utils
 		static std::string codeStatus(int code);
 		static std::string intToString(int number);
 		static void		ftFree(char **str);
+		static std::string strToLower(std::string str);
 };
 
 class ParserErrorException : public std::exception

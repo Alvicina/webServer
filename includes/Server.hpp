@@ -35,7 +35,7 @@ class Server
 		bool						_autoIndex;
 		std::map<int, std::string> 	_errorPages;
 		std::vector<Location>		_locations;
-		Socket						_masterSocket;
+		Socket						*_masterSocket;
 
 	public:
 		Server();
