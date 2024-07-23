@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "../includes/RequestHandler.hpp"
+#include "../includes/Server.hpp"
 
 RequestHandler::RequestHandler(Request & request) : _method(request.getMethod()),
 _request(&request), _errorCode(0)
@@ -102,6 +103,105 @@ bool RequestHandler::isRequestMethodAllow()
 		return (false);
 	}
 	return (true);
+}
+
+bool RequestHandler::checkAndSetReturn()
+{
+	std::string pathToResource = createPathToResource();
+	int typeOfFile = Utils::typeOfFile(pathToResource);
+	size_t pos = pathToResource.size();
+	if (typeOfFile == 2 && pathToResource[pos - 1] != '/')
+	{
+		return (true);
+	}
+	else if (_request->getLocation())
+	{
+		if (!_request->getLocation()->getReturnLocation().empty())
+			return (true);
+	}
+	return (false);
+}
+
+std::string RequestHandler::createPathToResource()
+{
+	std::string pathToResource;
+	pathToResource = this->_request->getServer()->getRoot() + this->_request->getUri();
+	if (_request->getLocation())
+		pathToResource = _request->getLocation()->getLocationRoot() + _request->getUri();
+	return (pathToResource);
+}
+
+std::string RequestHandler::createNewUriForAlias(std::string & alias)
+{
+	std::string root = _request->getServer()->getRoot();
+	size_t rootSize = root.size();
+	std::string insertToOldUri = alias.substr(rootSize);
+	if (insertToOldUri[0] != '/')
+		insertToOldUri = "/" + insertToOldUri;
+	std::string locationPath = _request->getLocation()->getLocationPath();
+	size_t locationPathSize = locationPath.size();
+	std::string oldUri = _request->getUri();
+	std::string newUri = insertToOldUri + oldUri.erase(0, locationPathSize);
+	return (newUri);
+}
+
+void RequestHandler::setNewLocation(Request & request)
+{
+	std::vector<Location> &locations = request.getServer()->getLocation();
+
+	for (size_t i = 0; i < locations.size(); i++)
+	{
+		std::string testDir;
+		size_t uriSize;
+		size_t locationPathSize;
+
+		uriSize = request.getUri().size();
+		locationPathSize = locations[i].getLocationPath().size();
+		testDir = request.getUri();
+		testDir = testDir.substr(0, locationPathSize);
+		if (testDir.compare(locations[i].getLocationPath()) != 0)
+			continue;
+		if (uriSize > locationPathSize && request.getUri()[locationPathSize] != '/')
+			continue;
+		Location *requestLocation = request.getLocation();
+		if (!requestLocation || requestLocation->getLocationPath().size() < locationPathSize)
+			request.setLocation(locations[i]);
+	}
+}
+
+void RequestHandler::checkAndSetAlias()
+{
+	if (_request->getLocation())
+	{
+		if(!_request->getLocation()->getAliasLocation().empty())
+		{
+			std::string newUri = createNewUriForAlias(_request->getLocation()->getAliasLocation());
+			_request->setUri(newUri);
+			setNewLocation(*_request);
+		}
+	}
+}
+
+void RequestHandler::doCgi(Response *response)
+{
+    CgiHandler cgiHandler(*_request);
+    cgiHandler.handleCgiRequest(response);
+}
+
+bool RequestHandler::isCgiRequest()
+{
+	if (_request->getLocation())
+    {
+        if (_request->getLocation()->getLocationPath() == "/cgi-bin")
+            return (true);
+    }
+    return (false);
+}
+
+void RequestHandler::exceptionRoutine(int statusCode, Response *response)
+{
+		delete response;
+		throw HandlerErrorException(statusCode, *_request);
 }
 
 HandlerErrorException::HandlerErrorException(int errCode, Request & request) throw()
