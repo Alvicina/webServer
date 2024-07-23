@@ -188,12 +188,73 @@ void RequestHandler::doCgi(Response *response)
     cgiHandler.handleCgiRequest(response);
 }
 
-bool RequestHandler::isCgiRequest()
+int RequestHandler::fileHasDot(bool *isCgi, std::string & pathToResource)
+{
+    size_t pos = pathToResource.find_last_of('.');
+    if (pos == std::string::npos)
+    {
+        *isCgi = false;
+        return (1);
+    }
+    return (0);
+}
+
+int RequestHandler::thereIsExtensionMatch(bool *isCgi, std::string & pathToResource)
+{
+    size_t pos = pathToResource.find_last_of('.');
+    std::string extension = pathToResource.substr(pos);
+    std::vector<std::string> exts = _request->getLocation()->getCgiExtensionLocation();
+    std::vector<std::string>::iterator it;
+    for (it = exts.begin(); it != exts.end(); it++)
+    {
+        if (*it == extension)
+        {
+            *isCgi = true;
+            return (0);
+        }
+    }
+    return (1);
+}
+
+void RequestHandler::fileRoutine(bool *isCgi, std::string & pathToResource)
+{
+    if (fileHasDot(isCgi, pathToResource) == 1)
+        return ;
+    if (thereIsExtensionMatch(isCgi, pathToResource) == 0)
+        return ;
+    *isCgi = false;       
+}
+
+void RequestHandler::contentRoutine(bool *isCgi, std::string & pathToResource)
+{
+    std::string newPathToResource = pathToResource + "/"
+     + _request->getLocation()->getIndexLocation();
+    fileRoutine(isCgi, newPathToResource);
+}
+
+bool RequestHandler::checkResourseExtension(Response *response)
+{
+    bool isCgi = false;
+    std::string pathToResource = createPathToResource();
+    int typeOfResource = Utils::typeOfFile(pathToResource.c_str());
+    if (typeOfResource == 1)
+        fileRoutine(&isCgi, pathToResource);
+    else if (typeOfResource == 2)
+        contentRoutine(&isCgi, pathToResource);
+    else if (typeOfResource == -1)
+        exceptionRoutine(404, response);
+    return (isCgi);
+}
+
+bool RequestHandler::isCgiRequest(Response *response)
 {
 	if (_request->getLocation())
     {
-        if (_request->getLocation()->getLocationPath() == "/cgi-bin")
-            return (true);
+        if (!_request->getLocation()->getCgiExtensionLocation().empty())
+        {
+            bool isCgiRequest = checkResourseExtension(response);
+            return (isCgiRequest);
+        }
     }
     return (false);
 }

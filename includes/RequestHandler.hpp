@@ -24,11 +24,17 @@ class RequestHandler
 		Request*	_request;
 		int			_errorCode; 
 		std::map<std::string, std::string> _exts;
+		int thereIsExtensionMatch(bool *isCgi, std::string & pathToResource);
+		int fileHasDot(bool *isCgi, std::string & pathToResource);
+		void fileRoutine(bool *isCgi, std::string & pathToResource);
+		void contentRoutine(bool *isCgi, std::string & pathToResource);
+		bool checkResourseExtension(Response *response);
+
 
 	public:
 		void exceptionRoutine(int statusCode, Response *response);
 		void doCgi(Response *response);
-		bool isCgiRequest();
+		bool isCgiRequest(Response *response);
 		void setNewLocation(Request & request);
 		std::string createNewUriForAlias(std::string & alias);
 		void checkAndSetAlias(void);
