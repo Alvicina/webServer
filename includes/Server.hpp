@@ -73,7 +73,6 @@ class Server
 		void	locationMaxSizeRoutine(std::string & maxSize, bool & maxSizeFlag, Location & location);
 		void	isLocationValid(Location & location);
 		void	checkLocationForCGI(Location & location);
-		void 	checkLocationCgiIndex(Location & location);
 		void 	checkLocationCgiPath(Location & location);
 		void	checkLocationCgiExtension(Location & location);
 		bool	checkForDuplicateLocation(void);
