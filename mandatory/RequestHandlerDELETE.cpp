@@ -42,52 +42,8 @@ RequestHandlerDelete& RequestHandlerDelete::operator=(RequestHandlerDelete & oth
 Response* RequestHandlerDelete::doHandleRequest(void)
 {
 	Response *response = new Response();
-/*	struct stat	attri;
-	std::string relativeFilePath = "./files/";
-
-	std::string	fileName = _request->getUri();
-	if (fileName[0] == '/' || fileName[0] == '\\')
-		fileName.erase(0, 1);
-	std::string pathAndFile = relativeFilePath + fileName;
-
-	for (size_t i = 0; i < fileName.size(); i++)
-	{
-		if (!std::isalpha(fileName[i]) && !std::isdigit(fileName[i]))
-		{
-			delete response;
-			throw HandlerErrorException(403, *_request);
-			//std::cerr << "Error 403: Only letters and numbers are allowed in file name: " << fileName << std::endl;
-			//return (0);
-		}
-	}
-	if (fileName.size() > MAX_FILENAME_LENGTH)
-	{
-		delete response;
-		throw HandlerErrorException(414, *_request);
-		//std::cerr << "Error 414: Filaname too long in: " << fileName << std::endl;
-	}
-	else if (fileName.find('/') != std::string::npos || fileName.find('\\' || fileName.find("..") != std::string::npos) != std::string::npos)
-	{
-		delete response;
-		throw HandlerErrorException(403, *_request);
-		//std::cerr << "Error 403: Path is not allowed in: " << fileName << std::endl;
-	}
-	else if (stat(pathAndFile.c_str(), &attri) != 0)
-	{
-		delete response;
-		throw HandlerErrorException(404, *_request);
-		//std::cerr << "Error 404: Unable to access the file " << pathAndFile << std::endl;
-	}
-	else if (attri.st_mode & S_IFDIR)
-	{
-		delete response;
-		throw HandlerErrorException(403, *_request);
-		//std::cerr << "Error 403: " << pathAndFile << " is a folder, and deleting folders is not allowed." << std::endl;
-	}*/
 
 	// ********** Deletes file if possible **********
-
-//	std::string	pathAndFile = '.' + _request->getUri();
 
 	std::string	pathAndFile = strPathAndFile();
 
@@ -145,7 +101,16 @@ std::string	RequestHandlerDelete::strPathAndFile()
 			path = pathAndFile;
 		}
 
-		std::string substPath = _request->getLocation()->getReturnLocation();
+		std::string substPath = _request->getLocation()->getLocationRoot(); // root of location
+		if (!substPath.empty()) // if _root exists in location
+		{
+			if (substPath[substPath.size() - 1] == '/' && pathAndFile[0] == '/')
+				pathAndFile.erase(0, 1);
+			if (substPath[0] != '/')
+				substPath.insert(0, "/");
+			return ('.' + substPath + pathAndFile);
+		}
+		substPath = _request->getLocation()->getReturnLocation();
 		if (!substPath.empty()) // if _return exists in location
 		{
 			return ("301");
@@ -158,15 +123,6 @@ std::string	RequestHandlerDelete::strPathAndFile()
 			if (substPath[0] != '/')
 				substPath.insert(0, "/");
 			return ('.' + substPath + file);
-		}
-		substPath = _request->getLocation()->getLocationRoot(); // root of location
-		if (!substPath.empty()) // if _root exists in location
-		{
-			if (substPath[substPath.size() - 1] == '/' && pathAndFile[0] == '/')
-				pathAndFile.erase(0, 1);
-			if (substPath[0] != '/')
-				substPath.insert(0, "/");
-			return ('.' + substPath + pathAndFile);
 		}
 	}
 	std::string root = _request->getServer()->getRoot();

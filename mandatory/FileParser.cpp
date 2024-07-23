@@ -91,8 +91,6 @@ static int getBeginServer(ssize_t startServer, std::string const & content)
 			throw ParserErrorException("Error: character out of scope");
 		i++;
 	}
-	/*if (!content[i])
-		return (startServer);*/
 	if (content.compare(i, 6, "server") != 0)
 		throw ParserErrorException("Error: character out of scope");
 	i = i + 6;
@@ -318,7 +316,7 @@ void FileParser::buildServers(void)
 		_servers.push_back(serv);
 		i++;
 	}
-	printServers();
+	//printServers();
 }
 
 void FileParser::printServers()

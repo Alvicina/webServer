@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/04 18:54:34 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/10 11:21:29 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/19 13:56:11 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,11 +26,11 @@ class RequestHandler
 		std::map<std::string, std::string> _exts;
 
 	public:
+		bool isRequestMethodAllow();
 		RequestHandler(Request & request);
 		RequestHandler(RequestHandler & copy);
 		virtual ~RequestHandler();
 		RequestHandler& operator=(RequestHandler & other);
-		
 		Methods& getMethods(void);
 		Request* getRequest(void);
 		virtual Response* doHandleRequest(void) = 0;

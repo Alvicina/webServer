@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/16 16:18:14 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/18 12:30:16 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -283,6 +283,8 @@ void Server::locationCgiExtRoutine(std::vector<std::string> & locationVars, size
 
 	while (++pos < locationVars.size())
 	{
+		if (locationVars[pos].find(".") == std::string::npos)
+			throw ServerErrorException("Error: CgiExt in location is invalid");
 		if (locationVars[pos].find(";") != std::string::npos)
 		{
 			checkParamToken(locationVars[pos]);
@@ -308,12 +310,20 @@ void Server::locationCgiPathRoutine(std::vector<std::string> & locationVars, siz
 		if (locationVars[pos].find(";") != std::string::npos)
 		{
 			checkParamToken(locationVars[pos]);
+			if (access(locationVars[pos].c_str(), F_OK) == -1) 
+				throw ServerErrorException("Error: CgiPath in location is invalid"); 
+			if (access(locationVars[pos].c_str(), X_OK) == -1) 
+				throw ServerErrorException("Error: CgiPath in location is invalid");
 			cgiPath.push_back(locationVars[pos]);
 			break ;
 		}
 		else
 		{
 			if ((pos + 1) >= locationVars.size())
+				throw ServerErrorException("Error: CgiPath in location is invalid");
+			if (access(locationVars[pos].c_str(), F_OK) == -1) 
+				throw ServerErrorException("Error: CgiPath in location is invalid"); 
+			if (access(locationVars[pos].c_str(), X_OK) == -1) 
 				throw ServerErrorException("Error: CgiPath in location is invalid");
 			cgiPath.push_back(locationVars[pos]);
 		}
@@ -384,30 +394,23 @@ void Server::checkLocationCgiPath(Location & location)
 void Server::checkLocationCgiExtension(Location & location)
 {
 	std::vector<std::string>::const_iterator it;
-	std::vector<std::string>::const_iterator itPath;
+	std::vector<std::string>::const_iterator itPath = location.getCgiPathLocation().begin();
+	size_t cgiExtensionSize = location.getCgiExtensionLocation().size();
+	size_t cgiPathSize = location.getCgiPathLocation().size();
+
+	if (cgiExtensionSize != cgiPathSize)
+		throw ServerErrorException("Error: CGI not valid");
 	for (it = location.getCgiExtensionLocation().begin(); it != location.getCgiExtensionLocation().end(); it++)
 	{
-		if (*it != ".py" && *it != ".sh" && *it != "*.py" && *it != "*.sh")
-			throw ServerErrorException("Error: CGI not valid");
-		for (itPath = location.getCgiPathLocation().begin(); itPath != location.getCgiPathLocation().end(); itPath++)
-		{
-			
-			if (*it == ".py" || *it == "*.py")
-			{
-				if ((*itPath).find("python") != std::string::npos)
-					location._extPath[".py"] = *itPath;
-			}
-			else if (*it == ".sh" || *it == "*.sh")
-			{
-				if ((*itPath).find("bash") != std::string::npos)
-					location._extPath["sh"] = *itPath;
-			}
-		}
+		location.getExtPathMap().insert(std::make_pair(*it, *itPath));
+		itPath++;
 	}
 }
 
 void Server::checkLocationForCGI(Location & location)
 {
+	if (location.getLocationRoot().empty())
+		location.setRootLocation(this->getRoot());
 	if (location.getCgiPathLocation().empty() || location.getCgiExtensionLocation().empty() || location.getIndexLocation().empty())
 		throw ServerErrorException("Error: CGI not valid");
 	if (Utils::checkFile(location.getIndexLocation(), R_OK) < 0)

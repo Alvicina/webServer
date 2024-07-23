@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 11:42:18 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/16 16:42:54 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/18 11:39:35 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,15 @@
 #define REQUESTHANDLERGET_HPP
 
 #include "RequestHandler.hpp"
+#include "CGIHandler.hpp"
 
 class Response; 
 
 class RequestHandlerGet : public RequestHandler
 {
 	private:
+		void doCgi(Response *response);
+		bool isCgiRequest();
 		void ResponseContentRoutine(Response *response);
 		void setNewLocation(Request & request);
 		void checkAndSetReturn(bool & reddir);

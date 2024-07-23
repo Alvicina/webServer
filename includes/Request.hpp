@@ -13,13 +13,15 @@ class Request
 		std::string _raw;
 		std::map<std::string, std::string> _headers;
 		std::map<std::string, std::string> _args;
-		Methods _method;
+		Methods 	_method;
 		std::string _uri;
+		std::string _queryString;
 		std::string _protocol;
 		std::string _protocolVersion;
 		std::string _content;
-		Server *_server;
-		Location *_location;
+		std::string _pathInfo;
+		Server 		*_server;
+		Location 	*_location;
 
 		static void initMethodDict();
 
@@ -54,6 +56,8 @@ class Request
 		void setServer(Server &server);
 		Location *getLocation();
 		void setLocation(Location &location);
+		std::string &getQueryString();
+		void setQueryString(std::string queryString);
 };
 
 #endif

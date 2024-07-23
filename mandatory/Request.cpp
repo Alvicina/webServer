@@ -187,3 +187,13 @@ void Request::setLocation(Location &location)
 {
 	this->_location = &location;
 }
+
+std::string &Request::getQueryString()
+{
+	return (_queryString);
+}
+
+void Request::setQueryString(std::string queryString)
+{
+	this->_queryString = queryString;
+}
