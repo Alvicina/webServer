@@ -112,7 +112,7 @@ Response * RequestHandlerGet::doHandleRequest(void)
 	reddir = checkAndSetReturn();
 	if (reddir == false)
 		checkAndSetAlias();
-	isCgi = isCgiRequest();
+	isCgi = isCgiRequest(response);
 	if (isCgi == true)
 		doCgi(response);
 	if (reddir == false && isCgi == false)
