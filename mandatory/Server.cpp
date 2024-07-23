@@ -240,8 +240,6 @@ void Server::locationMethodsRoutine(std::vector<std::string> & locationVars, siz
 
 void Server::locationAutoIndexRoutine(std::string & autoIndex, bool & autoIndexFlag, Location & location)
 {
-	if (location.getLocationPath() == "/cgi-bin")
-		throw ServerErrorException("Error: AutoIndex not allowed for CGI");
 	if (autoIndexFlag)
 		throw ServerErrorException("Error: Autoindex duplicated in location");
 	checkParamToken(autoIndex);
@@ -259,8 +257,6 @@ void Server::locationIndexRoutine(std::string & index, Location & location)
 
 void Server::locationReturnRoutine(std::string & Return, Location & location)
 {
-	if (location.getLocationPath() == "/cgi-bin")
-		throw ServerErrorException("Error: return directive not allowed for CGI");
 	if (!location.getReturnLocation().empty())
 		throw ServerErrorException("Error: return duplicated in location");
 	checkParamToken(Return);
@@ -269,8 +265,6 @@ void Server::locationReturnRoutine(std::string & Return, Location & location)
 
 void Server::locationAliasRoutine(std::string & alias, Location & location)
 {
-	if (location.getLocationPath() == "/cgi-bin")
-		throw ServerErrorException("Error: alias directive not allowed for CGI");
 	if (!location.getAliasLocation().empty())
 		throw ServerErrorException("Error: return duplicated in location");
 	checkParamToken(alias);
@@ -365,87 +359,60 @@ bool & methodsFlag, bool & autoIndexFlag, bool & maxSizeFlag)
 		throw ServerErrorException("Error: directive in location is invalid");
 }
 
-void Server::checkLocationCgiIndex(Location & location)
-{
-	std::string path = getRoot() + location.getLocationPath() + "/" + location.getIndexLocation();
-	//std::string path = location.getLocationRoot() + location.getLocationPath() + "/" + location.getIndexLocation();
-	if (Utils::typeOfFile(path) != 1)
-	{
-		char *cwd = getcwd(NULL, 0);
-		std::string root(cwd);
-		free(cwd); 
-		location.setRootLocation(root);
-		path = root + location.getLocationPath() + "/" + location.getIndexLocation();
-	}
-	if (path.empty() || Utils::typeOfFile(path) != 1 || Utils::checkFile(path, R_OK) < 0)
-		throw ServerErrorException("Error: CGI not valid");
-}
-
 void Server::checkLocationCgiPath(Location & location)
 {
 	std::vector<std::string>::const_iterator it;
 	for (it = location.getCgiPathLocation().begin(); it != location.getCgiPathLocation().end(); it++)
 	{
-		if (Utils::typeOfFile(*it) < 0)
-			throw ServerErrorException("Error: Error: CGI not valid");
+		if ((access(it->c_str(), F_OK) == -1) )
+			throw ServerErrorException("Error: Error: CGI not valid2");
+		if ((access(it->c_str(), X_OK) == -1) )
+			throw ServerErrorException("Error: Error: CGI not valid1");
 	}
 }
 
 void Server::checkLocationCgiExtension(Location & location)
 {
 	std::vector<std::string>::const_iterator it;
-	std::vector<std::string>::const_iterator itPath = location.getCgiPathLocation().begin();
-	size_t cgiExtensionSize = location.getCgiExtensionLocation().size();
-	size_t cgiPathSize = location.getCgiPathLocation().size();
-
-	if (cgiExtensionSize != cgiPathSize)
-		throw ServerErrorException("Error: CGI not valid");
+	std::vector<std::string>::const_iterator itPath;
+	if (!location.getCgiPathLocation().empty())
+		itPath = location.getCgiPathLocation().begin();
 	for (it = location.getCgiExtensionLocation().begin(); it != location.getCgiExtensionLocation().end(); it++)
 	{
-		location.getExtPathMap().insert(std::make_pair(*it, *itPath));
-		itPath++;
+		if (itPath != location.getCgiPathLocation().end())
+		{
+			location.getExtPathMap().insert(std::make_pair(*it, *itPath));
+			itPath++;
+		}
+		else
+			location.getExtPathMap().insert(std::make_pair(*it, ""));
 	}
 }
 
 void Server::checkLocationForCGI(Location & location)
 {
-	if (location.getLocationRoot().empty())
-		location.setRootLocation(this->getRoot());
-	if (location.getCgiPathLocation().empty() || location.getCgiExtensionLocation().empty() || location.getIndexLocation().empty())
-		throw ServerErrorException("Error: CGI not valid");
-	if (Utils::checkFile(location.getIndexLocation(), R_OK) < 0)
-		checkLocationCgiIndex(location);
-	if(location.getCgiPathLocation().size() != location.getCgiExtensionLocation().size())
-		throw ServerErrorException("Error: CGI not valid");
 	checkLocationCgiPath(location);
 	checkLocationCgiExtension(location);
-	if (location.getCgiPathLocation().size() != location.getExtPathMap().size())
-		throw ServerErrorException("Error: CGI not valid");
 }
 
 void Server::isLocationValid(Location & location)
 {
-	if (location.getLocationPath() == "/cgi-bin")
+	if (!location.getCgiExtensionLocation().empty())
 		checkLocationForCGI(location);
-	else
+	if (location.getLocationPath()[0] != '/')
+		throw ServerErrorException("Error: invalid path in location");
+	if (location.getLocationRoot().empty())
+		location.setRootLocation(this->_root);
+	if (!location.getReturnLocation().empty())
 	{
-		if (location.getLocationPath()[0] != '/')
-			throw ServerErrorException("Error: invalid path in location");
-		if (location.getLocationRoot().empty())
-			location.setRootLocation(this->_root);
-		if (Utils::fileExistsAndReadable(location.getLocationRoot() + location.getLocationPath() + '/', location.getIndexLocation()) == -1)
-			throw ServerErrorException("Error: Index for location invalid");
-		if (!location.getReturnLocation().empty())
-		{
-			if (Utils::fileExistsAndReadable(location.getLocationRoot(), location.getReturnLocation()))
-				throw ServerErrorException("Error: Return for location invalid");	
-		}
-		if (!location.getAliasLocation().empty())
-		{
-			std::string path = "";
-			if (Utils::fileExistsAndReadable(path, location.getAliasLocation()))
-				throw ServerErrorException("Error: Alias for location invalid");
-		}
+		if (Utils::fileExistsAndReadable(location.getLocationRoot(), location.getReturnLocation()))
+			throw ServerErrorException("Error: Return for location invalid");	
+	}
+	if (!location.getAliasLocation().empty())
+	{
+		std::string path = "";
+		if (Utils::fileExistsAndReadable(path, location.getAliasLocation()))
+			throw ServerErrorException("Error: Alias for location invalid");
 	}
 }
 
@@ -464,7 +431,7 @@ void Server::setLocation(std::string & locationPath, std::vector<std::string> & 
 		locationExtractionRoutine(locationVars, pos, location, methodsFlag, autoIndexFlag, maxSizeFlag);
 		pos++;
 	}
-	if (location.getLocationPath() != "/cgi-bin" && location.getIndexLocation().empty())
+	if (location.getIndexLocation().empty())
 		location.setIndexLocation(this->_index);
 	if (!maxSizeFlag)
 		location.setMaxBodySizeLocation(this->_clientMaxBodySize);
