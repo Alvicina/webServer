@@ -163,12 +163,18 @@ void RequestParser::setRequestLocations()
 
 		uriSize = this->_request->getUri().size();
 		locationPathSize = locations[i].getLocationPath().size();
+		if (uriSize < locationPathSize)
+			continue;
 		testDir = this->_request->getUri();
 		testDir = testDir.substr(0, locationPathSize);
 		if (testDir.compare(locations[i].getLocationPath()) != 0)
 			continue;
-		if (uriSize > locationPathSize && this->_request->getUri()[locationPathSize] != '/')
+		if (uriSize > locationPathSize &&
+			this->_request->getUri()[locationPathSize] != '/' &&
+			this->_request->getUri()[locationPathSize - 1] != '/')
+		{
 			continue;
+		}
 		Location *requestLocation = this->_request->getLocation();
 		if (!requestLocation || requestLocation->getLocationPath().size() < locationPathSize)
 			this->_request->setLocation(locations[i]);
