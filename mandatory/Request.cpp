@@ -19,6 +19,7 @@ Request &Request::operator=(const Request &request)
 		this->_args = request._args;
 		this->_method = request._method;
 		this->_uri = request._uri;
+		this->_pathInfo = request._pathInfo;
 		this->_protocol = request._protocol;
 		this->_protocolVersion = request._protocolVersion;
 		this->_content = request._content;
@@ -33,7 +34,7 @@ Request::~Request() {}
 std::ostream &operator<<(std::ostream &os, const Request &request)
 {
 	os << Request::getMethodName(request._method) << " ";
-	os << request._uri;
+	os << request._uri << request._pathInfo;
 	if (request._args.size() > 0)
 	{
 		std::map<std::string, std::string>::const_iterator argIt = request._args.begin();
@@ -136,6 +137,16 @@ std::string &Request::getUri()
 void Request::setUri(const std::string &uri)
 {
 	this->_uri = uri;
+}
+
+std::string &Request::getPathInfo()
+{
+	return (this->_pathInfo);
+}
+
+void Request::setPathInfo(const std::string &pathInfo)
+{
+	this->_pathInfo = pathInfo;
 }
 
 std::string &Request::getProtocol()

@@ -21,6 +21,7 @@ class RequestParser
 		void parseHeaders(std::string &rawRequest);
 		void setRequestServer(std::vector<Server> &servers);
 		void setRequestLocations();
+		void setPathInfo();
 
 	public:
 		RequestParser(std::string &raw);

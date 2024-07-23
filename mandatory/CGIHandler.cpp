@@ -160,7 +160,7 @@ void CgiHandler::initEnvironmentForCgi(std::string & pathToResource)
 	_mapEnv["HTTP_HOST"] = _request->getHeaders()["Host"];
 	_mapEnv["HTTP_PROXY_AUTHORIZATION"] = _request->getHeaders()["Proxy-Authorization"];
 	_mapEnv["HTTP_USER_AGENT"] = _request->getHeaders()["User-Agent"];
-	//_mapEnv["PATH_INFO"] = _request->getPathInfo();	
+	_mapEnv["PATH_INFO"] = _request->getPathInfo();	
 	//_mapEnv["PATH_TRANSLATED"] = 
 	_mapEnv["QUERY_STRING"] = _request->getQueryString();
 	//_mapEnv["REMOTE_ADDR"] = 

@@ -46,6 +46,8 @@ class Request
 		void setMethod(const Methods &method);
 		std::string &getUri();
 		void setUri(const std::string &uri);
+		std::string &getPathInfo();
+		void setPathInfo(const std::string &pathInfo);
 		std::string &getProtocol();
 		void setProtocol(const std::string &protocol);
 		std::string &getProtocolVersion();

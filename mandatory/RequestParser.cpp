@@ -34,6 +34,7 @@ Request &RequestParser::parseRequest(std::vector<Server> &servers)
 	this->_request->setContent(rawRequest);
 	this->setRequestServer(servers);
 	this->setRequestLocations();
+	this->setPathInfo();
 	return (*this->_request);
 }
 
@@ -178,5 +179,27 @@ void RequestParser::setRequestLocations()
 		Location *requestLocation = this->_request->getLocation();
 		if (!requestLocation || requestLocation->getLocationPath().size() < locationPathSize)
 			this->_request->setLocation(locations[i]);
+	}
+}
+
+void RequestParser::setPathInfo()
+{
+	std::string &uri = this->_request->getUri();
+	std::vector<std::string> &cgiExtensions = this->_request->getLocation()->getCgiExtensionLocation();
+	if (cgiExtensions.size() == 0)
+		return;
+	for (size_t i = 0; i < cgiExtensions.size(); i++)
+	{
+		std::string extension = cgiExtensions[i];
+		if (extension[extension.size() - 1] != '/')
+			extension.append("/");
+		size_t separator = uri.find(extension);
+		if (separator != std::string::npos)
+		{
+			separator += extension.size() - 1;
+			this->_request->setPathInfo(uri.substr(separator));
+			this->_request->setUri(uri.substr(0, separator));
+			break;
+		}
 	}
 }
