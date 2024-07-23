@@ -40,21 +40,6 @@ RequestHandlerGet& RequestHandlerGet::operator=(RequestHandlerGet & other)
 	return (*this);
 }
 
-std::string RequestHandlerGet::createPathToResource()
-{
-	std::string pathToResource;
-	pathToResource = this->_request->getServer()->getRoot() + this->_request->getUri();
-	if (_request->getLocation())
-		pathToResource = _request->getLocation()->getLocationRoot() + _request->getUri();
-	return (pathToResource);
-}
-
-void RequestHandlerGet::exceptionRoutine(int statusCode, Response *response)
-{
-		delete response;
-		throw HandlerErrorException(statusCode, *_request);
-}
-
 void RequestHandlerGet::openReadCopyFile(Response *response, std::string & pathToResource)
 {
 	std::ifstream resourse(pathToResource.c_str());
@@ -115,107 +100,16 @@ void RequestHandlerGet::ResponseContentRoutine(Response *response)
 		exceptionRoutine(404, response);	
 }
 
-void RequestHandlerGet::setNewLocation(Request & request)
-{
-	std::vector<Location> &locations = request.getServer()->getLocation();
-
-	for (size_t i = 0; i < locations.size(); i++)
-	{
-		std::string testDir;
-		size_t uriSize;
-		size_t locationPathSize;
-
-		uriSize = request.getUri().size();
-		locationPathSize = locations[i].getLocationPath().size();
-		testDir = request.getUri();
-		testDir = testDir.substr(0, locationPathSize);
-		if (testDir.compare(locations[i].getLocationPath()) != 0)
-			continue;
-		if (uriSize > locationPathSize && request.getUri()[locationPathSize] != '/')
-			continue;
-		Location *requestLocation = request.getLocation();
-		if (!requestLocation || requestLocation->getLocationPath().size() < locationPathSize)
-			request.setLocation(locations[i]);
-	}
-}
-
-void RequestHandlerGet::checkAndSetReturn(bool & reddir)
-{
-	std::string pathToResource = createPathToResource();
-	int typeOfFile = Utils::typeOfFile(pathToResource);
-	size_t pos = pathToResource.size();
-	if (typeOfFile == 2 && pathToResource[pos - 1] != '/')
-	{
-		reddir = true;
-	}
-	else if (_request->getLocation())
-	{
-		if (!_request->getLocation()->getReturnLocation().empty())
-			reddir = true;
-	}
-}
-
-std::string RequestHandlerGet::createNewUriForAlias(std::string & alias)
-{
-	std::string root = _request->getServer()->getRoot();
-	size_t rootSize = root.size();
-	std::string insertToOldUri = alias.substr(rootSize);
-	if (insertToOldUri[0] != '/')
-		insertToOldUri = "/" + insertToOldUri;
-	std::string locationPath = _request->getLocation()->getLocationPath();
-	size_t locationPathSize = locationPath.size();
-	std::string oldUri = _request->getUri();
-	std::string newUri = insertToOldUri + oldUri.erase(0, locationPathSize);
-	return (newUri);
-}
-
-void RequestHandlerGet::checkAndSetAlias()
-{
-	if (_request->getLocation())
-	{
-		if(!_request->getLocation()->getAliasLocation().empty())
-		{
-			std::string newUri = createNewUriForAlias(_request->getLocation()->getAliasLocation());
-			_request->setUri(newUri);
-			setNewLocation(*_request);
-		}
-	}
-}
-
-void RequestHandlerGet::doCgi(Response *response)
-{
-    CgiHandler cgiHandler(*_request);
-    cgiHandler.handleCgiRequest(response);
-}
-
-bool RequestHandlerGet::isCgiRequest()
-{
-	if (_request->getLocation())
-    {
-        if (_request->getLocation()->getLocationPath() == "/cgi-bin")
-            return (true);
-    }
-    return (false);
-}
-
 Response * RequestHandlerGet::doHandleRequest(void)
 {
 	Response	*response = new Response();
 	bool		reddir = false;
 	bool 		isCgi = false;
 
-	/*/////
-	std::cout << "REQUEST:  " << std::endl;
-	std::cout << *_request << std::endl;
-	std::map<std::string, std::string>::iterator it;
-	for (it = _request->getArgs().begin(); it != _request->getArgs().end(); it++)
-		std::cout << it->first << " " << it->second << std::endl;
-	/////*/
-
 	bool isValid = isRequestMethodAllow();
 	if (isValid == false)
 		throw FactoryErrorException(405, *_request);
-	checkAndSetReturn(reddir);
+	reddir = checkAndSetReturn();
 	if (reddir == false)
 		checkAndSetAlias();
 	isCgi = isCgiRequest();

@@ -26,11 +26,21 @@ class RequestHandler
 		std::map<std::string, std::string> _exts;
 
 	public:
-		bool isRequestMethodAllow();
+		void exceptionRoutine(int statusCode, Response *response);
+		void doCgi(Response *response);
+		bool isCgiRequest();
+		void setNewLocation(Request & request);
+		std::string createNewUriForAlias(std::string & alias);
+		void checkAndSetAlias(void);
+		std::string createPathToResource(void);
+		bool checkAndSetReturn(void);
+		bool isRequestMethodAllow(void);
+
 		RequestHandler(Request & request);
 		RequestHandler(RequestHandler & copy);
 		virtual ~RequestHandler();
 		RequestHandler& operator=(RequestHandler & other);
+		
 		Methods& getMethods(void);
 		Request* getRequest(void);
 		virtual Response* doHandleRequest(void) = 0;

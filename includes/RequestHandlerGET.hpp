@@ -21,19 +21,12 @@ class Response;
 class RequestHandlerGet : public RequestHandler
 {
 	private:
-		void doCgi(Response *response);
-		bool isCgiRequest();
 		void ResponseContentRoutine(Response *response);
-		void setNewLocation(Request & request);
-		void checkAndSetReturn(bool & reddir);
-		std::string createPathToResource(void);
 		void contentForFile(Response *response, std::string & pathToResource);
 		void contentForDIR(Response * response, std::string & pathToResource);
 		void htmlIndexBuilder(Response * response);
 		void openReadCopyFile(Response *response, std::string & pathToResource);
-		void exceptionRoutine(int statusCode, Response *response);
-		void checkAndSetAlias(void);
-		std::string createNewUriForAlias(std::string & alias);
+		
 	public:
 		RequestHandlerGet(Request & request);
 		RequestHandlerGet(RequestHandlerGet & copy);
