@@ -210,7 +210,7 @@ void CgiHandler::parseEnvironmentForCgi(Response *response)
 
 std::string CgiHandler::validateResourseExtension(std::string & pathToResource)
 {
-	size_t pos = pathToResource.find('.');
+	size_t pos = pathToResource.find_last_of('.');
 	if (pos == std::string::npos)
 		return ("");
 	std::string extension = pathToResource.substr(pos);
