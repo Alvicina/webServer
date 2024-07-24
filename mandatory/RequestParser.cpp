@@ -34,6 +34,7 @@ Request &RequestParser::parseRequest(std::vector<Server> &servers)
 	this->_request->setContent(rawRequest);
 	this->setRequestServer(servers);
 	this->setRequestLocations();
+	this->setPathInfo();
 	return (*this->_request);
 }
 
@@ -59,7 +60,11 @@ void RequestParser::parseRequestLine(std::string &rawRequest)
 	separator = rawRequest.find("\n");
 	if (separator == std::string::npos)
 		throw RequestParseErrorException();
-	this->_request->setProtocolVersion(rawRequest.substr(0, separator));
+	std::string protocolVersion = rawRequest.substr(0, separator);
+	size_t removeSpace = protocolVersion.find("\r");
+	if (removeSpace != std::string::npos)
+		protocolVersion.erase(removeSpace);
+	this->_request->setProtocolVersion(protocolVersion);
 	rawRequest = rawRequest.substr(separator + 1);
 }
 
@@ -159,14 +164,42 @@ void RequestParser::setRequestLocations()
 
 		uriSize = this->_request->getUri().size();
 		locationPathSize = locations[i].getLocationPath().size();
+		if (uriSize < locationPathSize)
+			continue;
 		testDir = this->_request->getUri();
 		testDir = testDir.substr(0, locationPathSize);
 		if (testDir.compare(locations[i].getLocationPath()) != 0)
 			continue;
-		if (uriSize > locationPathSize && this->_request->getUri()[locationPathSize] != '/')
+		if (uriSize > locationPathSize &&
+			this->_request->getUri()[locationPathSize] != '/' &&
+			this->_request->getUri()[locationPathSize - 1] != '/')
+		{
 			continue;
+		}
 		Location *requestLocation = this->_request->getLocation();
 		if (!requestLocation || requestLocation->getLocationPath().size() < locationPathSize)
 			this->_request->setLocation(locations[i]);
+	}
+}
+
+void RequestParser::setPathInfo()
+{
+	std::string &uri = this->_request->getUri();
+	std::vector<std::string> &cgiExtensions = this->_request->getLocation()->getCgiExtensionLocation();
+	if (cgiExtensions.size() == 0)
+		return;
+	for (size_t i = 0; i < cgiExtensions.size(); i++)
+	{
+		std::string extension = cgiExtensions[i];
+		if (extension[extension.size() - 1] != '/')
+			extension.append("/");
+		size_t separator = uri.find(extension);
+		if (separator != std::string::npos)
+		{
+			separator += extension.size() - 1;
+			this->_request->setPathInfo(uri.substr(separator));
+			this->_request->setUri(uri.substr(0, separator));
+			break;
+		}
 	}
 }
