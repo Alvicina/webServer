@@ -46,15 +46,6 @@ void handleSIGINT(int signum)
 		ServerManager::getInstance().stop();
 }
 
-int setEventHandlers()
-{
-	struct sigaction action;
-    action.sa_handler = handleSIGINT;
-    sigemptyset(&action.sa_mask);
-    action.sa_flags = 0;
-	return (sigaction(SIGINT, &action, NULL));
-}
-
 int main(int argc,  char **argv)
 {
 	std::string file;
@@ -68,10 +59,6 @@ int main(int argc,  char **argv)
 		Logger::logError("Wrong number or arguments");
 		return (EXIT_FAILURE);
 	}
-	if (setEventHandlers() == -1)
-	{
-		Logger::logError("Could not setup signal handlers");
-		return (EXIT_FAILURE);
-	}
+	signal(SIGINT, handleSIGINT);
 	return (startRoutine(file));
 }

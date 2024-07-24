@@ -90,19 +90,9 @@ Socket *Socket::acceptConnection() const
 	Socket *socket = new Socket();
 	socket->setFd(accept(
 		this->_fd,
-		(struct sockaddr *) &socket->_address,
-		(socklen_t *) &socket->_addressLen
+		NULL,
+		NULL
 	));
-	
-	// TODO: Quitar estos comentarios
-	// std::cout << "IP: "
-	// 	<< int((socket->_address.sin_addr.s_addr & 0xFF)) << "."
-	// 	<< int((socket->_address.sin_addr.s_addr & 0xFF00) >> 8) << "."
-	// 	<< int((socket->_address.sin_addr.s_addr & 0xFF0000) >> 16) << "."
-	// 	<< int((socket->_address.sin_addr.s_addr & 0xFF000000) >> 24) << std::endl;
-
-	// std::cout << "PORT: " << ntohs(socket->_address.sin_port) << std::endl;
-
 	if (socket->getFd() == -1)
 		throw SocketInitializationFailedException();
 	return (socket);
