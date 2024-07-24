@@ -14,6 +14,7 @@
 #define REQUESTHANDLERPOST_HPP
 
 #include "RequestHandler.hpp"
+#include "RequestFactory.hpp"
 
 class RequestHandlerPost : public RequestHandler
 {

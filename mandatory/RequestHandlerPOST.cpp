@@ -39,7 +39,35 @@ RequestHandlerPost& RequestHandlerPost::operator=(RequestHandlerPost & other)
 	return (*this);
 }
 
-Response* RequestHandlerPost::doHandleRequest(void)
+Response * RequestHandlerPost::doHandleRequest(void)
 {
-	return (new Response());
+	Response	*response = new Response();
+	bool		reddir = false;
+	bool 		isCgi = false;
+
+	std::cout << "REQUEST" << std::endl << *_request << std::endl;
+	std::string content = "probando upload";
+	_request->setContent(content);
+	std::cout << "content: " << _request->getContent() << std::endl;
+	bool isValid = isRequestMethodAllow();
+	if (isValid == false)
+		throw FactoryErrorException(405, *_request);
+	reddir = checkAndSetReturn();
+	if (reddir == false)
+		checkAndSetAlias();
+	isCgi = isCgiRequest(response);
+	std::cout << "hola" << std::endl;
+	if (isCgi == true)
+		doCgi(response);
+	response->setProtocol(_request->getProtocol());
+	response->setProtocolVersion(_request->getProtocolVersion());
+	response->ResponseHeaderRoutine(*response, _request);
+	response->setStatusCode(200);
+	if (reddir)
+		response->setStatusCode(301);
+	std::string statusCodeMessage = Utils::codeStatus(response->getStatusCode());
+	response->setStatusCodeMessage(statusCodeMessage);
+	response->ResponseRawRoutine();
+	std::cout << "hola3" << std::endl;
+	return (response);
 }

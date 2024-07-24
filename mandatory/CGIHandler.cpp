@@ -360,6 +360,7 @@ void CgiHandler::cgiExecute(Response *response, std::string & pathToResource)
 	parseEnvironmentForCgi(response);
 	initArgsForCgi(pathToResource, response);
 	forkAndExecve(pathToResource, response);
+	std::cout << "hola2" << std::endl;
 }
 
 void CgiHandler::handleCgiRequest(Response *response)
