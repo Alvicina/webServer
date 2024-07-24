@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/17 10:11:48 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/19 13:50:13 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/24 16:55:38 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -360,7 +360,6 @@ void CgiHandler::cgiExecute(Response *response, std::string & pathToResource)
 	parseEnvironmentForCgi(response);
 	initArgsForCgi(pathToResource, response);
 	forkAndExecve(pathToResource, response);
-	std::cout << "hola2" << std::endl;
 }
 
 void CgiHandler::handleCgiRequest(Response *response)
