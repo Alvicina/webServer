@@ -197,7 +197,16 @@ static void ResponseLocation(Response & response, Request *request)
 				if (typeOfResource == 1)
 					response.getHeaders().insert(std::make_pair("Location:", request->getLocation()->getLocationPath()));
 				else if (typeOfResource == 2)
-					response.getHeaders().insert(std::make_pair("Location:", request->getLocation()->getLocationPath() + "/"));
+				{
+					if (request->getLocation()->getLocationPath() != "/")
+						response.getHeaders().insert(std::make_pair("Location:", request->getLocation()->getLocationPath() + "/"));
+					else
+					{
+						std::string dirName = request->getUri().substr(request->getUri().find_last_of('/'));
+						response.getHeaders().insert(std::make_pair("Location:", dirName + "/"));
+					}
+				}
+					
 			}
 		}
 		else
