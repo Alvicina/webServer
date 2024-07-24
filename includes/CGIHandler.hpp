@@ -41,8 +41,8 @@ class CgiHandler
 		void allocSpaceForCgiArgs(Response *response, size_t numberOfArguments);
 		void initArgsForCgi(std::string & pathToResource, Response *response);
 		std::string validateResourseExtension(std::string & pathToResource);
-		void childRoutine( int *pipeFD, std::string & pathToResource, Response *response);
-		void parentRoutine(int *pipeFD, Response *response, pid_t *pid);
+		void childRoutine( int *pipeFD, std::string & pathToResource, Response *response, int *pipeFD2);
+		void parentRoutine(int *pipeFD, Response *response, pid_t *pid, int *pipeFD2);
 		void forkAndExecve(std::string & pathToResource, Response *response);
 		std::string methodToString(int number);
 		std::string getScriptName(void);

@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/17 10:11:48 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/19 13:50:13 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/24 16:55:38 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -289,18 +289,31 @@ Response *response)
 }
 
 void CgiHandler::childRoutine(int *pipeFD, std::string & pathToResource, 
-Response *response)
+Response *response, int *pipeFD2)
 {
-	close(pipeFD[0]);
+	if (_request->getMethod() == POST)
+	{
+		close(pipeFD2[1]); //cerramos extremo de escritura porque el hijo lee en este pipe y no escribe
+		if (dup2(pipeFD2[0], STDIN_FILENO) == -1)
+			exceptionRoutine(500, response);
+		close(pipeFD2[0]); //cerramos extremo de lectura porque hemos redireccinado el stdin al extremo de lectura de este pipe
+	}
+	close(pipeFD[0]); //cerramos extremo de lectura porque el hijo escribe en este pipe y no lee
 	if (dup2(pipeFD[1], STDOUT_FILENO) == -1)
 		exceptionRoutine(500, response);
-	close(pipeFD[1]);
+	close(pipeFD[1]); //cerramos extremo de escritura porque hemos redireccinado el stdout al extremo de escritura de este pipe
 	if (execve(pathToResource.c_str(), _args, _env) == -1)
 		exceptionRoutine(500, response);
 }
 
-void CgiHandler::parentRoutine(int *pipeFD, Response *response, pid_t *pid)
+void CgiHandler::parentRoutine(int *pipeFD, Response *response, pid_t *pid, int *pipeFD2)
 {
+	if (_request->getMethod() == POST)
+	{
+		close(pipeFD2[0]);
+		write(pipeFD2[1], (const void*)_request->getContent().c_str(), _content.size());
+		close(pipeFD2[1]);
+	}
 	close(pipeFD[1]);
 	char buffer[1024];
 	ssize_t bytesRead = 1;
@@ -326,16 +339,19 @@ void CgiHandler::parentRoutine(int *pipeFD, Response *response, pid_t *pid)
 void CgiHandler::forkAndExecve(std::string & pathToResource, Response *response)
 {
 	int pipeFD[2];
+	int pipeFD2[2];
 	
 	if (pipe(pipeFD) == -1)
+		exceptionRoutine(500, response);
+	if (pipe(pipeFD2) == -1)
 		exceptionRoutine(500, response);
 	pid_t pid = fork();
 	if (pid == -1)
 		exceptionRoutine(500, response);
 	else if (pid == 0)
-		childRoutine(pipeFD, pathToResource, response);
+		childRoutine(pipeFD, pathToResource, response, pipeFD2);
 	else
-		parentRoutine(pipeFD, response, &pid);
+		parentRoutine(pipeFD, response, &pid, pipeFD2);
 }
 
 void CgiHandler::cgiExecute(Response *response, std::string & pathToResource)
