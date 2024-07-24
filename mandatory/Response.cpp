@@ -76,6 +76,7 @@ int Response::buildHtmlIndex(Request & request)
 	insertHtmlLoop(dir, dirName, indexHtml);
 	insertHtmlEnd(indexHtml);
 	setContent(indexHtml);
+	free(dir);
 	return (0);
 }
 
