@@ -95,7 +95,10 @@ void Response::contentErrorPage(std::string & path, const int statusCode)
 void Response::contentForNoErrorPage(const int statusCode)
 {
 	std::string content = Utils::codeStatus(statusCode);
-	this->setContent(content);
+	std::ostringstream strStatusCode;
+	strStatusCode << statusCode;
+	std::string htmlContent = "<html lang=\"es\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>\n" + strStatusCode.str() + " " + Utils::codeStatus(statusCode) + "</title>\n</head>\n<body>\n" + strStatusCode.str() + " " + Utils::codeStatus(statusCode) + "</body>\n</html>\n";
+	this->setContent(htmlContent);
 	this->setStatusCodeMessage(content);
 	std::string path = "default";
 	this->setFile(path);
