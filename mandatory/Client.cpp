@@ -1,9 +1,9 @@
 #include "../includes/Client.hpp"
 
-Client::Client(): _socket(NULL), _server(NULL) {}
+Client::Client(): _socket(NULL), _server(NULL), _request(NULL) {}
 
 Client::Client(Socket *socket, Server *server):
-	_socket(socket), _server(server) {}
+	_socket(socket), _server(server), _request(NULL) {}
 
 Client::Client(const Client &client)
 {
@@ -17,6 +17,7 @@ Client &Client::operator=(const Client &client)
 		this->_socket = client._socket;
 		this->_server = client._server;
 		this->_responseQueue = client._responseQueue;
+		this->_request = client._request;
 	}
 	return (*this);
 }
@@ -28,6 +29,8 @@ Client::~Client()
 	{
 		delete this->_responseQueue[i];
 	}
+	if (this->_request)
+		delete this->_request;
 }
 
 Socket &Client::getSocket()
@@ -48,4 +51,14 @@ std::vector<Response *> &Client::getResponseQueue()
 Server &Client::getServer()
 {
 	return (*this->_server);
+}
+
+Request *Client::getRequest()
+{
+	return (this->_request);
+}
+
+void Client::setRequest(Request *request)
+{
+	this->_request = request;
 }

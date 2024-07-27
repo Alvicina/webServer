@@ -165,20 +165,35 @@ void ServerManager::handleClientRequest(EpollEvent &event, Client *client)
 			this->closeClientConnection(client);
 			return;
 		}
-		this->_epoll.setSocketOnWriteMode(client->getSocket());
-		RequestParser requestParser(rawRequest);
+		RequestParser requestParser(rawRequest, client);
 		Request &request = requestParser.parseRequest(this->_servers);
-		this->logRequestReceived(request, event.data.fd);
-		Response *response = request.getServer()->handleRequest(request);
-		client->getResponseQueue().push_back(response);
+		if (request.getIsComplete())
+		{
+			this->_epoll.setSocketOnWriteMode(client->getSocket());
+			this->logRequestReceived(request, event.data.fd);
+			Response *response = request.getServer()->handleRequest(request);
+			client->getResponseQueue().push_back(response);
+			client->setRequest(NULL);
+			delete &request;
+		}
+		else
+		{
+			if (client->getRequest() == NULL)
+				client->setRequest(&request);
+			Logger::logInfo((std::ostringstream &)(std::ostringstream().flush()
+				<< "✉️  Data received from client " << client->getSocket().getFd()
+				<< " but request is not complete, waiting for more data."));
+		}
 	}
 	catch (RequestParser::RequestParseErrorException &e)
 	{
+		this->_epoll.setSocketOnWriteMode(client->getSocket());
 		client->getResponseQueue().push_back(new Response(400, client->getServer()));
 		Logger::logError(e.what());
 	}
 	catch (std::exception &e)
 	{
+		this->_epoll.setSocketOnWriteMode(client->getSocket());
 		client->getResponseQueue().push_back(new Response(500, client->getServer()));
 		Logger::logError(e.what());
 	}
