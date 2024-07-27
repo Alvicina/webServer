@@ -234,9 +234,9 @@ std::string Utils::strToLower(std::string str)
 	return (str);
 }
 
-int Utils::hexToDecimal(const std::string& hexStr)
+size_t Utils::hexToDecimal(const std::string& hexStr)
 {
-    int decimalValue = 0;
+    size_t decimalValue = 0;
     
     for (size_t i = 0; i < hexStr.size(); ++i)
 	{
