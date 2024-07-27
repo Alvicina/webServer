@@ -37,11 +37,13 @@ Request &RequestParser::parseRequest(std::vector<Server> &servers)
 		if (!this->_request->getIsRequestLineProcessed())
 			this->parseRequestLine(rawRequest);
 		if (!this->_request->getAreHeadersProcessed())
+		{
 			this->parseHeaders(rawRequest);
+			this->setRequestServer(servers);
+			this->setRequestLocations();
+			this->setPathInfo();
+		}
 		this->parseContent();
-		this->setRequestServer(servers);
-		this->setRequestLocations();
-		this->setPathInfo();
 		return (*this->_request);
 	}
 	catch (std::exception &e)
@@ -170,7 +172,8 @@ void RequestParser::parseContent()
 
 void RequestParser::parseContentWithChunkedEncoding(std::string &rawBody)
 {
-	int expectedBytes;
+	size_t expectedBytes;
+	size_t totalBodyBytes = 0;
 	std::string sanitizingStr;
 
 	if (rawBody.find("0\r\n\r\n") == std::string::npos)
@@ -182,12 +185,15 @@ void RequestParser::parseContentWithChunkedEncoding(std::string &rawBody)
 		if (separator == std::string::npos)
 			throw RequestParseErrorException();
 		expectedBytes = Utils::hexToDecimal(rawBody.substr(0, separator));
+		totalBodyBytes += expectedBytes;
+		if (totalBodyBytes > (size_t) this->_request->getServer()->getClientMaxBodySize())
+			throw RequestParseErrorException();
 		rawBody = rawBody.substr(separator + 2);
 		separator = rawBody.find("\r\n");
 		if (separator == std::string::npos)
 			throw RequestParseErrorException();
 		std::string chunk = rawBody.substr(0, separator);
-		if (chunk.size() != (size_t) expectedBytes)
+		if (chunk.size() != expectedBytes)
 			throw RequestParseErrorException();
 		rawBody = rawBody.substr(separator + 2);
 		this->_request->getContent().append(chunk);
@@ -203,6 +209,8 @@ void RequestParser::parseContentWithContentLength(std::string &rawBody, std::str
 
 	ss >> expectedLength;
 	if (ss.fail())
+		throw RequestParseErrorException();
+	if (expectedLength > (size_t) this->_request->getServer()->getClientMaxBodySize())
 		throw RequestParseErrorException();
 	if (rawBody.size() > expectedLength)
 		throw RequestParseErrorException();
