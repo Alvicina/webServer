@@ -12,6 +12,7 @@ class Client
 		Socket 					*_socket;
 		Server					*_server;
 		std::vector<Response *>	_responseQueue;
+		Request					*_request;
 
 	public:
 		Client();
@@ -24,6 +25,8 @@ class Client
 		void setSocket(Socket *socket);
 		std::vector<Response *> &getResponseQueue();
 		Server &getServer();
+		Request *getRequest();
+		void setRequest(Request *request);
 };
 
 #endif

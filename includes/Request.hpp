@@ -22,6 +22,9 @@ class Request
 		std::string _pathInfo;
 		Server 		*_server;
 		Location 	*_location;
+		bool		_isComplete;
+		bool		_isRequestLineProcessed;
+		bool		_areHeadersProcessed;
 
 		static void initMethodDict();
 
@@ -60,6 +63,12 @@ class Request
 		void setLocation(Location &location);
 		std::string &getQueryString();
 		void setQueryString(std::string queryString);
+		bool getIsComplete();
+		void setIsComplete(bool isComplete);
+		bool getIsRequestLineProcessed();
+		void setIsRequestLineProcessed(bool isProcessed);
+		bool getAreHeadersProcessed();
+		void setAreHeadersProcessed(bool areProcessed);
 };
 
 #endif

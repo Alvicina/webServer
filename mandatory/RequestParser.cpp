@@ -1,10 +1,14 @@
 #include "../includes/RequestParser.hpp"
 #include "../includes/Server.hpp"
 
-RequestParser::RequestParser(): _request(new Request()) {}
+RequestParser::RequestParser(): _request(new Request()), _server(NULL) {}
 
-RequestParser::RequestParser(std::string &raw):
-	_raw(raw), _request(new Request()) {}
+RequestParser::RequestParser(std::string &raw, Client *client)
+{
+	this->_server = &client->getServer();
+	this->_request = (client->getRequest()) ? client->getRequest() : new Request();
+	this->_request->getRaw().append(raw);
+}
 
 RequestParser::RequestParser(const RequestParser &parser)
 {
@@ -15,27 +19,35 @@ RequestParser &RequestParser::operator=(const RequestParser &parser)
 {
 	if (this != &parser)
 	{
-		this->_raw = parser._raw;
-		*this->_request = *parser._request;
+		this->_request = parser._request;
+		this->_server = parser._server;
 	}
 	return (*this);
 }
 
-RequestParser::~RequestParser()
-{
-	delete this->_request;
-}
+RequestParser::~RequestParser() {}
 
 Request &RequestParser::parseRequest(std::vector<Server> &servers)
 {
-	std::string rawRequest = this->_raw;
-	this->parseRequestLine(rawRequest);
-	this->parseHeaders(rawRequest);
-	this->_request->setContent(rawRequest);
-	this->setRequestServer(servers);
-	this->setRequestLocations();
-	this->setPathInfo();
-	return (*this->_request);
+	try
+	{
+		if (this->_request->getRaw().find("\r\n\r\n") == std::string::npos)
+			return (*this->_request);
+		std::string rawRequest = this->_request->getRaw();
+		if (!this->_request->getIsRequestLineProcessed())
+			this->parseRequestLine(rawRequest);
+		if (!this->_request->getAreHeadersProcessed())
+			this->parseHeaders(rawRequest);
+		this->parseContent();
+		this->setRequestServer(servers);
+		this->setRequestLocations();
+		this->setPathInfo();
+		return (*this->_request);
+	}
+	catch (std::exception &e)
+	{
+		throw RequestParseErrorException();
+	}
 }
 
 void RequestParser::parseRequestLine(std::string &rawRequest)
@@ -66,6 +78,7 @@ void RequestParser::parseRequestLine(std::string &rawRequest)
 		protocolVersion.erase(removeSpace);
 	this->_request->setProtocolVersion(protocolVersion);
 	rawRequest = rawRequest.substr(separator + 1);
+	this->_request->setIsRequestLineProcessed(true);
 }
 
 void RequestParser::parseUri(std::string uri)
@@ -127,14 +140,86 @@ void RequestParser::parseHeaders(std::string &rawRequest)
 		size_t separator = line.find(": ");
 		if (separator == std::string::npos)
 			throw RequestParseErrorException();
-		headers[Utils::strToLower(line.substr(0, separator))] = line.substr(separator + 2);
+		std::string key = Utils::strToLower(line.substr(0, separator));
+		std::string value = line.substr(separator + 2);
+		if (value[value.size() - 1] == '\r')
+			value.erase(value.size() - 1);
+		headers[key] = value;
 		std::getline(stream, line);
 	}
 	rawRequest = rawRequest.substr(headersLen + 2);
+	this->_request->setAreHeadersProcessed(true);
+}
+
+void RequestParser::parseContent()
+{
+	std::map<std::string, std::string> &headers = this->_request->getHeaders();
+	size_t separator = this->_request->getRaw().find("\r\n\r\n");
+	if (separator == std::string::npos)
+		throw RequestParseErrorException();
+	std::string rawBody = this->_request->getRaw().substr(separator + 4);
+
+	if (headers.find("transfer-encoding") != headers.end() &&
+		headers["transfer-encoding"].compare("chunked") == 0)
+		this->parseContentWithChunkedEncoding(rawBody);
+	else if (headers.find("content-length") != headers.end())
+		this->parseContentWithContentLength(rawBody, headers["content-length"]);
+	else
+		this->_request->setIsComplete(true);
+}
+
+void RequestParser::parseContentWithChunkedEncoding(std::string &rawBody)
+{
+	int expectedBytes;
+	std::string sanitizingStr;
+
+	if (rawBody.find("0\r\n\r\n") == std::string::npos)
+		return;
+
+	do
+	{
+		size_t separator = rawBody.find("\r\n");
+		if (separator == std::string::npos)
+			throw RequestParseErrorException();
+		expectedBytes = Utils::hexToDecimal(rawBody.substr(0, separator));
+		rawBody = rawBody.substr(separator + 2);
+		separator = rawBody.find("\r\n");
+		if (separator == std::string::npos)
+			throw RequestParseErrorException();
+		std::string chunk = rawBody.substr(0, separator);
+		if (chunk.size() != (size_t) expectedBytes)
+			throw RequestParseErrorException();
+		rawBody = rawBody.substr(separator + 2);
+		this->_request->getContent().append(chunk);
+	}
+	while (expectedBytes != 0);
+	this->_request->setIsComplete(true);
+}
+
+void RequestParser::parseContentWithContentLength(std::string &rawBody, std::string &contentLength)
+{
+	std::stringstream ss(contentLength);
+	size_t expectedLength;
+
+	ss >> expectedLength;
+	if (ss.fail())
+		throw RequestParseErrorException();
+	if (rawBody.size() > expectedLength)
+		throw RequestParseErrorException();
+	if (rawBody.size() == expectedLength)
+	{
+		this->_request->setContent(rawBody);
+		this->_request->setIsComplete(true);
+	}
 }
 
 void RequestParser::setRequestServer(std::vector<Server> &servers)
 {
+	if (this->_server)
+	{
+		this->_request->setServer(*this->_server);
+		return;
+	}
 	std::string requestHost;
 	size_t hostPortSeparator;
 	int requestPort;
@@ -154,8 +239,10 @@ void RequestParser::setRequestServer(std::vector<Server> &servers)
 
 void RequestParser::setRequestLocations()
 {
+	if (!this->_request->getServer())
+		return;
+	
 	std::vector<Location> &locations = this->_request->getServer()->getLocation();
-
 	for (size_t i = 0; i < locations.size(); i++)
 	{
 		std::string testDir;
@@ -184,6 +271,8 @@ void RequestParser::setRequestLocations()
 
 void RequestParser::setPathInfo()
 {
+	if (!this->_request->getLocation())
+		return;
 	std::string &uri = this->_request->getUri();
 	std::vector<std::string> &cgiExtensions = this->_request->getLocation()->getCgiExtensionLocation();
 	if (cgiExtensions.size() == 0)

@@ -4,12 +4,13 @@
 #include "webserv.hpp"
 #include "Request.hpp"
 #include "Utils.hpp"
+#include "Client.hpp"
 
 class RequestParser
 {
 	private:
-		std::string _raw;
 		Request 	*_request;
+		Server		*_server;
 
 		RequestParser();
 		RequestParser(const RequestParser &parser);
@@ -19,12 +20,15 @@ class RequestParser
 		void parseArgs(std::string args);
 		void parseArg(std::string arg);
 		void parseHeaders(std::string &rawRequest);
+		void parseContent();
+		void parseContentWithContentLength(std::string &rawBody, std::string &contentLength);
+		void parseContentWithChunkedEncoding(std::string &rawBody);
 		void setRequestServer(std::vector<Server> &servers);
 		void setRequestLocations();
 		void setPathInfo();
 
 	public:
-		RequestParser(std::string &raw);
+		RequestParser(std::string &raw, Client *client);
 		RequestParser &operator=(const RequestParser &parser);
 		~RequestParser();
 
