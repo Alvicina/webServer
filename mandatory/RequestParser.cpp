@@ -165,7 +165,7 @@ void RequestParser::parseContent()
 		headers["transfer-encoding"].compare("chunked") == 0)
 		this->parseContentWithChunkedEncoding(rawBody);
 	else if (headers.find("content-length") != headers.end())
-		this->parseContentWithContentLength(rawBody, headers["content-length"]);
+		this->parseContentWithContentLength(rawBody, headers);
 	else
 		this->_request->setIsComplete(true);
 }
@@ -202,9 +202,9 @@ void RequestParser::parseContentWithChunkedEncoding(std::string &rawBody)
 	this->_request->setIsComplete(true);
 }
 
-void RequestParser::parseContentWithContentLength(std::string &rawBody, std::string &contentLength)
+void RequestParser::parseContentWithContentLength(std::string &rawBody, std::map<std::string, std::string> &headers)
 {
-	std::stringstream ss(contentLength);
+	std::stringstream ss(headers["content-length"]);
 	size_t expectedLength;
 
 	ss >> expectedLength;
@@ -216,9 +216,51 @@ void RequestParser::parseContentWithContentLength(std::string &rawBody, std::str
 		throw RequestParseErrorException();
 	if (rawBody.size() == expectedLength)
 	{
-		this->_request->setContent(rawBody);
+		if (headers.find("content-type") != headers.end() &&
+			headers["content-type"].find("multipart/form-data;") != std::string::npos &&
+			this->_request->getServer()->getUploadStore().size() > 0)
+		{
+			this->parseContentMultipartFormData(rawBody, headers);
+		}
+		else
+		{
+			this->_request->setContent(rawBody);
+		}
 		this->_request->setIsComplete(true);
 	}
+}
+
+void RequestParser::parseContentMultipartFormData(std::string &rawBody, std::map<std::string, std::string> &headers)
+{
+	size_t separator = headers["content-type"].find("boundary=");
+	if (separator == std::string::npos)
+		throw RequestParseErrorException();
+	std::string boundary = headers["content-type"].substr(separator + 9);
+	separator = boundary.find(";");
+	if (separator != std::string::npos)
+		boundary = boundary.substr(0, separator);
+	separator = rawBody.find("filename=");
+	if (separator == std::string::npos)
+		throw RequestParseErrorException();
+	std::string fileName = rawBody.substr(separator + 9);
+	separator = rawBody.find("\r\n\r\n");
+	if (separator == std::string::npos)
+		throw RequestParseErrorException();
+	rawBody = rawBody.substr(separator + 4);
+	separator = rawBody.find("--" + boundary);
+	if (separator == std::string::npos)
+		throw RequestParseErrorException();
+	rawBody = rawBody.substr(0, separator);
+	separator = fileName.find("\r\n");
+	if (separator == std::string::npos)
+		throw RequestParseErrorException();
+	fileName = fileName.substr(0, separator);
+	if (fileName[0] == '\"')
+		fileName.erase(0, 1);
+	if (fileName[fileName.size() - 1] == '\"')
+		fileName.erase(fileName.size() - 1);
+	this->_request->setContent(rawBody);
+	this->_request->setUploadFileName(fileName);
 }
 
 void RequestParser::setRequestServer(std::vector<Server> &servers)

@@ -51,6 +51,7 @@ Server& Server::operator=(Server const & other)
 		_errorPages = other._errorPages;
 		_locations = other._locations;
 		_masterSocket = other._masterSocket;
+		_uploadStore = other._uploadStore;
 	}
 	return (*this);
 }
@@ -590,4 +591,14 @@ Response *Server::handleRequest(Request &request)
 	{
 		return (e.createResponse());
 	}
+}
+
+std::string &Server::getUploadStore()
+{
+	return (this->_uploadStore);
+}
+
+void Server::setUploadStore(const std::string &uploadStore)
+{
+	this->_uploadStore = uploadStore;
 }

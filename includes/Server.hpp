@@ -36,6 +36,7 @@ class Server
 		std::map<int, std::string> 	_errorPages;
 		std::vector<Location>		_locations;
 		Socket						*_masterSocket;
+		std::string					_uploadStore;
 
 	public:
 		Server();
@@ -82,6 +83,8 @@ class Server
 		void	initMasterSocket();
 		Socket 	&getSocket();
 		Response *handleRequest(Request &request);
+		std::string &getUploadStore();
+		void setUploadStore(const std::string &uploadStore);
 };		
 
 #endif

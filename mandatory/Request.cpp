@@ -31,6 +31,7 @@ Request &Request::operator=(const Request &request)
 		this->_isComplete = request._isComplete;
 		this->_isRequestLineProcessed = request._isRequestLineProcessed;
 		this->_areHeadersProcessed = request._areHeadersProcessed;
+		this->_uploadFileName = request._uploadFileName;
 	}
 	return (*this);
 }
@@ -243,4 +244,14 @@ bool Request::getAreHeadersProcessed()
 void Request::setAreHeadersProcessed(bool areProcessed)
 {
 	this->_areHeadersProcessed = areProcessed;
+}
+
+std::string &Request::getUploadFileName()
+{
+	return (this->_uploadFileName);
+}
+
+void Request::setUploadFileName(const std::string &fileName)
+{
+	this->_uploadFileName = fileName;
 }
