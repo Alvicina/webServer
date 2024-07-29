@@ -4,7 +4,7 @@
 std::map<Methods, std::string> Request::_methodDict;
 
 Request::Request():
-	_server(NULL), _location(NULL), _isComplete(false),
+	_content(""), _server(NULL), _location(NULL), _isComplete(false),
 	_isRequestLineProcessed(false), _areHeadersProcessed(false) {}
 
 Request::Request(const Request &request)

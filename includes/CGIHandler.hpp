@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/17 10:11:57 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/19 13:51:03 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/29 11:44:52 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@ class CgiHandler
 {
 	private:
 		Request 	*_request;
-		std::string _content;
 		char		**_env;
 		char		**_args;
 		std::map<std::string, std::string>  _mapEnv;
@@ -55,7 +54,5 @@ class CgiHandler
 		void setRequest(Request & request);
 		Request* getRequest(void);
 		void handleCgiRequest(Response * response);
-		void setContent(std::string & content);
-		std::string& getContent(void);
 };
 #endif
