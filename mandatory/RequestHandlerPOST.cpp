@@ -52,9 +52,13 @@ Response * RequestHandlerPost::doHandleRequest(void)
 	reddir = checkAndSetReturn();
 	if (reddir == false)
 		checkAndSetAlias();
+	if (Utils::typeOfFile(createPathToResource()) == -1)
+		throw HandlerErrorException(404, *_request);
 	isCgi = isCgiRequest(response);
 	if (isCgi == true)
 		doCgi(response);
+	else
+		throw HandlerErrorException(405, *_request);
 	response->setProtocol(_request->getProtocol());
 	response->setProtocolVersion(_request->getProtocolVersion());
 	response->ResponseHeaderRoutine(*response, _request);

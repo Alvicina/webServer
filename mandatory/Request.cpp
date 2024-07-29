@@ -32,6 +32,7 @@ Request &Request::operator=(const Request &request)
 		this->_isRequestLineProcessed = request._isRequestLineProcessed;
 		this->_areHeadersProcessed = request._areHeadersProcessed;
 		this->_uploadFileName = request._uploadFileName;
+		this->_uploadFileContent = request._uploadFileContent;
 	}
 	return (*this);
 }
@@ -254,4 +255,14 @@ std::string &Request::getUploadFileName()
 void Request::setUploadFileName(const std::string &fileName)
 {
 	this->_uploadFileName = fileName;
+}
+
+std::string &Request::getUploadFileContent()
+{
+	return (this->_uploadFileContent);
+}
+
+void Request::setUploadFileContent(const std::string &fileContent)
+{
+	this->_uploadFileContent = fileContent;
 }
