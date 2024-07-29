@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 11:56:49 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/19 13:57:02 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/29 18:26:05 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,6 @@ class Server
 		std::map<int, std::string> 	_errorPages;
 		std::vector<Location>		_locations;
 		Socket						*_masterSocket;
-		std::string					_uploadStore;
 
 	public:
 		Server();
@@ -83,8 +82,7 @@ class Server
 		void	initMasterSocket();
 		Socket 	&getSocket();
 		Response *handleRequest(Request &request);
-		std::string &getUploadStore();
-		void setUploadStore(const std::string &uploadStore);
+	
 };		
 
 #endif
