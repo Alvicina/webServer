@@ -313,10 +313,21 @@ void FileParser::buildServers(void)
 	{
 		Server serv;
 		setUpServer(serv, _configs[i]);
-		_servers.push_back(serv);
+		if (!this->isServerDuplicated(serv))
+			_servers.push_back(serv);
 		i++;
 	}
 	//printServers();
+}
+
+bool FileParser::isServerDuplicated(Server &server)
+{
+	for (size_t i = 0; i < _servers.size(); i++)
+	{
+		if (_servers[i].getPort() == server.getPort())
+			return (true);
+	}
+	return (false);
 }
 
 void FileParser::printServers()

@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/17 10:11:48 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/24 16:55:38 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/26 15:42:26 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -306,7 +306,7 @@ void CgiHandler::parentRoutine(int *pipeFD, Response *response, pid_t *pid, int 
 	if (_request->getMethod() == POST)
 	{
 		close(pipeFD2[0]);
-		write(pipeFD2[1], (const void*)_request->getContent().c_str(), _content.size());
+		write(pipeFD2[1], (const void*)_request->getContent().c_str(), _request->getContent().size());
 		close(pipeFD2[1]);
 	}
 	close(pipeFD[1]);

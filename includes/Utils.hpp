@@ -28,6 +28,7 @@ class Utils
 		static std::string intToString(int number);
 		static void		ftFree(char **str);
 		static std::string strToLower(std::string str);
+		static size_t hexToDecimal(const std::string& hexStr);
 };
 
 class ParserErrorException : public std::exception

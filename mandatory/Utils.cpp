@@ -233,3 +233,30 @@ std::string Utils::strToLower(std::string str)
 	}
 	return (str);
 }
+
+size_t Utils::hexToDecimal(const std::string& hexStr)
+{
+    size_t decimalValue = 0;
+    
+    for (size_t i = 0; i < hexStr.size(); ++i)
+	{
+        char c = hexStr[i];
+        int value;
+
+        if (c >= '0' && c <= '9')
+            value = c - '0';
+        else if (c >= 'A' && c <= 'F')
+            value = c - 'A' + 10;
+        else if (c >= 'a' && c <= 'f')
+            value = c - 'a' + 10;
+        else
+		{
+			std::cout << "error hex" << std::endl;
+			throw std::invalid_argument("Invalid argument for hexadecimal to decimal conversion");
+		}
+
+        decimalValue = decimalValue * 16 + value; // Update the decimal value
+    }
+
+    return decimalValue;
+}

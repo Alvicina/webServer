@@ -3,7 +3,9 @@
 
 std::map<Methods, std::string> Request::_methodDict;
 
-Request::Request(): _server(NULL), _location(NULL) {}
+Request::Request():
+	_server(NULL), _location(NULL), _isComplete(false),
+	_isRequestLineProcessed(false), _areHeadersProcessed(false) {}
 
 Request::Request(const Request &request)
 {
@@ -19,12 +21,16 @@ Request &Request::operator=(const Request &request)
 		this->_args = request._args;
 		this->_method = request._method;
 		this->_uri = request._uri;
-		this->_pathInfo = request._pathInfo;
+		this->_queryString = request._queryString;
 		this->_protocol = request._protocol;
 		this->_protocolVersion = request._protocolVersion;
 		this->_content = request._content;
+		this->_pathInfo = request._pathInfo;
 		this->_server = request._server;
 		this->_location = request._location;
+		this->_isComplete = request._isComplete;
+		this->_isRequestLineProcessed = request._isRequestLineProcessed;
+		this->_areHeadersProcessed = request._areHeadersProcessed;
 	}
 	return (*this);
 }
@@ -207,4 +213,34 @@ std::string &Request::getQueryString()
 void Request::setQueryString(std::string queryString)
 {
 	this->_queryString = queryString;
+}
+
+bool Request::getIsComplete()
+{
+	return (this->_isComplete);
+}
+
+void Request::setIsComplete(bool isComplete)
+{
+	this->_isComplete = isComplete;
+}
+
+bool Request::getIsRequestLineProcessed()
+{
+	return (this->_isRequestLineProcessed);
+}
+
+void Request::setIsRequestLineProcessed(bool isProcessed)
+{
+	this->_isRequestLineProcessed = isProcessed;
+}
+
+bool Request::getAreHeadersProcessed()
+{
+	return (this->_areHeadersProcessed);
+}
+
+void Request::setAreHeadersProcessed(bool areProcessed)
+{
+	this->_areHeadersProcessed = areProcessed;
 }

@@ -22,7 +22,9 @@ class FileParser
 		std::string 				_content;
 		std::vector<std::string>	_configs;
 		std::vector<Server>			_servers;
-		size_t						_nbServers;		
+		size_t						_nbServers;
+
+		bool isServerDuplicated(Server &server);
 		
 	public:
 		FileParser(std::string content);
