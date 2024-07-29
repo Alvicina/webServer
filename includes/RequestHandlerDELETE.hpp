@@ -27,6 +27,8 @@ class RequestHandlerDelete : public RequestHandler
 		RequestHandlerDelete& operator=(RequestHandlerDelete & other);
 		virtual ~RequestHandlerDelete();
 		virtual Response* doHandleRequest(void);
+		std::string strPathAndFile();
+		int fileError(std::string pathAndFile);
 };
 
 #endif

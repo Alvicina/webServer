@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "../includes/RequestHandlerDELETE.hpp"
+#include "../includes/Server.hpp"
 
 RequestHandlerDelete::RequestHandlerDelete(Request & request) : 
 RequestHandler(request)
