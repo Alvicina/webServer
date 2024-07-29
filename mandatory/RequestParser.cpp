@@ -232,6 +232,7 @@ void RequestParser::parseContentWithContentLength(std::string &rawBody, std::map
 
 void RequestParser::parseContentMultipartFormData(std::string &rawBody, std::map<std::string, std::string> &headers)
 {
+	std::string rawFileContent;
 	size_t separator = headers["content-type"].find("boundary=");
 	if (separator == std::string::npos)
 		throw RequestParseErrorException();
@@ -246,11 +247,11 @@ void RequestParser::parseContentMultipartFormData(std::string &rawBody, std::map
 	separator = rawBody.find("\r\n\r\n");
 	if (separator == std::string::npos)
 		throw RequestParseErrorException();
-	rawBody = rawBody.substr(separator + 4);
-	separator = rawBody.find("--" + boundary);
+	rawFileContent = rawBody.substr(separator + 4);
+	separator = rawFileContent.find("--" + boundary);
 	if (separator == std::string::npos)
 		throw RequestParseErrorException();
-	rawBody = rawBody.substr(0, separator);
+	rawFileContent = rawFileContent.substr(0, separator);
 	separator = fileName.find("\r\n");
 	if (separator == std::string::npos)
 		throw RequestParseErrorException();
@@ -261,6 +262,7 @@ void RequestParser::parseContentMultipartFormData(std::string &rawBody, std::map
 		fileName.erase(fileName.size() - 1);
 	this->_request->setContent(rawBody);
 	this->_request->setUploadFileName(fileName);
+	this->_request->setUploadFileContent(rawFileContent);
 }
 
 void RequestParser::setRequestServer(std::vector<Server> &servers)
