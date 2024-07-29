@@ -293,7 +293,7 @@ static void	setUpServer(Server & serv, std::string & config)
 	if (serv.getRoot().empty())
 		serv.setRoot("/;");
 	if (serv.getHost() == 0)
-		serv.setHost("localhost;");
+		serv.setHost("any;");
 	if (serv.getIndex().empty())
 		serv.setIndex("index.html");
 	if (Utils::fileExistsAndReadable(serv.getRoot() + "/", serv.getIndex()))

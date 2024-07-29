@@ -121,7 +121,10 @@ void Server::setHost(std::string param)
 	checkParamToken(param);
 	if (param == "localhost")
 		param = "127.0.0.1";
-	_host = isHostValid(param);
+	if (param == "any")
+		_host = INADDR_ANY;
+	else
+		_host = isHostValid(param);
 }
 
 static bool isRootDirectory(std::string const & param)
