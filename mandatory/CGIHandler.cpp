@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/17 10:11:48 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/29 11:44:40 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/29 18:03:51 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -275,13 +275,10 @@ Response *response)
 void CgiHandler::childRoutine(int *pipeFD, std::string & pathToResource, 
 Response *response, int *pipeFD2)
 {
-	//if (_request->getMethod() == POST)
-	//{
-		close(pipeFD2[1]); //cerramos extremo de escritura porque el hijo lee en este pipe y no escribe
-		if (dup2(pipeFD2[0], STDIN_FILENO) == -1)
-			exceptionRoutine(500, response);
-		close(pipeFD2[0]); //cerramos extremo de lectura porque hemos redireccinado el stdin al extremo de lectura de este pipe
-	//}
+	close(pipeFD2[1]); //cerramos extremo de escritura porque el hijo lee en este pipe y no escribe
+	if (dup2(pipeFD2[0], STDIN_FILENO) == -1)
+		exceptionRoutine(500, response);
+	close(pipeFD2[0]); //cerramos extremo de lectura porque hemos redireccinado el stdin al extremo de lectura de este pipe
 	close(pipeFD[0]); //cerramos extremo de lectura porque el hijo escribe en este pipe y no lee
 	if (dup2(pipeFD[1], STDOUT_FILENO) == -1)
 		exceptionRoutine(500, response);
@@ -292,12 +289,9 @@ Response *response, int *pipeFD2)
 
 void CgiHandler::parentRoutine(int *pipeFD, Response *response, pid_t *pid, int *pipeFD2)
 {
-	//if (_request->getMethod() == POST)
-	//{
-		close(pipeFD2[0]);
-		write(pipeFD2[1], (const void*)_request->getContent().c_str(), _request->getContent().size());
-		close(pipeFD2[1]);
-	//}
+	close(pipeFD2[0]);
+	write(pipeFD2[1], (const void*)_request->getContent().c_str(), _request->getContent().size());
+	close(pipeFD2[1]);
 	close(pipeFD[1]);
 	char buffer[1024];
 	ssize_t bytesRead = 1;
