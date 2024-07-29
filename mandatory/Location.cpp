@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:37:22 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/03 16:49:34 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/29 18:58:43 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ Location::Location()
 	_return = "";
 	_alias = "";
 	_clientMaxBodySize = MAX_CONTENT_LENGTH;
+	_uploadStore = "";
 	_methods.reserve(5);
 	_methods.push_back(1);
 	_methods.push_back(0);
@@ -54,6 +55,7 @@ Location& Location::operator=(Location const & other)
 		_cgiExt = other._cgiExt;
 		_clientMaxBodySize = other._clientMaxBodySize;
 		_extPath = other._extPath;
+		_uploadStore = other._uploadStore;
 	}
 	return (*this);
 }
@@ -218,6 +220,7 @@ void Location::locationPrinter(void)
 	std::cout << "Location-----" << "return: " << getReturnLocation() << std::endl;
 	std::cout << "Location-----" << "alias: " << getAliasLocation() << std::endl;
 	std::cout << "Location-----" << "body size: " << getMaxBodySizeLocation() << std::endl;
+	std::cout << "Location-----" << "upload_store: " << getUploadStore() << std::endl;
 	for (std::vector<int>::iterator it = getLocationMethods().begin(); it != getLocationMethods().end(); it++)
 		std::cout << "Location------" << "method: " << *it << std::endl;
 	for (std::vector<std::string>::iterator it = getCgiPathLocation().begin(); it != getCgiPathLocation().end(); it++)
@@ -228,5 +231,13 @@ void Location::locationPrinter(void)
 		std::cout << "Location------" << "cgi Map ext: " << it->first << " cgi Map path: " << it->second << std::endl;
 }
 
+std::string &Location::getUploadStore()
+{
+	return (this->_uploadStore);
+}
 
+void Location::setUploadStore(const std::string &uploadStore)
+{
+	this->_uploadStore = uploadStore;
+}
 

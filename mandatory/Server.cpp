@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/29 18:26:46 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/29 18:56:44 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,6 @@ Server& Server::operator=(Server const & other)
 		_errorPages = other._errorPages;
 		_locations = other._locations;
 		_masterSocket = other._masterSocket;
-		_uploadStore = other._uploadStore;
 	}
 	return (*this);
 }
@@ -335,6 +334,14 @@ void Server::locationMaxSizeRoutine(std::string & maxSize, bool & maxSizeFlag, L
 	maxSizeFlag = true;
 }
 
+void Server::locationUploadRoutine(std::string & upLoadPath, Location & location)
+{
+	if (!location.getUploadStore().empty())
+		throw ServerErrorException("Error: upload_store duplicated in location");
+	checkParamToken(upLoadPath);
+	location.setUploadStore(upLoadPath);
+}
+
 void Server::locationExtractionRoutine(std::vector<std::string> & locationVars, size_t & pos, Location & location,
 bool & methodsFlag, bool & autoIndexFlag, bool & maxSizeFlag)
 {
@@ -356,8 +363,8 @@ bool & methodsFlag, bool & autoIndexFlag, bool & maxSizeFlag)
 		locationCgiPathRoutine(locationVars, pos, location);
 	else if (locationVars[pos] == "client_max_body_size" && (pos + 1) < locationVars.size())
 		locationMaxSizeRoutine(locationVars[++pos], maxSizeFlag, location);
-	//else if (locationVars[pos] == "upload_store" && (pos + 1) < locationVars.size())
-	//	locationUploadRoutine(locationVars[++pos], location);
+	else if (locationVars[pos] == "upload_store" && (pos + 1) < locationVars.size())
+		locationUploadRoutine(locationVars[++pos], location);
 	else if (pos < locationVars.size())
 		throw ServerErrorException("Error: directive in location is invalid");
 }
@@ -416,6 +423,11 @@ void Server::isLocationValid(Location & location)
 		std::string path = "";
 		if (Utils::fileExistsAndReadable(path, location.getAliasLocation()))
 			throw ServerErrorException("Error: Alias for location invalid");
+	}
+	if (!location.getUploadStore().empty())
+	{
+		if (Utils::fileExistsAndReadable(location.getLocationRoot(), location.getUploadStore()))
+			throw ServerErrorException("Error: upload_store for location invalid");
 	}
 }
 
@@ -593,14 +605,4 @@ Response *Server::handleRequest(Request &request)
 	{
 		return (e.createResponse());
 	}
-}
-
-std::string &Server::getUploadStore()
-{
-	return (this->_uploadStore);
-}
-
-void Server::setUploadStore(const std::string &uploadStore)
-{
-	this->_uploadStore = uploadStore;
 }
