@@ -217,8 +217,9 @@ void RequestParser::parseContentWithContentLength(std::string &rawBody, std::map
 	if (rawBody.size() == expectedLength)
 	{
 		if (headers.find("content-type") != headers.end() &&
-			headers["content-type"].find("multipart/form-data;") != std::string::npos &&
-			this->_request->getServer()->getUploadStore().size() > 0)
+			headers["content-type"].find("multipart/form-data;") != std::string::npos && 
+			this->_request->getLocation() &&
+			this->_request->getLocation()->getUploadStore().size() > 0)
 		{
 			this->parseContentMultipartFormData(rawBody, headers);
 		}
