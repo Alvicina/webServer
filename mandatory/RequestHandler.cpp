@@ -268,6 +268,7 @@ void RequestHandler::exceptionRoutine(int statusCode, Response *response)
 void RequestHandler::checkUploadPath(Response *response)
 {
 	std::string whereToUpload = _request->getLocation()->getUploadStore();
+	std::cout << "upload:" << whereToUpload << std::endl;
 	if (access(whereToUpload.c_str(), F_OK) == -1)
 		exceptionRoutine(404, response);
 	if (access(whereToUpload.c_str(), W_OK | X_OK) == -1)
@@ -295,6 +296,7 @@ void RequestHandler::uploadFile(Response *response)
 	createFile(response);
 	if (chdir(cwd) != 0)
 		exceptionRoutine(500, response);
+	free(cwd);
 }
 
 HandlerErrorException::HandlerErrorException(int errCode, Request & request) throw()
