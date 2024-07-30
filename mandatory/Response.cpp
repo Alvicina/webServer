@@ -265,9 +265,9 @@ void Response::ResponseRawRoutine()
 	std::map<std::string, std::string>::iterator it;
 	for(it = getHeaders().begin(); it != getHeaders().end(); it++)
 	{
-		raw.append(it->first + it->second + "\n");
+		raw.append(it->first + it->second + "\r\n");
 	}
-	raw.append("\n" + getContent());
+	raw.append("\r\n" + getContent());
 	setRaw(raw);
 }
 
