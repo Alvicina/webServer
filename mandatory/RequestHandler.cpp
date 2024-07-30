@@ -265,6 +265,38 @@ void RequestHandler::exceptionRoutine(int statusCode, Response *response)
 		throw HandlerErrorException(statusCode, *_request);
 }
 
+void RequestHandler::checkUploadPath(Response *response)
+{
+	std::string whereToUpload = _request->getLocation()->getUploadStore();
+	if (access(whereToUpload.c_str(), F_OK) == -1)
+		exceptionRoutine(404, response);
+	if (access(whereToUpload.c_str(), W_OK | X_OK) == -1)
+		exceptionRoutine(403, response);
+}
+
+void RequestHandler::createFile(Response *response)
+{
+	std::ofstream outfile(_request->getUploadFileName().c_str());
+	if (!outfile)
+		exceptionRoutine(500, response);
+	outfile << _request->getUploadFileContent();
+	outfile.close();
+}
+
+void RequestHandler::uploadFile(Response *response)
+{
+	checkUploadPath(response);
+	std::string whereToUpload = _request->getLocation()->getUploadStore();
+	char *cwd = getcwd(NULL, 0);
+	if (cwd == NULL)
+		exceptionRoutine(500, response);
+	if (chdir(whereToUpload.c_str()) != 0)
+		exceptionRoutine(500, response);
+	createFile(response);
+	if (chdir(cwd) != 0)
+		exceptionRoutine(500, response);
+}
+
 HandlerErrorException::HandlerErrorException(int errCode, Request & request) throw()
 {
     _errCode = errCode;
@@ -285,4 +317,3 @@ int & HandlerErrorException::getErrCode(void)
 {
     return (_errCode);
 }
-

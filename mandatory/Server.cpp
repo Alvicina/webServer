@@ -426,7 +426,7 @@ void Server::isLocationValid(Location & location)
 	}
 	if (!location.getUploadStore().empty())
 	{
-		if (Utils::fileExistsAndReadable(location.getLocationRoot(), location.getUploadStore()))
+		if (access(location.getUploadStore().c_str(), W_OK | X_OK) == -1)
 			throw ServerErrorException("Error: upload_store for location invalid");
 	}
 }

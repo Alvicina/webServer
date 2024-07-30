@@ -45,20 +45,29 @@ Response * RequestHandlerPost::doHandleRequest(void)
 	bool		reddir = false;
 	bool 		isCgi = false;
 
-	//std::cout << "content: " << _request->getContent() << std::endl;
+
+	std::string fileName = "Alejandro.txt";
+	std::string fileContent = "Es el mejor!";
+	_request->setUploadFileName(fileName);
+	_request->setUploadFileContent(fileContent);
+
+	if (!_request->getUploadFileName().empty())
+		uploadFile(response);
+
+
 	bool isValid = isRequestMethodAllow();
 	if (isValid == false)
-		throw FactoryErrorException(405, *_request);
+		exceptionRoutine(405, response);
 	reddir = checkAndSetReturn();
 	if (reddir == false)
 		checkAndSetAlias();
 	if (Utils::typeOfFile(createPathToResource()) == -1)
-		throw HandlerErrorException(404, *_request);
+		exceptionRoutine(404, response);
 	isCgi = isCgiRequest(response);
 	if (isCgi == true)
 		doCgi(response);
 	else
-		throw HandlerErrorException(405, *_request);
+		exceptionRoutine(405, response);
 	response->setProtocol(_request->getProtocol());
 	response->setProtocolVersion(_request->getProtocolVersion());
 	response->ResponseHeaderRoutine(*response, _request);
