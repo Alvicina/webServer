@@ -191,6 +191,10 @@ void ServerManager::handleClientRequest(EpollEvent &event, Client *client)
 		client->getResponseQueue().push_back(new Response(400, client->getServer()));
 		Logger::logError(e.what());
 	}
+	catch (IOException &e)
+	{
+		throw IOException();
+	}
 	catch (std::exception &e)
 	{
 		this->_epoll.setSocketOnWriteMode(client->getSocket());
