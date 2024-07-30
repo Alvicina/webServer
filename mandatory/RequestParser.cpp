@@ -5,8 +5,10 @@ RequestParser::RequestParser(): _request(new Request()) {}
 
 RequestParser::RequestParser(std::string &raw, Client *client)
 {
-	this->_clientSockHost = client->getSocket().getAddress().sin_addr.s_addr;
-	this->_request = (client->getRequest()) ? client->getRequest() : new Request();
+	this->_clientSockHost = client->getSocket().getAddress()->sin_addr.s_addr;
+	if (!client->getRequest())
+		client->setRequest(new Request());
+	this->_request = client->getRequest();
 	this->_request->getRaw().append(raw);
 }
 
@@ -228,6 +230,8 @@ void RequestParser::setRequestServer(std::vector<Server> &servers)
 	Server *defaultServer = NULL;
 
 	requestHost = this->_request->getHeaders()["host"];
+	if (requestHost.size() == 0)
+		throw RequestParseErrorException();
 	hostPortSeparator = requestHost.find(":");
 	if (hostPortSeparator == std::string::npos)
 		requestPort = 80;

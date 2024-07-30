@@ -1,7 +1,7 @@
 #include "../includes/Socket.hpp"
 #include "../includes/Epoll.hpp"
 
-Socket::Socket() {}
+Socket::Socket(): _address(new struct sockaddr_in()), _addressLen(new socklen_t()) {}
 
 Socket::Socket(const Socket &socket)
 {
@@ -13,8 +13,8 @@ Socket &Socket::operator=(const Socket &socket)
 	if (this != &socket)
 	{
 		this->_fd = socket._fd;
-		this->_address = socket._address;
-		this->_addressLen = socket._addressLen;
+		*this->_address = *socket._address;
+		*this->_addressLen = *socket._addressLen;
 		this->_epollEvent = socket._epollEvent;
 		this->_reuseAddressAndPort = socket._reuseAddressAndPort;
 	}
@@ -24,6 +24,8 @@ Socket &Socket::operator=(const Socket &socket)
 Socket::~Socket()
 {
 	close(this->_fd);
+	delete this->_address;
+	delete this->_addressLen;
 }
 
 void Socket::initAsMasterSocket(in_addr_t host, uint16_t port)
@@ -66,14 +68,14 @@ void Socket::setUpSocket()
 
 void Socket::bindSocket(in_addr_t host, uint16_t port)
 {
-	this->_address.sin_family = AF_INET;
-	this->_address.sin_addr.s_addr = host;
-	this->_address.sin_port = htons(port);
-	this->_addressLen = sizeof(this->_address);
+	this->_address->sin_family = AF_INET;
+	this->_address->sin_addr.s_addr = host;
+	this->_address->sin_port = htons(port);
+	*this->_addressLen = sizeof(*this->_address);
 	int result = bind(
 		this->_fd,
-		(struct sockaddr *)&this->_address,
-		this->_addressLen
+		(struct sockaddr *) this->_address,
+		*this->_addressLen
 	);
 	if (result < 0)
 		throw SocketInitializationFailedException();
@@ -88,10 +90,11 @@ void Socket::listenForConnections()
 Socket *Socket::acceptConnection() const
 {
 	Socket *socket = new Socket();
+	*socket->_addressLen = sizeof *socket->_address;
 	socket->setFd(accept(
 		this->_fd,
-		(struct sockaddr *) &socket->_address,
-		&socket->_addressLen
+		(struct sockaddr *) socket->_address,
+		socket->_addressLen
 	));
 	if (socket->getFd() == -1)
 		throw SocketInitializationFailedException();
@@ -109,12 +112,12 @@ void Socket::setFd(int fd)
 	this->setNonBlockingFd();
 }
 
-struct sockaddr_in Socket::getAddress() const
+struct sockaddr_in *Socket::getAddress() const
 {
 	return (this->_address);
 }
 
-socklen_t Socket::getAddressLen() const
+socklen_t *Socket::getAddressLen() const
 {
 	return (this->_addressLen);
 }
