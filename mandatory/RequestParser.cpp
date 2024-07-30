@@ -1,11 +1,11 @@
 #include "../includes/RequestParser.hpp"
 #include "../includes/Server.hpp"
 
-RequestParser::RequestParser(): _request(new Request()), _server(NULL) {}
+RequestParser::RequestParser(): _request(new Request()) {}
 
 RequestParser::RequestParser(std::string &raw, Client *client)
 {
-	this->_server = &client->getServer();
+	this->_clientSockHost = client->getSocket().getAddress().sin_addr.s_addr;
 	this->_request = (client->getRequest()) ? client->getRequest() : new Request();
 	this->_request->getRaw().append(raw);
 }
@@ -20,7 +20,6 @@ RequestParser &RequestParser::operator=(const RequestParser &parser)
 	if (this != &parser)
 	{
 		this->_request = parser._request;
-		this->_server = parser._server;
 	}
 	return (*this);
 }
@@ -223,14 +222,10 @@ void RequestParser::parseContentWithContentLength(std::string &rawBody, std::str
 
 void RequestParser::setRequestServer(std::vector<Server> &servers)
 {
-	if (this->_server)
-	{
-		this->_request->setServer(*this->_server);
-		return;
-	}
 	std::string requestHost;
 	size_t hostPortSeparator;
-	int requestPort;
+	uint16_t requestPort;
+	Server *defaultServer = NULL;
 
 	requestHost = this->_request->getHeaders()["host"];
 	hostPortSeparator = requestHost.find(":");
@@ -238,10 +233,31 @@ void RequestParser::setRequestServer(std::vector<Server> &servers)
 		requestPort = 80;
 	else
 		requestPort = std::atoi(requestHost.substr(hostPortSeparator + 1).c_str());
+	requestHost = requestHost.substr(0, hostPortSeparator);
 	for (size_t i = 0; i < servers.size(); i++)
 	{
-		if (servers[i].getPort() == requestPort)
-			this->_request->setServer(servers[i]);
+		if (servers[i].getPort() != requestPort)
+			continue;
+
+		if (servers[i].getHost() == this->_clientSockHost || servers[i].getHost() == INADDR_ANY)
+		{
+			if (servers[i].getServerName() == requestHost)
+			{
+				this->_request->setServer(servers[i]);
+				break;
+			}
+			else if (servers[i].getIsDefault() || servers[i].getHost() == INADDR_ANY)
+			{
+				defaultServer = &servers[i];
+			}
+		}
+	}
+	if (this->_request->getServer() == NULL)
+	{
+		if (defaultServer)
+			this->_request->setServer(*defaultServer);
+		else
+			throw RequestParseErrorException();
 	}
 }
 

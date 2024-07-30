@@ -90,8 +90,8 @@ Socket *Socket::acceptConnection() const
 	Socket *socket = new Socket();
 	socket->setFd(accept(
 		this->_fd,
-		NULL,
-		NULL
+		(struct sockaddr *) &socket->_address,
+		&socket->_addressLen
 	));
 	if (socket->getFd() == -1)
 		throw SocketInitializationFailedException();

@@ -14,7 +14,7 @@
 #include "../includes/Request.hpp"
 #include "../includes/Response.hpp"
 
-Server::Server(): _masterSocket(NULL)
+Server::Server(): _masterSocket(NULL), _isDefault(false)
 {
 	_port = 0;
 	_host = 0;
@@ -51,6 +51,7 @@ Server& Server::operator=(Server const & other)
 		_errorPages = other._errorPages;
 		_locations = other._locations;
 		_masterSocket = other._masterSocket;
+		_isDefault = other._isDefault;
 	}
 	return (*this);
 }
@@ -121,7 +122,10 @@ void Server::setHost(std::string param)
 	checkParamToken(param);
 	if (param == "localhost")
 		param = "127.0.0.1";
-	_host = isHostValid(param);
+	if (param == "any")
+		_host = INADDR_ANY;
+	else
+		_host = isHostValid(param);
 }
 
 static bool isRootDirectory(std::string const & param)
@@ -590,4 +594,14 @@ Response *Server::handleRequest(Request &request)
 	{
 		return (e.createResponse());
 	}
+}
+
+bool Server::getIsDefault()
+{
+	return (this->_isDefault);
+}
+
+void Server::setIsDefault(bool isDefault)
+{
+	this->_isDefault = isDefault;
 }
