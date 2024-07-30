@@ -38,7 +38,6 @@ class Socket
 
 		class SocketInitializationFailedException : public std::exception
 		{
-			// TODO: Cerrar el _fd cuando se atrapa la excepción
 			public:
 				const char *what() const throw()
 				{

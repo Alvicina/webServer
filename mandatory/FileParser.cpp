@@ -322,11 +322,21 @@ void FileParser::buildServers(void)
 
 bool FileParser::isServerDuplicated(Server &server)
 {
+	bool isDefault = true;
+
 	for (size_t i = 0; i < _servers.size(); i++)
 	{
-		if (_servers[i].getPort() == server.getPort())
-			return (true);
+		if (_servers[i].getPort() == server.getPort() &&
+			(_servers[i].getHost() == server.getHost() ||
+			_servers[i].getHost() == INADDR_ANY))
+		{
+			isDefault = false;
+			if (_servers[i].getServerName() == server.getServerName())
+				return (true);
+		}
 	}
+	if (server.getHost() != INADDR_ANY)
+		server.setIsDefault(isDefault);
 	return (false);
 }
 
