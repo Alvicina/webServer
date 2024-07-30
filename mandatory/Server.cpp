@@ -129,6 +129,8 @@ static bool isRootDirectory(std::string const & param)
 	struct stat buffer;
 	int			status;
 
+	if (param[0] != '/')
+		throw ServerErrorException("Error: invalid 1 root for server");
 	status = stat(param.c_str(), &buffer);
 	if (status == 0)
 	{
@@ -144,17 +146,11 @@ void Server::setRoot(std::string param)
 	checkParamToken(param);
 	if (isRootDirectory(param) == true)
 	{
-		_root = param;
-		return ;
+		if (access(param.c_str(), R_OK | X_OK) == 0)
+			_root = param;
+		else
+			throw ServerErrorException("Error: invalid root for server");
 	}
-	char *cwd = getcwd(NULL, 0);
-	if (cwd == NULL)
-		throw ServerErrorException("Error: could not get cwd");
-	std::string newRoot = cwd + param;
-	free(cwd);
-	if (isRootDirectory(param) == false)
-		throw ServerErrorException("Error: wrong sintax for root");
-	_root = newRoot;
 }
 
 void Server::setPort(std::string & param)
@@ -426,7 +422,8 @@ void Server::isLocationValid(Location & location)
 	}
 	if (!location.getUploadStore().empty())
 	{
-		if (access(location.getUploadStore().c_str(), W_OK | X_OK) == -1)
+		if (access(location.getUploadStore().c_str(), W_OK | X_OK) == -1 && 
+		Utils::typeOfFile(location.getUploadStore()) != 2)
 			throw ServerErrorException("Error: upload_store for location invalid");
 	}
 }
