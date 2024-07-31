@@ -579,20 +579,32 @@ void Server::serverPrinter(void)
 
 Response *Server::handleRequest(Request &request)
 {
+	RequestHandler *handler = NULL;
+
 	try
 	{
-		RequestHandler *handler = RequestFactory::makeRequestHandler(request);
+		handler = RequestFactory::makeRequestHandler(request);
 		Response *response = handler->handleRequest();
 		delete handler;
 		return (response);
 	}
 	catch (FactoryErrorException & e)
 	{
+		if (handler)
+			delete handler;
 		return (e.createResponse());
 	}
 	catch (HandlerErrorException & e)
 	{
+		if (handler)
+			delete handler;
 		return (e.createResponse());
+	}
+	catch (std::exception &e)
+	{
+		if (handler)
+			delete handler;
+		return (new Response(500, &request));
 	}
 }
 
