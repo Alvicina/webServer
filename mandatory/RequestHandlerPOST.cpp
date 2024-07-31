@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:52:15 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/24 17:04:59 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/31 11:54:28 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,16 +45,8 @@ Response * RequestHandlerPost::doHandleRequest(void)
 	bool		reddir = false;
 	bool 		isCgi = false;
 
-
-	std::string fileName = "Alejandro.txt";
-	std::string fileContent = "Es el mejor!";
-	_request->setUploadFileName(fileName);
-	_request->setUploadFileContent(fileContent);
-
 	if (!_request->getUploadFileName().empty())
 		uploadFile(response);
-
-
 	bool isValid = isRequestMethodAllow();
 	if (isValid == false)
 		exceptionRoutine(405, response);

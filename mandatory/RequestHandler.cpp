@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:03:13 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/19 13:45:12 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/31 10:52:12 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -268,7 +268,6 @@ void RequestHandler::exceptionRoutine(int statusCode, Response *response)
 void RequestHandler::checkUploadPath(Response *response)
 {
 	std::string whereToUpload = _request->getLocation()->getUploadStore();
-	std::cout << "upload:" << whereToUpload << std::endl;
 	if (access(whereToUpload.c_str(), F_OK) == -1)
 		exceptionRoutine(404, response);
 	if (access(whereToUpload.c_str(), W_OK | X_OK) == -1)

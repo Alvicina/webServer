@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/29 18:56:44 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/31 11:56:26 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,7 +130,7 @@ static bool isRootDirectory(std::string const & param)
 	int			status;
 
 	if (param[0] != '/')
-		throw ServerErrorException("Error: invalid 1 root for server");
+		throw ServerErrorException("Error: invalid root for server");
 	status = stat(param.c_str(), &buffer);
 	if (status == 0)
 	{
@@ -151,6 +151,8 @@ void Server::setRoot(std::string param)
 		else
 			throw ServerErrorException("Error: invalid root for server");
 	}
+	else
+			throw ServerErrorException("Error: invalid root for server");
 }
 
 void Server::setPort(std::string & param)
@@ -300,6 +302,8 @@ void Server::locationCgiPathRoutine(std::vector<std::string> & locationVars, siz
 		if (locationVars[pos].find(";") != std::string::npos)
 		{
 			checkParamToken(locationVars[pos]);
+			if (locationVars[pos][0] != '/')
+				throw ServerErrorException("Error: CgiPath in location is invalid"); 
 			if (access(locationVars[pos].c_str(), F_OK) == -1) 
 				throw ServerErrorException("Error: CgiPath in location is invalid"); 
 			if (access(locationVars[pos].c_str(), X_OK) == -1) 
@@ -311,6 +315,8 @@ void Server::locationCgiPathRoutine(std::vector<std::string> & locationVars, siz
 		{
 			if ((pos + 1) >= locationVars.size())
 				throw ServerErrorException("Error: CgiPath in location is invalid");
+			if (locationVars[pos][0] != '/')
+				throw ServerErrorException("Error: CgiPath in location is invalid"); 
 			if (access(locationVars[pos].c_str(), F_OK) == -1) 
 				throw ServerErrorException("Error: CgiPath in location is invalid"); 
 			if (access(locationVars[pos].c_str(), X_OK) == -1) 
@@ -447,7 +453,6 @@ void Server::setLocation(std::string & locationPath, std::vector<std::string> & 
 		location.setIndexLocation(this->_index);
 	if (!maxSizeFlag)
 		location.setMaxBodySizeLocation(this->_clientMaxBodySize);
-	isLocationValid(location);
 	_locations.push_back(location);
 }
 

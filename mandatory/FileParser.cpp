@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/29 18:59:00 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/31 11:29:56 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -303,6 +303,10 @@ static void	setUpServer(Server & serv, std::string & config)
 	if (!serv.getPort())
 		throw ParserErrorException("Error: Port not found for server");
 	serv.setErrorPages(errCodes);
+	
+	std::vector<Location>::iterator it;
+	for (it = serv.getLocation().begin(); it != serv.getLocation().end(); it++)
+		serv.isLocationValid(*it);
 }
 
 void FileParser::buildServers(void)
@@ -317,7 +321,7 @@ void FileParser::buildServers(void)
 			_servers.push_back(serv);
 		i++;
 	}
-	printServers();
+	//printServers();
 }
 
 bool FileParser::isServerDuplicated(Server &server)

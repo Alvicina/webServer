@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:37:22 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/29 18:58:43 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/31 11:51:41 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,11 +121,13 @@ void Location::setPath(std::string const & path)
 	_path = path;
 }
 
-static bool isRootDirectory(std::string const & param)
+static bool isDirectoryAndAbsPath(std::string const & param)
 {
 	struct stat buffer;
 	int			status;
 
+	if (param[0] != '/')
+		throw ServerErrorException("Error: invalid root for Location");
 	status = stat(param.c_str(), &buffer);
 	if (status == 0)
 	{
@@ -138,8 +140,15 @@ static bool isRootDirectory(std::string const & param)
 
 void Location::setRootLocation(std::string const & root)
 {
-	if (isRootDirectory(root) == true)
-		_root = root;
+	if (isDirectoryAndAbsPath(root) == true)
+	{
+		if (access(root.c_str(), R_OK | X_OK) == 0)
+			_root = root;
+		else
+			throw ServerErrorException("Error: invalid root for Location");
+	}
+	else
+		throw ServerErrorException("Error: invalid root for Location");
 }
 
 void Location::setLocationMethods(std::vector<std::string> & methods)
@@ -183,7 +192,16 @@ void Location::setReturnLocation(std::string const & Return)
 
 void Location::setAliasLocation(std::string const & alias)
 {
-	_alias = alias;
+	if (isDirectoryAndAbsPath(alias) == true)
+	{
+		if (access(alias.c_str(), R_OK | X_OK) == 0)
+			_alias = alias;
+		else
+			throw ServerErrorException("Error: invalid alias for Location");
+	}
+	else
+		throw ServerErrorException("Error: invalid alias for Location");
+	
 }
 
 void Location::setCgiExtensionLocation(std::vector<std::string> const & cgiExt)
