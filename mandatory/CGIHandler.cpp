@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/17 10:11:48 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/26 15:42:26 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/31 12:38:23 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -297,8 +297,34 @@ Response *response, int *pipeFD2)
 	if (dup2(pipeFD[1], STDOUT_FILENO) == -1)
 		exceptionRoutine(500, response);
 	close(pipeFD[1]); //cerramos extremo de escritura porque hemos redireccinado el stdout al extremo de escritura de este pipe
-	if (execve(pathToResource.c_str(), _args, _env) == -1)
+	
+	size_t pos = pathToResource.find_last_of('/');
+	std::string file = pathToResource.substr(pos + 1);
+	std::cerr << "file:" << file << std::endl;
+	std::string dirToChange = pathToResource.erase(pos);
+	std::cerr << dirToChange << std::endl;
+
+	
+	
+	if (chdir(dirToChange.c_str()) != 0)
 		exceptionRoutine(500, response);
+	
+	char *cwd = getcwd(NULL, 0);
+	std::cerr << "cwd:" << cwd << std::endl;
+		
+	std::cerr << "aqui" << std::endl;
+
+	free(_args[0]);
+	_args[0] = strdup(file.c_str());
+	
+	if (execve(file.c_str(), _args, _env) == -1)
+	{
+		std::cerr << "aqui2" << std::endl;
+		exceptionRoutine(500, response);
+	}
+		
+
+	
 }
 
 void CgiHandler::parentRoutine(int *pipeFD, Response *response, pid_t *pid, int *pipeFD2)
