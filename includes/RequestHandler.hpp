@@ -29,6 +29,8 @@ class RequestHandler
 		void fileRoutine(bool *isCgi, std::string & pathToResource);
 		void contentRoutine(bool *isCgi, std::string & pathToResource);
 		bool checkResourseExtension(Response *response);
+		void checkUploadPath(Response *response);
+		void createFile(Response *response);
 
 
 	public:
@@ -41,6 +43,7 @@ class RequestHandler
 		std::string createPathToResource(void);
 		bool checkAndSetReturn(void);
 		bool isRequestMethodAllow(void);
+		void uploadFile(Response *response);
 
 		RequestHandler(Request & request);
 		RequestHandler(RequestHandler & copy);

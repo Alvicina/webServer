@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/17 10:11:57 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/29 11:44:52 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/31 18:02:26 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ class CgiHandler
 		char		**_env;
 		char		**_args;
 		std::map<std::string, std::string>  _mapEnv;
+		std::string	_file;
 		
 		std::string createPathToResource(void);
 		void exceptionRoutine(int statusCode, Response *response);
@@ -35,16 +36,17 @@ class CgiHandler
 		void parseEnvironmentForCgi(Response *response);
 		void transformEnvToChar(Response *response);
 		void setOtherArgs(size_t & numberOfArgurments, Response *response, std::string pathToInterpreter);
-		void setResourcePathAndInterpreter(std::string & pathToResource, std::string & pathToInterpreter);
+		void setResourcePathAndInterpreter(std::string & pathToResource, std::string & pathToInterpreter, Response *response);
 		void isInterpreterOK(std::string & pathToInterpreter, Response *response);
 		void allocSpaceForCgiArgs(Response *response, size_t numberOfArguments);
 		void initArgsForCgi(std::string & pathToResource, Response *response);
 		std::string validateResourseExtension(std::string & pathToResource);
-		void childRoutine( int *pipeFD, std::string & pathToResource, Response *response, int *pipeFD2);
+		void childRoutine( int *pipeFD, Response *response, int *pipeFD2);
 		void parentRoutine(int *pipeFD, Response *response, pid_t *pid, int *pipeFD2);
-		void forkAndExecve(std::string & pathToResource, Response *response);
+		void forkAndExecve(Response *response);
 		std::string methodToString(int number);
 		std::string getScriptName(void);
+	
 		
 	public:
 		CgiHandler(Request & request);
@@ -54,5 +56,7 @@ class CgiHandler
 		void setRequest(Request & request);
 		Request* getRequest(void);
 		void handleCgiRequest(Response * response);
+		std::string &getFile(void);
+		void setFile(std::string & file);
 };
 #endif

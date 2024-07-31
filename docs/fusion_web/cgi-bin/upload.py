@@ -9,7 +9,7 @@ fileitem = form['filename']
 
 # Test if the file was uploaded
 if fileitem.filename:
-   open(os.getcwd() + '/docs/fusion_web/cgi-bin/tmp/' + os.path.basename(fileitem.filename), 'wb').write(fileitem.file.read())
+   open(os.getcwd() + '/tmp/' + os.path.basename(fileitem.filename), 'wb').write(fileitem.file.read())
    message = 'The file "' + os.path.basename(fileitem.filename) + '" was uploaded to ' + os.getcwd() + '/docs/fusion_web/cgi-bin/tmp'
 else:
    message = 'Uploading Failed'

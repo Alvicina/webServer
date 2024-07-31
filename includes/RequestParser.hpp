@@ -21,8 +21,9 @@ class RequestParser
 		void parseArg(std::string arg);
 		void parseHeaders(std::string &rawRequest);
 		void parseContent();
-		void parseContentWithContentLength(std::string &rawBody, std::string &contentLength);
+		void parseContentWithContentLength(std::string &rawBody, std::map<std::string, std::string> &headers);
 		void parseContentWithChunkedEncoding(std::string &rawBody);
+		void parseContentMultipartFormData(std::string &rawBody, std::map<std::string, std::string> &headers);
 		void setRequestServer(std::vector<Server> &servers);
 		void setRequestLocations();
 		void setPathInfo();
