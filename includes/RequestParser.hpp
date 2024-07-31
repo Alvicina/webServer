@@ -10,7 +10,7 @@ class RequestParser
 {
 	private:
 		Request 	*_request;
-		Server		*_server;
+		in_addr_t 	_clientSockHost;
 
 		RequestParser();
 		RequestParser(const RequestParser &parser);
@@ -43,7 +43,6 @@ class RequestParser
 					return ("The request format is invalid.");
 				}
 		};
-		
 };
 
 #endif

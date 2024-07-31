@@ -9,8 +9,8 @@ class Socket
 {
 	private:
 		int 				_fd;
-		struct sockaddr_in	_address;
-		socklen_t			_addressLen;
+		struct sockaddr_in	*_address;
+		socklen_t			*_addressLen;
 		EpollEvent			_epollEvent;
 		int					_reuseAddressAndPort;
 
@@ -31,14 +31,13 @@ class Socket
 
 		int getFd() const;
 		void setFd(int fd);
-		struct sockaddr_in getAddress() const;
-		socklen_t getAddressLen() const;
+		struct sockaddr_in *getAddress() const;
+		socklen_t *getAddressLen() const;
 		void setEpollEvent(EpollEvent &event);
 		struct epoll_event &getEpollEvent();
 
 		class SocketInitializationFailedException : public std::exception
 		{
-			// TODO: Cerrar el _fd cuando se atrapa la excepción
 			public:
 				const char *what() const throw()
 				{

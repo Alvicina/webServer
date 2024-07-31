@@ -95,7 +95,12 @@ void Response::contentErrorPage(std::string & path, const int statusCode)
 void Response::contentForNoErrorPage(const int statusCode)
 {
 	std::string content = Utils::codeStatus(statusCode);
-	this->setContent(content);
+	std::ostringstream strStatusCode;
+	strStatusCode << statusCode;
+	std::string htmlContent = "<html lang=\"es\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>\n" + strStatusCode.str() + " " 
+	+ Utils::codeStatus(statusCode) + "</title>\n</head>\n<body>\n<center>\n<b style=\"font-size:24px;\">" + strStatusCode.str() + " " 
+	+ Utils::codeStatus(statusCode) + "</b>\n</center>\n</body>\n</html>\n";
+	this->setContent(htmlContent);
 	this->setStatusCodeMessage(content);
 	std::string path = "default";
 	this->setFile(path);
@@ -260,9 +265,9 @@ void Response::ResponseRawRoutine()
 	std::map<std::string, std::string>::iterator it;
 	for(it = getHeaders().begin(); it != getHeaders().end(); it++)
 	{
-		raw.append(it->first + it->second + "\n");
+		raw.append(it->first + it->second + "\r\n");
 	}
-	raw.append("\n" + getContent());
+	raw.append("\r\n" + getContent());
 	setRaw(raw);
 }
 
