@@ -80,37 +80,46 @@ Response* RequestHandlerDelete::doHandleRequest(void)
 	Response	*response = new Response();
 	bool		reddir = false;
 
-	// ********** Deletes file if possible **********
-
 	if (isRequestMethodAllow() == false)
 		throw FactoryErrorException(405, *_request);
 
-		reddir = checkAndSetReturn();
-		if (reddir == false)
-			checkAndSetAlias();
-	
-//**************************************************************************************************************
-// VOY POR AQUÍ, PERO chekAndSetReturn, lo hace Alejandro de otro modo. Yo hago las comprobaciones de Alias, Root y Return en strPathAndFile
-//**************************************************************************************************************
+	reddir = checkAndSetReturn();
+	if (reddir == false)
+		checkAndSetAlias();
 
-	std::string	pathAndFile = strPathAndFile();
-	int err = std::remove(pathAndFile.c_str());
-	if (err != 0)
+	std::string	pathAndFile = createPathToResource();
+
+	if (reddir == false)
 	{
-		delete response;
-		int errnum = this->fileError(pathAndFile);
-		throw HandlerErrorException(errnum, *_request);
-		//std::cerr << "Error: Unable to delete the file " << pathAndFile << std::endl;
+		// ********** Deletes file if possible **********
+		int err = std::remove(pathAndFile.c_str());
+		if (err != 0)
+		{
+			delete response;
+			int errnum = this->fileError(pathAndFile);
+			throw HandlerErrorException(errnum, *_request);
+			//std::cerr << "Error: Unable to delete the file " << pathAndFile << std::endl;
+		}
+		else
+		{
+			//std::cout << "El fichero " << pathAndFile << " fue borrado exitosamente.\n";
+			std::string content = pathAndFile + " has been successfully deleted!!";
+			response->setContent(content);
+			response->setProtocol(_request->getProtocol());
+			response->setProtocolVersion(_request->getProtocolVersion());
+			response->ResponseHeaderRoutine(*response, _request);
+			response->setStatusCode(200);
+			std::string statusCodeMessage = Utils::codeStatus(response->getStatusCode());
+			response->setStatusCodeMessage(statusCodeMessage);
+			response->ResponseRawRoutine();
+		}
 	}
 	else
 	{
-		//std::cout << "El fichero " << pathAndFile << " fue borrado exitosamente.\n";
-		std::string content = pathAndFile + " has been successfully deleted!!";  
-		response->setContent(content);
 		response->setProtocol(_request->getProtocol());
 		response->setProtocolVersion(_request->getProtocolVersion());
 		response->ResponseHeaderRoutine(*response, _request);
-		response->setStatusCode(200);
+		response->setStatusCode(301);
 		std::string statusCodeMessage = Utils::codeStatus(response->getStatusCode());
 		response->setStatusCodeMessage(statusCodeMessage);
 		response->ResponseRawRoutine();
@@ -128,7 +137,7 @@ int RequestHandlerDelete::fileError(std::string pathAndFile)
 }
 
 // Returns "path + file" used to delete considering configuration of location and server
-std::string	RequestHandlerDelete::strPathAndFile()
+std::string	RequestHandlerDelete::strPathAndFile() // ****** ELIMINAR PORQUE NO SE USA ******
 {
 	std::string path;
 	std::string file;

@@ -97,7 +97,7 @@ void RequestHandlerGet::ResponseContentRoutine(Response *response)
 	else if (typeOfResource == 2)
 		contentForDIR(response, pathToResource);
 	else if (typeOfResource == -1)
-		exceptionRoutine(404, response);	
+		exceptionRoutine(404, response);
 }
 
 Response * RequestHandlerGet::doHandleRequest(void)

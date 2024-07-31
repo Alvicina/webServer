@@ -185,6 +185,12 @@ static void ResponseLocationForError(Response & response)
 
 static void ResponseLocation(Response & response, Request *request)
 {
+	std::string pathToResource = request->getServer()->getRoot() + request->getUri();
+	if (request->getLocation())
+		std::string pathToResource = request->getLocation()->getLocationRoot() + request->getUri();
+	std::string File = "";
+	if (Utils::typeOfFile(pathToResource) == 1)
+		File = pathToResource.substr(pathToResource.find_last_of('/'));
 	if (response.getErrorResponse() == true)
 		ResponseLocationForError(response);
 	else
@@ -193,7 +199,7 @@ static void ResponseLocation(Response & response, Request *request)
 		{
 			std::string &returnLocation = request->getLocation()->getReturnLocation();
 			if (!returnLocation.empty())
-				response.getHeaders().insert(std::make_pair("Location:", returnLocation));
+				response.getHeaders().insert(std::make_pair("Location:", returnLocation + File));
 			else
 			{
 				std::string pathToResource = request->getLocation()->getLocationRoot() + request->getUri();
