@@ -25,6 +25,8 @@ class Request
 		bool		_isComplete;
 		bool		_isRequestLineProcessed;
 		bool		_areHeadersProcessed;
+		std::string _uploadFileName;
+		std::string _uploadFileContent;
 
 		static void initMethodDict();
 
@@ -69,6 +71,10 @@ class Request
 		void setIsRequestLineProcessed(bool isProcessed);
 		bool getAreHeadersProcessed();
 		void setAreHeadersProcessed(bool areProcessed);
+		std::string &getUploadFileName();
+		void setUploadFileName(const std::string &fileName);
+		std::string &getUploadFileContent();
+		void setUploadFileContent(const std::string &fileContent);
 };
 
 #endif

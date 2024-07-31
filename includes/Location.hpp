@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:19:46 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/03 15:47:42 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/29 18:26:14 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ class Location
 		std::vector<std::string>	_cgiExt;
 		long int					_clientMaxBodySize;
 		std::map<std::string, std::string> _extPath;
+		std::string					_uploadStore;
 		
 	public:
 		
@@ -61,6 +62,8 @@ class Location
 		void	setMaxBodySizeLocation(std::string const & maxSize);
 		void 	setMaxBodySizeLocation(long int & maxBodySize);
 		void	locationPrinter(void);
+		std::string &getUploadStore();
+		void setUploadStore(const std::string &uploadStore);
 			
 };
 

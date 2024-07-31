@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 11:56:49 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/19 13:57:02 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/29 18:33:37 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ class Server
 		void	locationCgiExtRoutine(std::vector<std::string> & locationVars, size_t & pos, Location & location);
 		void	locationCgiPathRoutine(std::vector<std::string> & locationVars, size_t & pos, Location & location);
 		void	locationMaxSizeRoutine(std::string & maxSize, bool & maxSizeFlag, Location & location);
+		void 	locationUploadRoutine(std::string & upLoadPath, Location & location);
 		void	isLocationValid(Location & location);
 		void	checkLocationForCGI(Location & location);
 		void 	checkLocationCgiPath(Location & location);
