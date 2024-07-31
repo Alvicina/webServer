@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:39:56 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/24 19:02:35 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/31 17:19:30 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,7 @@ Response * RequestHandlerGet::doHandleRequest(void)
 
 	bool isValid = isRequestMethodAllow();
 	if (isValid == false)
-		throw FactoryErrorException(405, *_request);
+		exceptionRoutine(405, response);
 	reddir = checkAndSetReturn();
 	if (reddir == false)
 		checkAndSetAlias();

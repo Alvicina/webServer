@@ -1,12 +1,14 @@
 #include "../includes/RequestParser.hpp"
 #include "../includes/Server.hpp"
 
-RequestParser::RequestParser(): _request(new Request()), _server(NULL) {}
+RequestParser::RequestParser(): _request(new Request()) {}
 
 RequestParser::RequestParser(std::string &raw, Client *client)
 {
-	this->_server = &client->getServer();
-	this->_request = (client->getRequest()) ? client->getRequest() : new Request();
+	this->_clientSockHost = client->getSocket().getAddress()->sin_addr.s_addr;
+	if (!client->getRequest())
+		client->setRequest(new Request());
+	this->_request = client->getRequest();
 	this->_request->getRaw().append(raw);
 }
 
@@ -20,7 +22,6 @@ RequestParser &RequestParser::operator=(const RequestParser &parser)
 	if (this != &parser)
 	{
 		this->_request = parser._request;
-		this->_server = parser._server;
 	}
 	return (*this);
 }
@@ -165,7 +166,7 @@ void RequestParser::parseContent()
 		headers["transfer-encoding"].compare("chunked") == 0)
 		this->parseContentWithChunkedEncoding(rawBody);
 	else if (headers.find("content-length") != headers.end())
-		this->parseContentWithContentLength(rawBody, headers["content-length"]);
+		this->parseContentWithContentLength(rawBody, headers);
 	else
 		this->_request->setIsComplete(true);
 }
@@ -202,9 +203,9 @@ void RequestParser::parseContentWithChunkedEncoding(std::string &rawBody)
 	this->_request->setIsComplete(true);
 }
 
-void RequestParser::parseContentWithContentLength(std::string &rawBody, std::string &contentLength)
+void RequestParser::parseContentWithContentLength(std::string &rawBody, std::map<std::string, std::string> &headers)
 {
-	std::stringstream ss(contentLength);
+	std::stringstream ss(headers["content-length"]);
 	size_t expectedLength;
 
 	ss >> expectedLength;
@@ -216,32 +217,96 @@ void RequestParser::parseContentWithContentLength(std::string &rawBody, std::str
 		throw RequestParseErrorException();
 	if (rawBody.size() == expectedLength)
 	{
-		this->_request->setContent(rawBody);
+		if (headers.find("content-type") != headers.end() &&
+			headers["content-type"].find("multipart/form-data;") != std::string::npos && 
+			this->_request->getLocation() &&
+			this->_request->getLocation()->getUploadStore().size() > 0)
+		{
+			this->parseContentMultipartFormData(rawBody, headers);
+		}
+		else
+		{
+			this->_request->setContent(rawBody);
+		}
 		this->_request->setIsComplete(true);
 	}
 }
 
+void RequestParser::parseContentMultipartFormData(std::string &rawBody, std::map<std::string, std::string> &headers)
+{
+	std::string rawFileContent;
+	size_t separator = headers["content-type"].find("boundary=");
+	if (separator == std::string::npos)
+		throw RequestParseErrorException();
+	std::string boundary = headers["content-type"].substr(separator + 9);
+	separator = boundary.find(";");
+	if (separator != std::string::npos)
+		boundary = boundary.substr(0, separator);
+	separator = rawBody.find("filename=");
+	if (separator == std::string::npos)
+		throw RequestParseErrorException();
+	std::string fileName = rawBody.substr(separator + 9);
+	separator = rawBody.find("\r\n\r\n");
+	if (separator == std::string::npos)
+		throw RequestParseErrorException();
+	rawFileContent = rawBody.substr(separator + 4);
+	separator = rawFileContent.find("--" + boundary);
+	if (separator == std::string::npos)
+		throw RequestParseErrorException();
+	rawFileContent = rawFileContent.substr(0, separator);
+	separator = fileName.find("\r\n");
+	if (separator == std::string::npos)
+		throw RequestParseErrorException();
+	fileName = fileName.substr(0, separator);
+	if (fileName[0] == '\"')
+		fileName.erase(0, 1);
+	if (fileName[fileName.size() - 1] == '\"')
+		fileName.erase(fileName.size() - 1);
+	this->_request->setContent(rawBody);
+	this->_request->setUploadFileName(fileName);
+	this->_request->setUploadFileContent(rawFileContent);
+}
+
 void RequestParser::setRequestServer(std::vector<Server> &servers)
 {
-	if (this->_server)
-	{
-		this->_request->setServer(*this->_server);
-		return;
-	}
 	std::string requestHost;
 	size_t hostPortSeparator;
-	int requestPort;
+	uint16_t requestPort;
+	Server *defaultServer = NULL;
 
 	requestHost = this->_request->getHeaders()["host"];
+	if (requestHost.size() == 0)
+		throw RequestParseErrorException();
 	hostPortSeparator = requestHost.find(":");
 	if (hostPortSeparator == std::string::npos)
 		requestPort = 80;
 	else
 		requestPort = std::atoi(requestHost.substr(hostPortSeparator + 1).c_str());
+	requestHost = requestHost.substr(0, hostPortSeparator);
 	for (size_t i = 0; i < servers.size(); i++)
 	{
-		if (servers[i].getPort() == requestPort)
-			this->_request->setServer(servers[i]);
+		if (servers[i].getPort() != requestPort)
+			continue;
+
+		if (servers[i].getHost() == this->_clientSockHost || servers[i].getHost() == INADDR_ANY)
+		{
+			if (servers[i].getServerName() == requestHost)
+			{
+				this->_request->setServer(servers[i]);
+				break;
+			}
+			else if (servers[i].getIsDefault() || servers[i].getHost() == INADDR_ANY)
+			{
+				defaultServer = &servers[i];
+			}
+		}
+	}
+	if (this->_request->getServer() == NULL)
+	{
+		if (defaultServer)
+			this->_request->setServer(*defaultServer);
+		else
+			throw RequestParseErrorException();
 	}
 }
 

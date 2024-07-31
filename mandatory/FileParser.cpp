@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 12:12:35 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/15 13:23:04 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/31 11:29:56 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -293,7 +293,7 @@ static void	setUpServer(Server & serv, std::string & config)
 	if (serv.getRoot().empty())
 		serv.setRoot("/;");
 	if (serv.getHost() == 0)
-		serv.setHost("localhost;");
+		serv.setHost("any;");
 	if (serv.getIndex().empty())
 		serv.setIndex("index.html");
 	if (Utils::fileExistsAndReadable(serv.getRoot() + "/", serv.getIndex()))
@@ -303,6 +303,10 @@ static void	setUpServer(Server & serv, std::string & config)
 	if (!serv.getPort())
 		throw ParserErrorException("Error: Port not found for server");
 	serv.setErrorPages(errCodes);
+	
+	std::vector<Location>::iterator it;
+	for (it = serv.getLocation().begin(); it != serv.getLocation().end(); it++)
+		serv.isLocationValid(*it);
 }
 
 void FileParser::buildServers(void)
@@ -322,11 +326,21 @@ void FileParser::buildServers(void)
 
 bool FileParser::isServerDuplicated(Server &server)
 {
+	bool isDefault = true;
+
 	for (size_t i = 0; i < _servers.size(); i++)
 	{
-		if (_servers[i].getPort() == server.getPort())
-			return (true);
+		if (_servers[i].getPort() == server.getPort() &&
+			(_servers[i].getHost() == server.getHost() ||
+			_servers[i].getHost() == INADDR_ANY))
+		{
+			isDefault = false;
+			if (_servers[i].getServerName() == server.getServerName())
+				return (true);
+		}
 	}
+	if (server.getHost() != INADDR_ANY)
+		server.setIsDefault(isDefault);
 	return (false);
 }
 

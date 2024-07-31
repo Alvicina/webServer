@@ -4,8 +4,9 @@
 std::map<Methods, std::string> Request::_methodDict;
 
 Request::Request():
-	_server(NULL), _location(NULL), _isComplete(false),
-	_isRequestLineProcessed(false), _areHeadersProcessed(false) {}
+	_content(""), _server(NULL), _location(NULL), _isComplete(false),
+	_isRequestLineProcessed(false), _areHeadersProcessed(false), _uploadFileName(""), 
+	_uploadFileContent("") {}
 
 Request::Request(const Request &request)
 {
@@ -31,6 +32,8 @@ Request &Request::operator=(const Request &request)
 		this->_isComplete = request._isComplete;
 		this->_isRequestLineProcessed = request._isRequestLineProcessed;
 		this->_areHeadersProcessed = request._areHeadersProcessed;
+		this->_uploadFileName = request._uploadFileName;
+		this->_uploadFileContent = request._uploadFileContent;
 	}
 	return (*this);
 }
@@ -243,4 +246,24 @@ bool Request::getAreHeadersProcessed()
 void Request::setAreHeadersProcessed(bool areProcessed)
 {
 	this->_areHeadersProcessed = areProcessed;
+}
+
+std::string &Request::getUploadFileName()
+{
+	return (this->_uploadFileName);
+}
+
+void Request::setUploadFileName(const std::string &fileName)
+{
+	this->_uploadFileName = fileName;
+}
+
+std::string &Request::getUploadFileContent()
+{
+	return (this->_uploadFileContent);
+}
+
+void Request::setUploadFileContent(const std::string &fileContent)
+{
+	this->_uploadFileContent = fileContent;
 }

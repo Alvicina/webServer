@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:37:22 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/03 16:49:34 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/31 11:51:41 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ Location::Location()
 	_return = "";
 	_alias = "";
 	_clientMaxBodySize = MAX_CONTENT_LENGTH;
+	_uploadStore = "";
 	_methods.reserve(5);
 	_methods.push_back(1);
 	_methods.push_back(0);
@@ -54,6 +55,7 @@ Location& Location::operator=(Location const & other)
 		_cgiExt = other._cgiExt;
 		_clientMaxBodySize = other._clientMaxBodySize;
 		_extPath = other._extPath;
+		_uploadStore = other._uploadStore;
 	}
 	return (*this);
 }
@@ -119,11 +121,13 @@ void Location::setPath(std::string const & path)
 	_path = path;
 }
 
-static bool isRootDirectory(std::string const & param)
+static bool isDirectoryAndAbsPath(std::string const & param)
 {
 	struct stat buffer;
 	int			status;
 
+	if (param[0] != '/')
+		throw ServerErrorException("Error: invalid root for Location");
 	status = stat(param.c_str(), &buffer);
 	if (status == 0)
 	{
@@ -136,8 +140,15 @@ static bool isRootDirectory(std::string const & param)
 
 void Location::setRootLocation(std::string const & root)
 {
-	if (isRootDirectory(root) == true)
-		_root = root;
+	if (isDirectoryAndAbsPath(root) == true)
+	{
+		if (access(root.c_str(), R_OK | X_OK) == 0)
+			_root = root;
+		else
+			throw ServerErrorException("Error: invalid root for Location");
+	}
+	else
+		throw ServerErrorException("Error: invalid root for Location");
 }
 
 void Location::setLocationMethods(std::vector<std::string> & methods)
@@ -181,7 +192,16 @@ void Location::setReturnLocation(std::string const & Return)
 
 void Location::setAliasLocation(std::string const & alias)
 {
-	_alias = alias;
+	if (isDirectoryAndAbsPath(alias) == true)
+	{
+		if (access(alias.c_str(), R_OK | X_OK) == 0)
+			_alias = alias;
+		else
+			throw ServerErrorException("Error: invalid alias for Location");
+	}
+	else
+		throw ServerErrorException("Error: invalid alias for Location");
+	
 }
 
 void Location::setCgiExtensionLocation(std::vector<std::string> const & cgiExt)
@@ -218,6 +238,7 @@ void Location::locationPrinter(void)
 	std::cout << "Location-----" << "return: " << getReturnLocation() << std::endl;
 	std::cout << "Location-----" << "alias: " << getAliasLocation() << std::endl;
 	std::cout << "Location-----" << "body size: " << getMaxBodySizeLocation() << std::endl;
+	std::cout << "Location-----" << "upload_store: " << getUploadStore() << std::endl;
 	for (std::vector<int>::iterator it = getLocationMethods().begin(); it != getLocationMethods().end(); it++)
 		std::cout << "Location------" << "method: " << *it << std::endl;
 	for (std::vector<std::string>::iterator it = getCgiPathLocation().begin(); it != getCgiPathLocation().end(); it++)
@@ -228,5 +249,13 @@ void Location::locationPrinter(void)
 		std::cout << "Location------" << "cgi Map ext: " << it->first << " cgi Map path: " << it->second << std::endl;
 }
 
+std::string &Location::getUploadStore()
+{
+	return (this->_uploadStore);
+}
 
+void Location::setUploadStore(const std::string &uploadStore)
+{
+	this->_uploadStore = uploadStore;
+}
 

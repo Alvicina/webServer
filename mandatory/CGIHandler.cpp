@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/17 10:11:48 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/26 15:42:26 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/31 18:06:15 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 CgiHandler::CgiHandler(Request & request)
 {
 	_request = &request;
-	_content = "";
+	_file = "";
 	_env = NULL;
 	_args = NULL;
 }
@@ -36,10 +36,10 @@ CgiHandler& CgiHandler::operator=(CgiHandler & other)
 	if (this != &other)
 	{
 		_request = other._request;
-		_content = other._content;
 		_env = other._env;
 		_args = other._args;
 		_mapEnv = other._mapEnv;
+		_file = other._file;
 	}
 	return (*this);
 }
@@ -54,13 +54,14 @@ Request* CgiHandler::getRequest(void)
 	return (_request);
 }
 
-void CgiHandler::setContent(std::string & content)
+std::string& CgiHandler::getFile(void)
 {
-	_content = content;
+	return (_file);
 }
-std::string& CgiHandler::getContent(void)
+
+void CgiHandler::setFile(std::string & file)
 {
-	return (_content);
+	_file = file;
 }
 
 std::string CgiHandler::createPathToResource(void)
@@ -211,18 +212,13 @@ std::string CgiHandler::validateResourseExtension(std::string & pathToResource)
 	std::string extension = pathToResource.substr(pos);
 	std::map<std::string, std::string> map = _request->getLocation()->getExtPathMap();
 	std::map<std::string, std::string>::iterator it;
-	//bool isValidExt = false;
 	for (it = map.begin(); it != map.end(); it++)
 	{
 		if (it->first == extension)
 		{
 			return (it->second);
-			//isValidExt = true;
-			//break ;
 		}
 	}
-	//if (isValidExt == false)
-	//	exceptionRoutine(400, response);
 	return ("");
 }
 
@@ -235,11 +231,23 @@ void CgiHandler::allocSpaceForCgiArgs(Response *response,
 }
 
 void CgiHandler::setResourcePathAndInterpreter(std::string & pathToResource,
- std::string & pathToInterpreter)
+ std::string & pathToInterpreter, Response *response)
 {
-	_args[0] = strdup(pathToResource.c_str());
+	size_t pos = pathToResource.find_last_of('/');
+	std::string file = pathToResource.substr(pos + 1);
+	setFile(file);
+	std::string dirToChange = pathToResource.erase(pos);
+	if (chdir(dirToChange.c_str()) != 0)
+		exceptionRoutine(500, response);
+	_args[0] = strdup(getFile().c_str());
+	if (_args[0] == NULL)
+		exceptionRoutine(500, response);
 	if (pathToInterpreter != "")
+	{
 		_args[1] = strdup(pathToInterpreter.c_str());
+		if (_args[1] == NULL)
+			exceptionRoutine(500, response);
+	}
 }
 
 void CgiHandler::setOtherArgs(size_t & numberOfArguments, Response *response,
@@ -279,36 +287,29 @@ Response *response)
 	else
 		isInterpreterOK(pathToInterpreter, response);
 	allocSpaceForCgiArgs(response, numberOfArguments);
-	setResourcePathAndInterpreter(pathToResource, pathToInterpreter);
+	setResourcePathAndInterpreter(pathToResource, pathToInterpreter, response);
 	setOtherArgs(numberOfArguments, response, pathToInterpreter);
 }
 
-void CgiHandler::childRoutine(int *pipeFD, std::string & pathToResource, 
-Response *response, int *pipeFD2)
+void CgiHandler::childRoutine(int *pipeFD, Response *response, int *pipeFD2)
 {
-	if (_request->getMethod() == POST)
-	{
-		close(pipeFD2[1]); //cerramos extremo de escritura porque el hijo lee en este pipe y no escribe
-		if (dup2(pipeFD2[0], STDIN_FILENO) == -1)
-			exceptionRoutine(500, response);
-		close(pipeFD2[0]); //cerramos extremo de lectura porque hemos redireccinado el stdin al extremo de lectura de este pipe
-	}
+	close(pipeFD2[1]); //cerramos extremo de escritura porque el hijo lee en este pipe y no escribe
+	if (dup2(pipeFD2[0], STDIN_FILENO) == -1)
+		exceptionRoutine(500, response);
+	close(pipeFD2[0]); //cerramos extremo de lectura porque hemos redireccinado el stdin al extremo de lectura de este pipe
 	close(pipeFD[0]); //cerramos extremo de lectura porque el hijo escribe en este pipe y no lee
 	if (dup2(pipeFD[1], STDOUT_FILENO) == -1)
 		exceptionRoutine(500, response);
 	close(pipeFD[1]); //cerramos extremo de escritura porque hemos redireccinado el stdout al extremo de escritura de este pipe
-	if (execve(pathToResource.c_str(), _args, _env) == -1)
+	if (execve(getFile().c_str(), _args, _env) == -1)
 		exceptionRoutine(500, response);
 }
 
 void CgiHandler::parentRoutine(int *pipeFD, Response *response, pid_t *pid, int *pipeFD2)
 {
-	if (_request->getMethod() == POST)
-	{
-		close(pipeFD2[0]);
-		write(pipeFD2[1], (const void*)_request->getContent().c_str(), _request->getContent().size());
-		close(pipeFD2[1]);
-	}
+	close(pipeFD2[0]);
+	write(pipeFD2[1], (const void*)_request->getContent().c_str(), _request->getContent().size());
+	close(pipeFD2[1]);
 	close(pipeFD[1]);
 	char buffer[1024];
 	ssize_t bytesRead = 1;
@@ -331,7 +332,7 @@ void CgiHandler::parentRoutine(int *pipeFD, Response *response, pid_t *pid, int 
 	response->setContent(content);
 }
 
-void CgiHandler::forkAndExecve(std::string & pathToResource, Response *response)
+void CgiHandler::forkAndExecve(Response *response)
 {
 	int pipeFD[2];
 	int pipeFD2[2];
@@ -344,7 +345,7 @@ void CgiHandler::forkAndExecve(std::string & pathToResource, Response *response)
 	if (pid == -1)
 		exceptionRoutine(500, response);
 	else if (pid == 0)
-		childRoutine(pipeFD, pathToResource, response, pipeFD2);
+		childRoutine(pipeFD, response, pipeFD2);
 	else
 		parentRoutine(pipeFD, response, &pid, pipeFD2);
 }
@@ -354,7 +355,7 @@ void CgiHandler::cgiExecute(Response *response, std::string & pathToResource)
 	initEnvironmentForCgi(pathToResource);
 	parseEnvironmentForCgi(response);
 	initArgsForCgi(pathToResource, response);
-	forkAndExecve(pathToResource, response);
+	forkAndExecve(response);
 }
 
 void CgiHandler::handleCgiRequest(Response *response)

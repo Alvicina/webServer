@@ -6,7 +6,7 @@
 /*   By: alvicina <alvicina@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 12:27:41 by alvicina          #+#    #+#             */
-/*   Updated: 2024/07/18 12:30:16 by alvicina         ###   ########.fr       */
+/*   Updated: 2024/07/31 11:56:26 by alvicina         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "../includes/Request.hpp"
 #include "../includes/Response.hpp"
 
-Server::Server(): _masterSocket(NULL)
+Server::Server(): _masterSocket(NULL), _isDefault(false)
 {
 	_port = 0;
 	_host = 0;
@@ -51,6 +51,7 @@ Server& Server::operator=(Server const & other)
 		_errorPages = other._errorPages;
 		_locations = other._locations;
 		_masterSocket = other._masterSocket;
+		_isDefault = other._isDefault;
 	}
 	return (*this);
 }
@@ -121,7 +122,10 @@ void Server::setHost(std::string param)
 	checkParamToken(param);
 	if (param == "localhost")
 		param = "127.0.0.1";
-	_host = isHostValid(param);
+	if (param == "any")
+		_host = INADDR_ANY;
+	else
+		_host = isHostValid(param);
 }
 
 static bool isRootDirectory(std::string const & param)
@@ -129,6 +133,8 @@ static bool isRootDirectory(std::string const & param)
 	struct stat buffer;
 	int			status;
 
+	if (param[0] != '/')
+		throw ServerErrorException("Error: invalid root for server");
 	status = stat(param.c_str(), &buffer);
 	if (status == 0)
 	{
@@ -144,17 +150,13 @@ void Server::setRoot(std::string param)
 	checkParamToken(param);
 	if (isRootDirectory(param) == true)
 	{
-		_root = param;
-		return ;
+		if (access(param.c_str(), R_OK | X_OK) == 0)
+			_root = param;
+		else
+			throw ServerErrorException("Error: invalid root for server");
 	}
-	char *cwd = getcwd(NULL, 0);
-	if (cwd == NULL)
-		throw ServerErrorException("Error: could not get cwd");
-	std::string newRoot = cwd + param;
-	free(cwd);
-	if (isRootDirectory(param) == false)
-		throw ServerErrorException("Error: wrong sintax for root");
-	_root = newRoot;
+	else
+			throw ServerErrorException("Error: invalid root for server");
 }
 
 void Server::setPort(std::string & param)
@@ -304,6 +306,8 @@ void Server::locationCgiPathRoutine(std::vector<std::string> & locationVars, siz
 		if (locationVars[pos].find(";") != std::string::npos)
 		{
 			checkParamToken(locationVars[pos]);
+			if (locationVars[pos][0] != '/')
+				throw ServerErrorException("Error: CgiPath in location is invalid"); 
 			if (access(locationVars[pos].c_str(), F_OK) == -1) 
 				throw ServerErrorException("Error: CgiPath in location is invalid"); 
 			if (access(locationVars[pos].c_str(), X_OK) == -1) 
@@ -315,6 +319,8 @@ void Server::locationCgiPathRoutine(std::vector<std::string> & locationVars, siz
 		{
 			if ((pos + 1) >= locationVars.size())
 				throw ServerErrorException("Error: CgiPath in location is invalid");
+			if (locationVars[pos][0] != '/')
+				throw ServerErrorException("Error: CgiPath in location is invalid"); 
 			if (access(locationVars[pos].c_str(), F_OK) == -1) 
 				throw ServerErrorException("Error: CgiPath in location is invalid"); 
 			if (access(locationVars[pos].c_str(), X_OK) == -1) 
@@ -332,6 +338,14 @@ void Server::locationMaxSizeRoutine(std::string & maxSize, bool & maxSizeFlag, L
 	checkParamToken(maxSize);
 	location.setMaxBodySizeLocation(maxSize);
 	maxSizeFlag = true;
+}
+
+void Server::locationUploadRoutine(std::string & upLoadPath, Location & location)
+{
+	if (!location.getUploadStore().empty())
+		throw ServerErrorException("Error: upload_store duplicated in location");
+	checkParamToken(upLoadPath);
+	location.setUploadStore(upLoadPath);
 }
 
 void Server::locationExtractionRoutine(std::vector<std::string> & locationVars, size_t & pos, Location & location,
@@ -355,6 +369,8 @@ bool & methodsFlag, bool & autoIndexFlag, bool & maxSizeFlag)
 		locationCgiPathRoutine(locationVars, pos, location);
 	else if (locationVars[pos] == "client_max_body_size" && (pos + 1) < locationVars.size())
 		locationMaxSizeRoutine(locationVars[++pos], maxSizeFlag, location);
+	else if (locationVars[pos] == "upload_store" && (pos + 1) < locationVars.size())
+		locationUploadRoutine(locationVars[++pos], location);
 	else if (pos < locationVars.size())
 		throw ServerErrorException("Error: directive in location is invalid");
 }
@@ -414,6 +430,12 @@ void Server::isLocationValid(Location & location)
 		if (Utils::fileExistsAndReadable(path, location.getAliasLocation()))
 			throw ServerErrorException("Error: Alias for location invalid");
 	}
+	if (!location.getUploadStore().empty())
+	{
+		if (access(location.getUploadStore().c_str(), W_OK | X_OK) == -1 && 
+		Utils::typeOfFile(location.getUploadStore()) != 2)
+			throw ServerErrorException("Error: upload_store for location invalid");
+	}
 }
 
 void Server::setLocation(std::string & locationPath, std::vector<std::string> & locationVars)
@@ -435,7 +457,6 @@ void Server::setLocation(std::string & locationPath, std::vector<std::string> & 
 		location.setIndexLocation(this->_index);
 	if (!maxSizeFlag)
 		location.setMaxBodySizeLocation(this->_clientMaxBodySize);
-	isLocationValid(location);
 	_locations.push_back(location);
 }
 
@@ -575,19 +596,41 @@ void Server::serverPrinter(void)
 
 Response *Server::handleRequest(Request &request)
 {
+	RequestHandler *handler = NULL;
+
 	try
 	{
-		RequestHandler *handler = RequestFactory::makeRequestHandler(request);
+		handler = RequestFactory::makeRequestHandler(request);
 		Response *response = handler->handleRequest();
 		delete handler;
 		return (response);
 	}
 	catch (FactoryErrorException & e)
 	{
+		if (handler)
+			delete handler;
 		return (e.createResponse());
 	}
 	catch (HandlerErrorException & e)
 	{
+		if (handler)
+			delete handler;
 		return (e.createResponse());
 	}
+	catch (std::exception &e)
+	{
+		if (handler)
+			delete handler;
+		return (new Response(500, &request));
+	}
+}
+
+bool Server::getIsDefault()
+{
+	return (this->_isDefault);
+}
+
+void Server::setIsDefault(bool isDefault)
+{
+	this->_isDefault = isDefault;
 }
