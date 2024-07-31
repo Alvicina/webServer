@@ -317,7 +317,7 @@ void FileParser::buildServers(void)
 	{
 		Server serv;
 		setUpServer(serv, _configs[i]);
-		//if (!this->isServerDuplicated(serv))
+		if (!this->isServerDuplicated(serv))
 			_servers.push_back(serv);
 		i++;
 	}
