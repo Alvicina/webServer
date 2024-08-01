@@ -115,7 +115,7 @@ Response * RequestHandlerGet::doHandleRequest(void)
 	if (isValid == false)
 		exceptionRoutine(405, response);
 	reddir = checkAndSetReturn();
-	if (reddir == false)
+		if (reddir == false)
 		checkAndSetAlias();
 	isCgi = isCgiRequest(response);
 	if (isCgi == true)

@@ -193,9 +193,15 @@ void Response::ResponseLocation(Response & response, Request *request)
 	std::string File = "";
 	if (Utils::typeOfFile(pathToResource) == 1)
 		File = pathToResource.substr(pathToResource.find_last_of('/'));
-	if (Utils::typeOfFile(pathToResource) == 2)
+	else if (Utils::typeOfFile(pathToResource) == 2)
 		File = pathToResource.substr(pathToResource.find_last_of('/')) + "/";
-	std::cout << "File: " << File << std::endl;
+	/*else if (Utils::typeOfFile(pathToResource) == -1)
+	{
+		//delete &response;
+		throw HandlerErrorException(404, *request);
+	}*/
+	if (File == "//")
+		File = "";
 	if (response.getErrorResponse() == true)
 		ResponseLocationForError(response);
 	else
@@ -203,25 +209,20 @@ void Response::ResponseLocation(Response & response, Request *request)
 		if (request && request->getLocation())
 		{
 			std::string &returnLocation = request->getLocation()->getReturnLocation();
-			std::cout << "return: " << returnLocation << std::endl;
 			if (!returnLocation.empty())
 			{
 				std::string reddir = request->getUri();
-				
-
-				if (Utils::typeOfFile(request->getLocation()->getLocationRoot() + returnLocation) == 2)
-				{
-					if (request->getUri() == )
+				if (reddir == request->getLocation()->getLocationPath())
+					response.getHeaders().insert(std::make_pair("Location:", returnLocation));
+				else if (Utils::typeOfFile(request->getLocation()->getLocationRoot() + returnLocation) == 2)
 						response.getHeaders().insert(std::make_pair("Location:", returnLocation + File));
-				}
-					
 				else if (Utils::typeOfFile(request->getLocation()->getLocationRoot() + returnLocation) == 1)
 					response.getHeaders().insert(std::make_pair("Location:", returnLocation));
-				else if (Utils::typeOfFile(request->getLocation()->getLocationRoot() + returnLocation) == -1)
+				/*else if (Utils::typeOfFile(request->getLocation()->getLocationRoot() + returnLocation) == -1)
 				{
 					delete &response;
 					throw HandlerErrorException(404, *request);
-				}
+				}*/
 			}
 			else
 			{
