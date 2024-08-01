@@ -81,8 +81,7 @@ Response* RequestHandlerDelete::doHandleRequest(void)
 	bool		reddir = false;
 
 	if (isRequestMethodAllow() == false)
-		throw FactoryErrorException(405, *_request);
-
+		exceptionRoutine(405, response);
 	reddir = checkAndSetReturn();
 	if (reddir == false)
 		checkAndSetAlias();
@@ -92,12 +91,14 @@ Response* RequestHandlerDelete::doHandleRequest(void)
 	if (reddir == false)
 	{
 		// ********** Deletes file if possible **********
+		size_t pos = pathAndFile.size();
+		if (pathAndFile[pos - 1] == '/')
+			pathAndFile.erase(pos - 1);
 		int err = std::remove(pathAndFile.c_str());
 		if (err != 0)
 		{
-			delete response;
 			int errnum = this->fileError(pathAndFile);
-			throw HandlerErrorException(errnum, *_request);
+			exceptionRoutine(errnum, response);
 			//std::cerr << "Error: Unable to delete the file " << pathAndFile << std::endl;
 		}
 		else
@@ -137,7 +138,7 @@ int RequestHandlerDelete::fileError(std::string pathAndFile)
 }
 
 // Returns "path + file" used to delete considering configuration of location and server
-std::string	RequestHandlerDelete::strPathAndFile() // ****** ELIMINAR PORQUE NO SE USA ******
+/*std::string	RequestHandlerDelete::strPathAndFile() // ****** ELIMINAR PORQUE NO SE USA ******
 {
 	std::string path;
 	std::string file;
@@ -187,4 +188,4 @@ std::string	RequestHandlerDelete::strPathAndFile() // ****** ELIMINAR PORQUE NO 
 		root.insert(0, "/");
 //	std::string prueba = '.' + root + pathAndFile;
 	return ('.' + root + pathAndFile); //root of Server class
-}
+}*/

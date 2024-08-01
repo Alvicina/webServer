@@ -185,7 +185,7 @@ static void ResponseLocationForError(Response & response)
 		response.getHeaders().insert(std::make_pair("Location:", response.getFile()));
 }
 
-static void ResponseLocation(Response & response, Request *request)
+void Response::ResponseLocation(Response & response, Request *request)
 {
 	std::string pathToResource = request->getServer()->getRoot() + request->getUri();
 	if (request->getLocation())
@@ -193,6 +193,9 @@ static void ResponseLocation(Response & response, Request *request)
 	std::string File = "";
 	if (Utils::typeOfFile(pathToResource) == 1)
 		File = pathToResource.substr(pathToResource.find_last_of('/'));
+	if (Utils::typeOfFile(pathToResource) == 2)
+		File = pathToResource.substr(pathToResource.find_last_of('/')) + "/";
+	std::cout << "File: " << File << std::endl;
 	if (response.getErrorResponse() == true)
 		ResponseLocationForError(response);
 	else
@@ -200,8 +203,26 @@ static void ResponseLocation(Response & response, Request *request)
 		if (request && request->getLocation())
 		{
 			std::string &returnLocation = request->getLocation()->getReturnLocation();
+			std::cout << "return: " << returnLocation << std::endl;
 			if (!returnLocation.empty())
-				response.getHeaders().insert(std::make_pair("Location:", returnLocation + File));
+			{
+				std::string reddir = request->getUri();
+				
+
+				if (Utils::typeOfFile(request->getLocation()->getLocationRoot() + returnLocation) == 2)
+				{
+					if (request->getUri() == )
+						response.getHeaders().insert(std::make_pair("Location:", returnLocation + File));
+				}
+					
+				else if (Utils::typeOfFile(request->getLocation()->getLocationRoot() + returnLocation) == 1)
+					response.getHeaders().insert(std::make_pair("Location:", returnLocation));
+				else if (Utils::typeOfFile(request->getLocation()->getLocationRoot() + returnLocation) == -1)
+				{
+					delete &response;
+					throw HandlerErrorException(404, *request);
+				}
+			}
 			else
 			{
 				std::string pathToResource = request->getLocation()->getLocationRoot() + request->getUri();
@@ -218,7 +239,6 @@ static void ResponseLocation(Response & response, Request *request)
 						response.getHeaders().insert(std::make_pair("Location:", dirName + "/"));
 					}
 				}
-					
 			}
 		}
 		else

@@ -53,6 +53,7 @@ class Response
 		void ResponseHeaderRoutine(Response & response, Request *request);
 		void ResponseRawRoutine();
 		int  buildHtmlIndex(Request & request);
+		void ResponseLocation(Response & response, Request *request);
 };
 
 #endif

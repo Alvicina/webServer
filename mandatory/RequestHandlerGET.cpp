@@ -70,10 +70,15 @@ void RequestHandlerGet::contentForDIR(Response * response, std::string & pathToR
 			pathToResource = pathToResource + "/" + _request->getLocation()->getIndexLocation();
 			if (_request->getLocation()->getAutoIndexLocation())
 				htmlIndexBuilder(response);
-			else if (access(pathToResource.c_str(), R_OK) == -1)
+			else if (Utils::typeOfFile(pathToResource) != 1)
 				exceptionRoutine(403, response);
 			else
-				openReadCopyFile(response, pathToResource);
+			{
+				if (access(pathToResource.c_str(), R_OK) == -1)
+					openReadCopyFile(response, pathToResource);
+				else
+					exceptionRoutine(403, response);
+			}
 		}
 		else
 			exceptionRoutine(403, response);
