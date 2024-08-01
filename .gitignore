@@ -12,6 +12,8 @@
 *.txt
 
 webserv
+config/default.conf
+test/test.conf
 
 # VS Code:
 /.vscode/
