@@ -224,20 +224,25 @@ void Response::ResponseLocation(Response & response, Request *request)
 				std::string reddir = request->getUri();
 				size_t pos = reddir.size();
 				if (reddir[pos - 1] != '/')
+				{
 					reddir = request->getUri() + "/";
-				response.getHeaders().insert(std::make_pair("Location:", reddir));
+					response.getHeaders().insert(std::make_pair("Location:", reddir));
+				}
 			}
 		}
 	}
 	else
 	{
 		int typeOfResource = Utils::typeOfFile(pathToResource);
-		size_t pos = pathToResource.size();
-		if (typeOfResource == 2 && pathToResource[pos - 1] != '/')
+		if (typeOfResource == 2)
 		{
-			size_t posBegin = pathToResource.find_last_of('/', pos);
-			std::string location = pathToResource.substr(posBegin) + "/";
-			response.getHeaders().insert(std::make_pair("Location:", location));
+			std::string reddir = request->getUri();
+			size_t pos = reddir.size();
+			if (reddir[pos - 1] != '/')
+			{
+				reddir = request->getUri() + "/";
+				response.getHeaders().insert(std::make_pair("Location:", reddir));
+			}
 		}
 	}
 }
