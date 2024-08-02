@@ -188,37 +188,51 @@ static void ResponseLocationForError(Response & response)
 
 void Response::ResponseLocation(Response & response, Request *request)
 {
-	std::string pathToResource = request->getServer()->getRoot() + request->getUri();
-	if (request->getLocation())
-		pathToResource = request->getLocation()->getLocationRoot() + request->getUri();
-	/*if (response.getErrorResponse() == true)
-		ResponseLocationForError(response);*/
-	if (request && request->getLocation())
+	if (request)
 	{
-		std::string &returnLocation = request->getLocation()->getReturnLocation();
-		if (!returnLocation.empty())
+		std::string pathToResource = request->getServer()->getRoot() + request->getUri();
+		if (request->getLocation())
 		{
-			std::string reddir = request->getUri();
-			if (reddir == request->getLocation()->getLocationPath())
-				response.getHeaders().insert(std::make_pair("Location:", returnLocation));
-			else if (Utils::typeOfFile(request->getLocation()->getLocationRoot() + returnLocation) == 1)
-				response.getHeaders().insert(std::make_pair("Location:", returnLocation));
+			pathToResource = request->getLocation()->getLocationRoot() + request->getUri();
+			std::string &returnLocation = request->getLocation()->getReturnLocation();
+			if (!returnLocation.empty())
+			{
+				std::string reddir = request->getUri();
+				if (reddir == request->getLocation()->getLocationPath())
+					response.getHeaders().insert(std::make_pair("Location:", returnLocation));
+				else if (Utils::typeOfFile(request->getLocation()->getLocationRoot() + returnLocation) == 1)
+					response.getHeaders().insert(std::make_pair("Location:", returnLocation));
+				else
+				{
+					std::string returnTmp = returnLocation;
+					if (request->getLocation()->getLocationPath() == "/")
+						returnTmp = returnTmp + "/";
+					std::string toFind = request->getLocation()->getLocationPath();
+					size_t pos = reddir.find(toFind, 0);
+					reddir.replace(pos, toFind.length(), returnTmp);
+					response.getHeaders().insert(std::make_pair("Location:", reddir));
+				}
+			}
 			else
 			{
-				std::string returnTmp = returnLocation;
-				if (request->getLocation()->getLocationPath() == "/")
-					returnTmp = returnTmp + "/";
-				std::string toFind = request->getLocation()->getLocationPath();
-				size_t pos = reddir.find(toFind, 0);
-				reddir.replace(pos, toFind.length(), returnTmp);
-				response.getHeaders().insert(std::make_pair("Location:", reddir));
+				int typeOfResource = Utils::typeOfFile(pathToResource);
+				/*if (typeOfResource == 1)
+					response.getHeaders().insert(std::make_pair("Location:", request->getLocation()->getLocationPath()));*/
+				if (typeOfResource == 2)
+				{
+					std::string reddir = request->getUri();
+					size_t pos = reddir.size();
+					if (reddir[pos - 1] != '/')
+					{
+						reddir = request->getUri() + "/";
+						response.getHeaders().insert(std::make_pair("Location:", reddir));
+					}
+				}
 			}
 		}
 		else
 		{
 			int typeOfResource = Utils::typeOfFile(pathToResource);
-			/*if (typeOfResource == 1)
-				response.getHeaders().insert(std::make_pair("Location:", request->getLocation()->getLocationPath()));*/
 			if (typeOfResource == 2)
 			{
 				std::string reddir = request->getUri();
@@ -228,20 +242,6 @@ void Response::ResponseLocation(Response & response, Request *request)
 					reddir = request->getUri() + "/";
 					response.getHeaders().insert(std::make_pair("Location:", reddir));
 				}
-			}
-		}
-	}
-	else
-	{
-		int typeOfResource = Utils::typeOfFile(pathToResource);
-		if (typeOfResource == 2)
-		{
-			std::string reddir = request->getUri();
-			size_t pos = reddir.size();
-			if (reddir[pos - 1] != '/')
-			{
-				reddir = request->getUri() + "/";
-				response.getHeaders().insert(std::make_pair("Location:", reddir));
 			}
 		}
 	}
