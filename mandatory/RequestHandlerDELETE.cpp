@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "../includes/RequestHandlerDELETE.hpp"
+#include "../includes/Server.hpp"
 
 RequestHandlerDelete::RequestHandlerDelete(Request & request) : 
 RequestHandler(request)
@@ -41,68 +42,61 @@ RequestHandlerDelete& RequestHandlerDelete::operator=(RequestHandlerDelete & oth
 
 Response* RequestHandlerDelete::doHandleRequest(void)
 {
-	Response *response = new Response();
-	struct stat	attri;
-	std::string relativeFilePath = "./files/";
+	Response	*response = new Response();
+	bool		reddir = false;
 
-	std::string	fileName = _request->getUri();
-	if (fileName[0] == '/' || fileName[0] == '\\')
-		fileName.erase(0, 1);
-	std::string pathAndFile = relativeFilePath + fileName;
+	if (isRequestMethodAllow() == false)
+		exceptionRoutine(405, response);
+	reddir = checkAndSetReturn();
+	if (reddir == false)
+		checkAndSetAlias();
 
-	for (size_t i = 0; i < fileName.size(); i++)
+	std::string	pathAndFile = createPathToResource();
+
+	if (reddir == false)
 	{
-		if (!std::isalpha(fileName[i]) && !std::isdigit(fileName[i]))
+		// ********** Deletes file if possible **********
+		size_t pos = pathAndFile.size();
+		if (pathAndFile[pos - 1] == '/')
+			pathAndFile.erase(pos - 1);
+		int err = std::remove(pathAndFile.c_str());
+		if (err != 0)
 		{
-			delete response;
-			throw HandlerErrorException(403, *_request);
-			//std::cerr << "Error 403: Only letters and numbers are allowed in file name: " << fileName << std::endl;
-			//return (0);
+			int errnum = this->fileError(pathAndFile);
+			exceptionRoutine(errnum, response);
 		}
-	}
-	if (fileName.size() > MAX_FILENAME_LENGTH)
-	{
-		delete response;
-		throw HandlerErrorException(414, *_request);
-		//std::cerr << "Error 414: Filaname too long in: " << fileName << std::endl;
-	}
-	else if (fileName.find('/') != std::string::npos || fileName.find('\\' || fileName.find("..") != std::string::npos) != std::string::npos)
-	{
-		delete response;
-		throw HandlerErrorException(403, *_request);
-		//std::cerr << "Error 403: Path is not allowed in: " << fileName << std::endl;
-	}
-	else if (stat(pathAndFile.c_str(), &attri) != 0)
-	{
-		delete response;
-		throw HandlerErrorException(404, *_request);
-		//std::cerr << "Error 404: Unable to access the file " << pathAndFile << std::endl;
-	}
-	else if (attri.st_mode & S_IFDIR)
-	{
-		delete response;
-		throw HandlerErrorException(403, *_request);
-		//std::cerr << "Error 403: " << pathAndFile << " is a folder, and deleting folders is not allowed." << std::endl;
-	}
-	// Intentar borrar el fichero
-	else if (std::remove(pathAndFile.c_str()) != 0)
-	{
-		delete response;
-		throw HandlerErrorException(406, *_request);
-		//std::cerr << "Error: Unable to delete the file " << pathAndFile << std::endl;
+		else
+		{
+			std::string content = pathAndFile + " has been successfully deleted!!";
+			response->setContent(content);
+			response->setProtocol(_request->getProtocol());
+			response->setProtocolVersion(_request->getProtocolVersion());
+			response->ResponseHeaderRoutine(*response, _request);
+			response->setStatusCode(200);
+			std::string statusCodeMessage = Utils::codeStatus(response->getStatusCode());
+			response->setStatusCodeMessage(statusCodeMessage);
+			response->ResponseRawRoutine();
+		}
 	}
 	else
 	{
-		//std::cout << "El fichero " << pathAndFile << " fue borrado exitosamente.\n";
-		std::string content = fileName + " has been successfully deleted!!";  
-		response->setContent(content);
 		response->setProtocol(_request->getProtocol());
 		response->setProtocolVersion(_request->getProtocolVersion());
 		response->ResponseHeaderRoutine(*response, _request);
-		response->setStatusCode(200);
+		response->setStatusCode(301);
 		std::string statusCodeMessage = Utils::codeStatus(response->getStatusCode());
 		response->setStatusCodeMessage(statusCodeMessage);
 		response->ResponseRawRoutine();
 	}
 	return (response);
 }
+
+// Considering the fact that an error has happend, returns the type of the error
+int RequestHandlerDelete::fileError(std::string pathAndFile)
+{
+	std::ifstream file(pathAndFile.c_str());
+	if (!file.good())
+		return (404); // If file/folder doesn't exist, 404 doesn't exist error
+	return (403); // If it exist, 403 forbidden error
+}
+

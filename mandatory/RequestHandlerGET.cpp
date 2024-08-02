@@ -70,10 +70,15 @@ void RequestHandlerGet::contentForDIR(Response * response, std::string & pathToR
 			pathToResource = pathToResource + "/" + _request->getLocation()->getIndexLocation();
 			if (_request->getLocation()->getAutoIndexLocation())
 				htmlIndexBuilder(response);
-			else if (access(pathToResource.c_str(), R_OK) == -1)
+			else if (Utils::typeOfFile(pathToResource) != 1)
 				exceptionRoutine(403, response);
 			else
-				openReadCopyFile(response, pathToResource);
+			{
+				if (access(pathToResource.c_str(), R_OK) == -1)
+					openReadCopyFile(response, pathToResource);
+				else
+					exceptionRoutine(403, response);
+			}
 		}
 		else
 			exceptionRoutine(403, response);
@@ -97,7 +102,7 @@ void RequestHandlerGet::ResponseContentRoutine(Response *response)
 	else if (typeOfResource == 2)
 		contentForDIR(response, pathToResource);
 	else if (typeOfResource == -1)
-		exceptionRoutine(404, response);	
+		exceptionRoutine(404, response);
 }
 
 Response * RequestHandlerGet::doHandleRequest(void)
@@ -110,7 +115,7 @@ Response * RequestHandlerGet::doHandleRequest(void)
 	if (isValid == false)
 		exceptionRoutine(405, response);
 	reddir = checkAndSetReturn();
-	if (reddir == false)
+		if (reddir == false)
 		checkAndSetAlias();
 	isCgi = isCgiRequest(response);
 	if (isCgi == true)
