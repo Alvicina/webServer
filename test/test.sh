@@ -13,6 +13,9 @@ printf "\n"
 
 python3 test/test_basic_requests.py
 
+printf "\nRunning Siege on http://localhost:8080/siege.html\n"
+siege -b -t1M http://localhost:8080/siege.html
+
 printf "\n"
 printf "Killing server process...\n"
 kill -2 $SERVER_PID
