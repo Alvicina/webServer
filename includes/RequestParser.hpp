@@ -43,6 +43,35 @@ class RequestParser
 					return ("The request format is invalid.");
 				}
 		};
+
+		class HTTPVersionNotSupportedException : public std::exception
+		{
+			public:
+				const char *what() const throw()
+				{
+					return ("The HTTP version requested by the client is not supported.");
+				}
+		};
+
+		class RequestBodySizeExceededException : public std::exception
+		{
+			private:
+				Server *server;
+			public:
+				RequestBodySizeExceededException(Server *server): server(server) {}
+
+				~RequestBodySizeExceededException() throw() {}
+
+				const char *what() const throw()
+				{
+					return ("The body size of the request was exceeded by the client.");
+				}
+
+				Server *getServer()
+				{
+					return (server);
+				}
+		};
 };
 
 #endif

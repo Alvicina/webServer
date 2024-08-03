@@ -34,17 +34,19 @@ ServerManager &ServerManager::getInstance()
 	return (serverManager);
 }
 
-void ServerManager::stop()
+void ServerManager::stop(bool isError)
 {
 	Logger::logInfo("⏻ Server terminating sequence started", 1);
 	this->_isRunning = false;
+	this->_isError = isError;
 }
 
-void ServerManager::serve()
+bool ServerManager::serve()
 {
 	this->initServerMasterSockets();
 	this->initEpoll();
 	this->epollLoop();
+	return (this->_isError);
 }
 
 void ServerManager::initServerMasterSockets()
@@ -87,7 +89,7 @@ void ServerManager::logServerListening()
 
 void ServerManager::handleEpollEvents(std::vector<EpollEvent> events)
 {
-	for (size_t i = 0; i < events.size(); i++)
+	for (size_t i = 0; i < events.size() && this->_isRunning; i++)
 	{
 		this->handleEpollEvent(events[i]);
 	}
@@ -151,7 +153,7 @@ void ServerManager::handleClientEvent(EpollEvent &event)
 
 	if (event.events & EPOLLIN)
 		this->handleClientRequest(event, client);
-	if (event.events & EPOLLOUT)
+	if (this->_isRunning && event.events & EPOLLOUT)
 		this->sendResponseToClient(event, client);
 }
 
@@ -190,6 +192,22 @@ void ServerManager::handleClientRequest(EpollEvent &event, Client *client)
 		this->_epoll.setSocketOnWriteMode(client->getSocket());
 		client->getResponseQueue().push_back(new Response(400, client->getServer()));
 		Logger::logError(e.what());
+	}
+	catch (RequestParser::HTTPVersionNotSupportedException &e)
+	{
+		this->_epoll.setSocketOnWriteMode(client->getSocket());
+		client->getResponseQueue().push_back(new Response(505, client->getServer()));
+		Logger::logError(e.what());
+	}
+	catch (RequestParser::RequestBodySizeExceededException &e)
+	{
+		this->_epoll.setSocketOnWriteMode(client->getSocket());
+		client->getResponseQueue().push_back(new Response(413, *e.getServer()));
+		Logger::logError(e.what());
+	}
+	catch (CgiHandler::CGIChildProcessErrorException &e)
+	{
+		this->stop(true);
 	}
 	catch (IOException &e)
 	{

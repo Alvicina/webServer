@@ -302,7 +302,10 @@ void CgiHandler::childRoutine(int *pipeFD, Response *response, int *pipeFD2)
 		exceptionRoutine(500, response);
 	close(pipeFD[1]); //cerramos extremo de escritura porque hemos redireccinado el stdout al extremo de escritura de este pipe
 	if (execve(getFile().c_str(), _args, _env) == -1)
-		exceptionRoutine(500, response);
+	{
+		delete response;
+		throw CGIChildProcessErrorException();
+	}
 }
 
 void CgiHandler::parentRoutine(int *pipeFD, Response *response, pid_t *pid, int *pipeFD2)
@@ -327,7 +330,7 @@ void CgiHandler::parentRoutine(int *pipeFD, Response *response, pid_t *pid, int 
 	}
 	close(pipeFD[0]);
 	int status;
-	if (waitpid(*pid, &status, 0) == -1)
+	if (waitpid(*pid, &status, 0) == -1 || status != 0)
 		exceptionRoutine(500, response);
 	response->setContent(content);
 }
