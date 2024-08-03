@@ -8,6 +8,7 @@
 #include "RequestParser.hpp"
 #include "Logger.hpp"
 #include "Client.hpp"
+#include "CGIHandler.hpp"
 
 class ServerManager
 {
@@ -16,6 +17,7 @@ class ServerManager
 		std::map<int, Client *>	_clients;
 		Epoll					_epoll;
 		bool					_isRunning;
+		bool					_isError;
 
 		void initServerMasterSockets();
 		void initEpoll();
@@ -42,8 +44,8 @@ class ServerManager
 	public:
 		~ServerManager();
 
-		void serve();
-		void stop();
+		bool serve();
+		void stop(bool isError = false);
 		static ServerManager &getInstance();
 
 		void setServers(const std::vector<Server> &servers);

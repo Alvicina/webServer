@@ -97,9 +97,9 @@ void Response::contentForNoErrorPage(const int statusCode)
 	std::string content = Utils::codeStatus(statusCode);
 	std::ostringstream strStatusCode;
 	strStatusCode << statusCode;
-	std::string htmlContent = "<html lang=\"es\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>\n" + strStatusCode.str() + " " 
-	+ Utils::codeStatus(statusCode) + "</title>\n</head>\n<body>\n<center>\n<b style=\"font-size:24px;\">" + strStatusCode.str() + " " 
-	+ Utils::codeStatus(statusCode) + "</b>\n</center>\n</body>\n</html>\n";
+	std::string htmlContent = "<html lang=\"es\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>" + strStatusCode.str() + " " 
+	+ Utils::codeStatus(statusCode) + "</title>\n</head>\n<body>\n    <center><b style=\"font-size:24px;\">" + strStatusCode.str() + " " 
+	+ Utils::codeStatus(statusCode) + "</b></center>\n</body>\n</html>\n";
 	this->setContent(htmlContent);
 	this->setStatusCodeMessage(content);
 	std::string path = "default";
@@ -128,6 +128,8 @@ void Response::errorResponseContentRoutine(Server &server)
 			break ;
 		}
 	}
+	if (this->getContent().size() == 0)
+		contentForNoErrorPage(this->getStatusCode());
 }
 
 static void ResponseContentType(Response & response)

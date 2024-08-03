@@ -58,5 +58,14 @@ class CgiHandler
 		void handleCgiRequest(Response * response);
 		std::string &getFile(void);
 		void setFile(std::string & file);
+
+		class CGIChildProcessErrorException : public std::exception
+		{
+			public:
+				const char *what() const throw()
+				{
+					return ("The child process failed execute the cgi script.");
+				}
+		};
 };
 #endif

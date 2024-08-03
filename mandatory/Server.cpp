@@ -617,6 +617,12 @@ Response *Server::handleRequest(Request &request)
 			delete handler;
 		return (e.createResponse());
 	}
+	catch (CgiHandler::CGIChildProcessErrorException &e)
+	{
+		if (handler)
+			delete handler;
+		throw CgiHandler::CGIChildProcessErrorException();
+	}
 	catch (std::exception &e)
 	{
 		if (handler)

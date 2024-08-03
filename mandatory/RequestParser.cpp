@@ -47,6 +47,14 @@ Request &RequestParser::parseRequest(std::vector<Server> &servers)
 		this->parseContent();
 		return (*this->_request);
 	}
+	catch (RequestBodySizeExceededException &e)
+	{
+		throw RequestBodySizeExceededException(e.getServer());
+	}
+	catch (HTTPVersionNotSupportedException &e)
+	{
+		throw HTTPVersionNotSupportedException();
+	}
 	catch (std::exception &e)
 	{
 		throw RequestParseErrorException();
@@ -82,6 +90,8 @@ void RequestParser::parseRequestLine(std::string &rawRequest)
 	this->_request->setProtocolVersion(protocolVersion);
 	rawRequest = rawRequest.substr(separator + 1);
 	this->_request->setIsRequestLineProcessed(true);
+	if (this->_request->getProtocolVersion().compare("1.1") != 0)
+		throw HTTPVersionNotSupportedException();
 }
 
 void RequestParser::parseUri(std::string uri)
@@ -212,7 +222,7 @@ void RequestParser::parseContentWithContentLength(std::string &rawBody, std::map
 	if (ss.fail())
 		throw RequestParseErrorException();
 	if (expectedLength > (size_t) this->_request->getServer()->getClientMaxBodySize())
-		throw RequestParseErrorException();
+		throw RequestBodySizeExceededException(this->_request->getServer());
 	if (rawBody.size() > expectedLength)
 		throw RequestParseErrorException();
 	if (rawBody.size() == expectedLength)

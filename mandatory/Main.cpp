@@ -30,8 +30,9 @@ int startRoutine(std::string const & file)
 		serverConf.parse();
 		ServerManager &serverManager = ServerManager::getInstance();
 		serverManager.setServers(serverConf.getServers());
-		serverManager.serve();
-		return (EXIT_SUCCESS);
+		if (serverManager.serve() == 0)
+			return (EXIT_SUCCESS);
+		return (EXIT_FAILURE);
 	}
 	catch (std::exception &e)
 	{
@@ -42,7 +43,7 @@ int startRoutine(std::string const & file)
 
 void handleSIGINT(int signum)
 {
-	if (signum == SIGINT)
+	if (signum == SIGINT || signum == SIGTERM)
 		ServerManager::getInstance().stop();
 }
 
@@ -60,5 +61,6 @@ int main(int argc,  char **argv)
 		return (EXIT_FAILURE);
 	}
 	signal(SIGINT, handleSIGINT);
+	signal(SIGTERM, handleSIGINT);
 	return (startRoutine(file));
 }
