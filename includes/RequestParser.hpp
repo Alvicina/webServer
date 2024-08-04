@@ -17,6 +17,7 @@ class RequestParser
 
 		void parseRequestLine(std::string &rawRequest);
 		void parseUri(std::string uri);
+		void decodeUri(std::string &uri);
 		void parseArgs(std::string args);
 		void parseArg(std::string arg);
 		void parseHeaders(std::string &rawRequest);

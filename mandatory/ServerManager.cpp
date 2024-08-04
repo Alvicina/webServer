@@ -149,8 +149,11 @@ void ServerManager::logNewConnection(int fd)
 
 void ServerManager::handleClientEvent(EpollEvent &event)
 {
-	Client *client = this->_clients[event.data.fd];
+	Client *client;
 
+	if (this->_clients.find(event.data.fd) == this->_clients.end())
+		return;
+	client = this->_clients[event.data.fd];
 	if (event.events & EPOLLIN)
 		this->handleClientRequest(event, client);
 	if (this->_isRunning && event.events & EPOLLOUT)
