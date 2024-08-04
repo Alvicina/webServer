@@ -308,12 +308,63 @@ void CgiHandler::childRoutine(int *pipeFD, Response *response, int *pipeFD2)
 	}
 }
 
+void CgiHandler::timeOutRoutine(pid_t *pid, int *pipeFD, Response *response)
+{
+	fd_set readfds;
+	int status;
+	struct timeval timeout;
+	int ret;
+
+	//configuracion timeout
+	timeout.tv_sec = 5; // 5 segundos
+	timeout.tv_usec = 0; // 0 microsegundos
+
+	while (true)
+	{
+		//configuracion conjunto de descriptores de archivo a monitorear
+		FD_ZERO(&readfds);
+		FD_SET(pipeFD[0], &readfds);
+		//setFdSet(readfds);
+		//usamos select para esperar a que la tuberia sea readable o el timeout expire
+		ret = select(pipeFD[0] + 1, &readfds, NULL, NULL, &timeout);
+		std::cout << ret << std::endl;
+		if (ret == -1)
+		{
+			close(pipeFD[0]);
+			exceptionRoutine(500, response);
+		}
+		else if (ret == 0) // timeout alcanzado
+		{
+			kill(*pid, SIGKILL);
+			//std::cout << "aqui" << std::endl;
+			if (waitpid(*pid, &status, 0) == -1 || status != 0)
+				exceptionRoutine(500, response);
+			close(pipeFD[0]);
+			exceptionRoutine(505, response);
+		}
+		else
+		{
+			if (FD_ISSET(pipeFD[0], &readfds))
+				break ;
+		}
+	}
+	//std::cout << "aqui" << std::endl;
+	if (waitpid(*pid, &status, 0) == -1 || status != 0)
+	{
+		close(pipeFD[0]);
+		std::cerr << "waitpid failed: " << strerror(errno) << std::endl;
+		exceptionRoutine(500, response);
+	}
+}
+
 void CgiHandler::parentRoutine(int *pipeFD, Response *response, pid_t *pid, int *pipeFD2)
 {
 	close(pipeFD2[0]);
 	write(pipeFD2[1], (const void*)_request->getContent().c_str(), _request->getContent().size());
 	close(pipeFD2[1]);
 	close(pipeFD[1]);
+	timeOutRoutine(pid, pipeFD, response);
+
 	char buffer[1024];
 	ssize_t bytesRead = 1;
 	std::string content = "";
@@ -324,14 +375,17 @@ void CgiHandler::parentRoutine(int *pipeFD, Response *response, pid_t *pid, int 
 		if (bytesRead == 0)
 			break ;
 		if (bytesRead == -1)
+		{
+			close(pipeFD[0]);
 			exceptionRoutine(500, response);
+		}
 		std::string bufferString(buffer);
 		content = content + bufferString;
 	}
 	close(pipeFD[0]);
-	int status;
+	/*int status;
 	if (waitpid(*pid, &status, 0) == -1 || status != 0)
-		exceptionRoutine(500, response);
+		exceptionRoutine(500, response);*/
 	response->setContent(content);
 }
 

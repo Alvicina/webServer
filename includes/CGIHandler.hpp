@@ -25,6 +25,7 @@ class CgiHandler
 		char		**_args;
 		std::map<std::string, std::string>  _mapEnv;
 		std::string	_file;
+		fd_set		_readfds;
 		
 		std::string createPathToResource(void);
 		void exceptionRoutine(int statusCode, Response *response);
@@ -44,8 +45,11 @@ class CgiHandler
 		void childRoutine( int *pipeFD, Response *response, int *pipeFD2);
 		void parentRoutine(int *pipeFD, Response *response, pid_t *pid, int *pipeFD2);
 		void forkAndExecve(Response *response);
+		void timeOutRoutine(pid_t *pid, int *pipeFD, Response *response);
 		std::string methodToString(int number);
 		std::string getScriptName(void);
+		/*fd_set& getFdSet(void);
+		void setFdSet(fd_set & readfds);*/
 	
 		
 	public:
