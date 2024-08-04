@@ -250,10 +250,7 @@ size_t Utils::hexToDecimal(const std::string& hexStr)
         else if (c >= 'a' && c <= 'f')
             value = c - 'a' + 10;
         else
-		{
-			std::cout << "error hex" << std::endl;
 			throw std::invalid_argument("Invalid argument for hexadecimal to decimal conversion");
-		}
 
         decimalValue = decimalValue * 16 + value; // Update the decimal value
     }

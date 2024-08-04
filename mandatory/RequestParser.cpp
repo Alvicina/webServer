@@ -44,7 +44,10 @@ Request &RequestParser::parseRequest(std::vector<Server> &servers)
 			this->setRequestLocations();
 			this->setPathInfo();
 		}
-		this->parseContent();
+		if (this->_request->getMethod() == GET)
+			this->_request->setIsComplete(true);
+		else
+			this->parseContent();
 		return (*this->_request);
 	}
 	catch (RequestBodySizeExceededException &e)
@@ -98,6 +101,7 @@ void RequestParser::parseUri(std::string uri)
 {
 	size_t separator;
 
+	this->decodeUri(uri);
 	separator = uri.find("?");
 	if (separator == std::string::npos)
 	{
@@ -108,6 +112,20 @@ void RequestParser::parseUri(std::string uri)
 		this->_request->setUri(uri.substr(0, separator));
 		this->_request->setQueryString(uri.substr(separator + 1));
 		this->parseArgs(uri.substr(separator + 1));
+	}
+}
+
+void RequestParser::decodeUri(std::string &uri)
+{
+	size_t separator;
+
+	separator = uri.find("%");
+	while (separator != std::string::npos)
+	{
+		char decodedChar;
+		decodedChar = Utils::hexToDecimal(uri.substr(separator + 1, 2));
+		uri = uri.substr(0, separator) + decodedChar + uri.substr(separator + 3);
+		separator = uri.find("%", separator + 1);
 	}
 }
 
