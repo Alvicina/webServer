@@ -14,6 +14,7 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <csignal>
+#include <ctime>
 
 /*NETWORK*/
 #include <netinet/in.h>

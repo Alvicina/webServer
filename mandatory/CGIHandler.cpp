@@ -308,12 +308,52 @@ void CgiHandler::childRoutine(int *pipeFD, Response *response, int *pipeFD2)
 	}
 }
 
+void CgiHandler::timeOutRoutine(pid_t *pid, int *pipeFD, Response *response)
+{
+	int status;
+	std::time_t now = std::time(NULL);
+	std::time_t future = now + 5;
+
+	bool childActive = true;
+	while (childActive)
+	{
+		pid_t pid2 = waitpid(*pid, &status, WNOHANG);
+		if (pid2 == 0)
+		{	
+			now = std::time(NULL);
+			if (now <= future)
+				continue ;
+			else
+			{
+				if (childActive)
+				{
+					kill(*pid, SIGKILL);
+					childActive = false;
+				}
+				close(pipeFD[0]);
+				if (waitpid(*pid, &status, 0) == -1)
+					exceptionRoutine(500, response);
+				exceptionRoutine(504, response);
+			}
+		}
+		else if (pid2 == -1 || status != 0)
+		{
+			close(pipeFD[0]);
+			exceptionRoutine(500, response);
+		}
+		else
+			childActive = false;
+	}
+}
+
 void CgiHandler::parentRoutine(int *pipeFD, Response *response, pid_t *pid, int *pipeFD2)
 {
 	close(pipeFD2[0]);
 	write(pipeFD2[1], (const void*)_request->getContent().c_str(), _request->getContent().size());
 	close(pipeFD2[1]);
 	close(pipeFD[1]);
+	timeOutRoutine(pid, pipeFD, response);
+
 	char buffer[1024];
 	ssize_t bytesRead = 1;
 	std::string content = "";
@@ -324,14 +364,14 @@ void CgiHandler::parentRoutine(int *pipeFD, Response *response, pid_t *pid, int 
 		if (bytesRead == 0)
 			break ;
 		if (bytesRead == -1)
+		{
+			close(pipeFD[0]);
 			exceptionRoutine(500, response);
+		}
 		std::string bufferString(buffer);
 		content = content + bufferString;
 	}
 	close(pipeFD[0]);
-	int status;
-	if (waitpid(*pid, &status, 0) == -1 || status != 0)
-		exceptionRoutine(500, response);
 	response->setContent(content);
 }
 
