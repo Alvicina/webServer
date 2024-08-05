@@ -120,3 +120,4 @@ test_request("localhost", 8082, "GET", "/index.html", "", 405, get_default_error
 test_request("localhost", 8081, "POST", "/cgi-bin/echo.py", "Payload", 413, get_default_error_page(413))
 test_request("localhost", 8080, "POST", "/cgi-bin/exception.py", "", 500, get_file_content("./docs/fusion_web/error_pages/500.html"))
 test_request("localhost", 8081, "POST", "/cgi-bin/exception.py", "", 500, get_default_error_page(500))
+test_request("localhost", 8081, "POST", "/cgi-bin/loop.py", "", 504, get_default_error_page(504))
