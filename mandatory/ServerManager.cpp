@@ -156,7 +156,7 @@ void ServerManager::handleClientEvent(EpollEvent &event)
 	client = this->_clients[event.data.fd];
 	if (event.events & EPOLLIN)
 		this->handleClientRequest(event, client);
-	if (this->_isRunning && event.events & EPOLLOUT)
+	else if (this->_isRunning && event.events & EPOLLOUT)
 		this->sendResponseToClient(event, client);
 }
 
