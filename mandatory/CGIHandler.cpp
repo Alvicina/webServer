@@ -310,90 +310,40 @@ void CgiHandler::childRoutine(int *pipeFD, Response *response, int *pipeFD2)
 
 void CgiHandler::timeOutRoutine(pid_t *pid, int *pipeFD, Response *response)
 {
-	fd_set readfds;
 	int status;
-	struct timeval timeout;
-	int ret;
-
-	//configuracion timeout
-	timeout.tv_sec = 5; // 5 segundos
-	timeout.tv_usec = 0; // 0 microsegundos
+	std::time_t now = std::time(NULL);
+	std::time_t future = now + 5;
 
 	bool childActive = true;
-
-	if (waitpid(*pid, &status, WNOHANG) == -1)
-		std::cout << "error" << std::endl;
-
-	while (true)
+	while (childActive)
 	{
-		//configuracion conjunto de descriptores de archivo a monitorear
-		FD_ZERO(&readfds);
-		FD_SET(pipeFD[0], &readfds);
-		//usamos select para esperar a que la tuberia sea readable o el timeout expire
-		ret = select(pipeFD[0] + 1, &readfds, NULL, NULL, &timeout);
-		//std::cout << ret << std::endl;
-		if (ret == -1) // ha fallado select y no puedo monitorear al hijo
+		pid_t pid2 = waitpid(*pid, &status, WNOHANG);
+		if (pid2 == 0)
 		{	
-			std::cout << "aqui5" << std::endl;
-			if (childActive)
+			now = std::time(NULL);
+			if (now <= future)
+				continue ;
+			else
 			{
-				kill(*pid, SIGKILL);
-				childActive = false;
+				if (childActive)
+				{
+					kill(*pid, SIGKILL);
+					childActive = false;
+				}
+				close(pipeFD[0]);
+				if (waitpid(*pid, &status, 0) == -1)
+					exceptionRoutine(500, response);
+				exceptionRoutine(504, response);
 			}
+		}
+		else if (pid2 == -1 || status != 0)
+		{
 			close(pipeFD[0]);
-			if (waitpid(*pid, &status, 0) == -1)
-				exceptionRoutine(500, response);
 			exceptionRoutine(500, response);
 		}
-		if (ret == 0) // timeout alcanzado 
-		{
-			if (childActive)
-			{
-				kill(*pid, SIGKILL);
-				childActive = false;
-			}
-			close(pipeFD[0]);
-			std::cout << "aqui2" << std::endl;
-			if (waitpid(*pid, &status, 0) == -1)
-				exceptionRoutine(500, response);
-			exceptionRoutine(504, response);
-		}
 		else
-		{
-			if (FD_ISSET(pipeFD[0], &readfds))
-			{
-				std::cout << "aqui3" << std::endl;
-				int result = waitpid(*pid, &status, WNOHANG);
-				if (result == -1 || status != 0)
-				{
-					std::cerr << "waitpid failed: " << strerror(errno) << std::endl;
-					std::cout << "aqui4" << std::endl;
-					if (childActive)
-					{
-						kill(*pid, SIGKILL);
-						childActive = false;
-					}
-					close(pipeFD[0]);
-					exceptionRoutine(500, response); 
-				}
-				else if (result == 0)
-					continue ;
-				else
-				{
-					close(pipeFD[0]);
-					break ;
-				}
-			}
-		}
+			childActive = false;
 	}
-/*	std::cout << "aqui1" << std::endl;
-	if (waitpid(*pid, &status, 0) == -1 || status != 0)
-	{
-		std::cout << "aqui3" << std::endl;
-		close(pipeFD[0]);
-		std::cerr << "waitpid failed: " << strerror(errno) << std::endl;
-		exceptionRoutine(500, response);
-	}*/
 }
 
 void CgiHandler::parentRoutine(int *pipeFD, Response *response, pid_t *pid, int *pipeFD2)
@@ -416,16 +366,12 @@ void CgiHandler::parentRoutine(int *pipeFD, Response *response, pid_t *pid, int 
 		if (bytesRead == -1)
 		{
 			close(pipeFD[0]);
-			std::cout << "eoeoe" << std::endl;
 			exceptionRoutine(500, response);
 		}
 		std::string bufferString(buffer);
 		content = content + bufferString;
 	}
 	close(pipeFD[0]);
-	/*int status;
-	if (waitpid(*pid, &status, 0) == -1 || status != 0)
-		exceptionRoutine(500, response);*/
 	response->setContent(content);
 }
 
