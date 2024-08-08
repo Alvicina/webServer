@@ -74,7 +74,7 @@ void RequestHandlerGet::contentForDIR(Response * response, std::string & pathToR
 				exceptionRoutine(403, response);
 			else
 			{
-				if (access(pathToResource.c_str(), R_OK) == -1)
+				if (access(pathToResource.c_str(), R_OK) != -1)
 					openReadCopyFile(response, pathToResource);
 				else
 					exceptionRoutine(403, response);

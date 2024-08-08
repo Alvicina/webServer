@@ -11,7 +11,7 @@ class Session:
     def __init__(self, name):
         self.name = name
         self.sid = hashlib.sha1(str(time.time()).encode("utf-8")).hexdigest()
-        with open('docs/fusion_web/cgi-bin/sessions/session_' + self.sid, 'wb') as f:
+        with open('/home/alvicina/webServer_private/docs/fusion_web/cgi-bin/sessions/session_' + self.sid, 'wb') as f:
             pickle.dump(self, f)
     def getSid(self):
         return self.sid
@@ -24,7 +24,7 @@ class UserDataBase:
     def addUser(self, username, password, firstname):
         self.user_pass[username] = password
         self.user_firstname[username] = firstname
-        with open('docs/fusion_web/cgi-bin/user_database', 'wb') as f:
+        with open('/home/alvicina/webServer_private/docs/fusion_web/cgi-bin/user_database', 'wb') as f:
             pickle.dump(self, f)
 
 
@@ -80,8 +80,8 @@ def printLogin():
 
 
 def authUser(name, password):
-    if os.path.exists('docs/fusion_web/cgi-bin/user_database'):
-        with open('docs/fusion_web/cgi-bin/user_database', 'rb') as f:
+    if os.path.exists('/home/alvicina/webServer_private/docs/fusion_web/cgi-bin/user_database'):
+        with open('/home/alvicina/webServer_private/docs/fusion_web/cgi-bin/user_database', 'rb') as f:
             database = pickle.load(f)
             if name in database.user_pass and database.user_pass[name] == password:
                 session = Session(database.user_firstname[name])
@@ -112,8 +112,8 @@ def handleLogin():
             #print("location: acc.py")
             print("\r\n")
     else :
-        if os.path.exists('docs/fusion_web/cgi-bin/user_database'):
-            with open('docs/fusion_web/cgi-bin/user_database', 'rb') as f:
+        if os.path.exists('/home/alvicina/webServer_private/docs/fusion_web/cgi-bin/user_database'):
+            with open('/home/alvicina/webServer_private/docs/fusion_web/cgi-bin/user_database', 'rb') as f:
                 database = pickle.load(f)
                 if username in database.user_pass:
                     printUserMsg("Username is already Registerd !")
@@ -135,7 +135,7 @@ if 'HTTP_COOKIE' in os.environ:
 
     if "SID" in cookies:
         print("Your Session ID is", cookies["SID"].value,file=sys.stderr)
-        with open('docs/fusion_web/cgi-bin/sessions/session_'+ cookies["SID"].value, 'rb') as f:
+        with open('/home/alvicina/webServer_private/docs/fusion_web/cgi-bin/sessions/session_'+ cookies["SID"].value, 'rb') as f:
             sess = pickle.load(f)
         printAccPage(sess)
     else:

@@ -308,6 +308,7 @@ void CgiHandler::childRoutine(int *pipeFD, Response *response, int *pipeFD2)
 	}
 }
 
+
 void CgiHandler::timeOutRoutine(pid_t *pid, int *pipeFD, Response *response)
 {
 	int status;
